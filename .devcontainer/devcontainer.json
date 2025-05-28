@@ -1,0 +1,17 @@
+{
+  "name": "Linux Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers/features/common-utils:1": {}
+  },
+  "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  }
+}
