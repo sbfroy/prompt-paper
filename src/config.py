@@ -1,0 +1,5 @@
+CONFIG = {
+    "generate": {},
+    "cluster": {},
+    "evolve": {},
+}
