@@ -1,7 +1,7 @@
 CONFIG = {
     "scope": {
         "pdfs": [
-            "data/reguleringsbestemmelser.pdf"
+            "data/test_data/reguleringsbestemmelser.pdf"
         ]
     },
     "generate": {},
