@@ -18,11 +18,10 @@ def get_batches(config):
         all_text += doc_text
 
     target_token_len = config.get('target_token_len')
-    overlap_token_len = config.get('overlap_token_len')
     spacy_model = config.get('sentence_splitter_model')
 
     # Create batches
-    batches = create_batches(all_text, target_token_len, overlap_token_len, spacy_model)
+    batches = create_batches(all_text, target_token_len, spacy_model)
 
     return {
         'batches': batches,
