@@ -1,4 +1,4 @@
-from .corpus import get_batches
+from .scope_parser import get_batches
 from .loaders import read_pdf
 from .processors import split_into_sentences
 from .batcher import create_batches
