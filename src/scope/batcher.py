@@ -3,10 +3,9 @@ from .processors import split_into_sentences
 
 enc = tiktoken.get_encoding("cl100k_base")
 
-def create_batches(text, target_token_len, overlap_token_len, spacy_model):
+def create_batches(text, target_token_len, spacy_model):
     """
     Splits text into batches with some overlap to maintain context.
-
     TODO: In the future should be a more semantic batcher (paragraphs, section breaks, etc.)
     """
     sentences = split_into_sentences(text, spacy_model)
@@ -27,13 +26,7 @@ def create_batches(text, target_token_len, overlap_token_len, spacy_model):
                 'text': batch_text
             })
 
-            # Start new batch with some overlap
-            if batch_len > overlap_token_len:
-                overlap_text = current_batch[-overlap_token_len:]
-            else:
-                overlap_text = current_batch
-
-            current_batch = overlap_text + " " + sentence
+            current_batch = sentence
             batch_id += 1
         else:
             current_batch += " " + sentence if current_batch else sentence
