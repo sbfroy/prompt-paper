@@ -5,6 +5,10 @@ from .batcher import create_batches
 def get_batches(config):
     """
     Load the whole corpus and create batches for LLM processing.
+
+    Future features:
+    TODO: Should probably be able to scrape the web for context.
+    
     """
     all_text = ""
     
