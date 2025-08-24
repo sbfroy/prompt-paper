@@ -1,4 +1,5 @@
-from src.config import CONFIG
-from src.scope.readers import from_pdf
+from src.config import config
+from src.scope import get_batches
 
-print(from_pdf(CONFIG["scope"]["pdfs"][0]))
+batches = get_batches(config)
+print(batches)
