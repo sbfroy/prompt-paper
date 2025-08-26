@@ -8,6 +8,10 @@ config = {
         }
     },
     "generate": {},
-    "cluster": {},
+    "cluster": {
+        "params": {
+            "k": 30
+        }
+    },
     "evolve": {},
 }
