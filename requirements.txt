@@ -1,9 +1,13 @@
-pypdf==6.0.0
-tiktoken==0.11.0
-spacy==3.8.7
+pypdf~=6.0.0
+tiktoken~=0.11.0
+spacy~=3.8.7
 nb-core-news-md @ https://github.com/explosion/spacy-models/releases/download/nb_core_news_md-3.4.0/nb_core_news_md-3.4.0-py3-none-any.whl
-transformers==4.55.4
-torch==2.8.0
-scikit-learn==1.7.1
-plotly==6.3.0
-nbformat==5.10.4
+transformers~=4.55.4
+torch~=2.8.0
+scikit-learn~=1.7.1
+plotly~=6.3.0
+nbformat~=5.10.4
+openai>=1.0.0
+python-dotenv~=1.1.1
+numpy~=2.2.0
+umap-learn~=0.5.9
