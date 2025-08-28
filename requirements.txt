@@ -14,3 +14,4 @@ umap-learn~=0.5.9
 matplotlib~=3.10.5
 hdbscan~=0.8.40
 seaborn~=0.13.2
+deap~=1.4.3
