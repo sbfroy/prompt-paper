@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field, conlist
+from pydantic import BaseModel, Field
+from typing import List
 from enum import Enum
 
 class TaskType(str, Enum):
@@ -18,7 +19,7 @@ class EmbeddedExample(BaseModel):
     """Schema after embedding stage"""
     example_id: str
     text: str
-    embedding: conlist(float, min_items=1) # Ensures non-empty vectors
+    embedding: List[float] = Field(..., min_items=1)  # Ensures non-empty vectors
 
 class EmbeddedDataset(BaseModel):
     """Schema for the embedded dataset"""
