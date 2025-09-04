@@ -1,33 +1,28 @@
-# Main orchestration script
+from core.schemas import TaskType
+from core.stages.cluster.main import run_clustering_stage
 
-"""
-Takes in data (scope or dataset) 
+def test_clustering_stage():
+    config = {
+        "input_filename": "regplans-train.jsonl",
+    }
+    
+    try:
+        output_path = run_clustering_stage(
+            task=TaskType.NER,
+            base_dir="tasks",
+            config_dict=config,
+            skip_embedding=False 
+        )
 
-Either generates ICL examples or just uses existing ones
+        
+    except Exception as e:
+        print(f"Error during clustering: {e}")
 
+if __name__ == "__main__":
+    test_clustering_stage()
 
-Define what form the data needs to be in for this part to recieve it and then generates this:
+# I don't need a main orchestration file, but for each task,
+# there should be a file that runs its stuff with the core stuff.
 
-This can work for the NER if I transform the conllu set to a text form (which i have to do for the ICL examples i need B-FELT AND I-FELT and etc)
-this means i need to add an addditonal script to the task folder that transforms the data so it can go trhough teh first step accordingly. I also need
-to for the evaluation script adjust the input format based on the prev defined format.
-
-Makes a JSONL: {"example_id":<example_id>, "text": <text>}
-"""
-
-"""
-Clustering
-
-Takes all the examples and makes embeddings
-
-Then clusters
-
-Forwards a JSONL: {"cluster_id": [{"example_id": <example_id>, "text": <text>}, ...], ...}
-"""
-
-
-"""
-GA
-
-This one can easily use the clustering output
-"""
+# TODO: Make this file later today
+# Also need to find out the best structure for the tasks folders
