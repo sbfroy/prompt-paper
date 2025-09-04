@@ -1,0 +1,358 @@
+{"example_id": "000306", "text": "Tekst: Innenfor bestemmelsesområde # 7 kan oppføres tennishaller med funksjoner tilknyttet disse .\nEntiteter:\n# B-FELT\n7 I-FELT"}
+{"example_id": "001855", "text": "Tekst: § 6.4 Det tillates avkjørsel for BR over o_GF3 § 6.5 Bestemmelsesområde # 02 SNØ :\nEntiteter:\nBR B-FELT\no_GF3 B-FELT\n# B-FELT\n02 I-FELT\nSNØ I-FELT"}
+{"example_id": "000487", "text": "Tekst: - Faresone – skred ( H310 )\nEntiteter:\nH310 B-FELT"}
+{"example_id": "001633", "text": "Tekst: § 4.25 Innenfor området BR tillates det internveier og parkeringsplasser .\nEntiteter:\nBR B-FELT"}
+{"example_id": "000934", "text": "Tekst: BKB omfattar konsentrerte bustader , næringsverksemd ( med unntak av industri ) og forretning .\nEntiteter:\nBKB B-FELT"}
+{"example_id": "001702", "text": "Tekst: 4.3.1 Friluftsformål ( LF1 – LF7 )\nEntiteter:\nLF1 B-FELT\n– I-FELT\nLF7 I-FELT"}
+{"example_id": "001722", "text": "Tekst: Adkomst til SPA og BR skal ikke være rett ovenfor hverandre .\nEntiteter:\nSPA B-FELT\nBR B-FELT"}
+{"example_id": "002086", "text": "Tekst: d ) skjøtselsplan for naturområder GN .\nEntiteter:\nGN B-FELT"}
+{"example_id": "000742", "text": "Tekst: Før det vert gjeve mellombels bruksløyve / ferdigattest for ny bueining innanfor felt BFS9 , 10 og 11 skal leikearealet BLK2 vere ferdig opparbeid i samsvar med godkjent situasjonsplan .\nEntiteter:\nBFS9 B-FELT\n, I-FELT\n10 I-FELT\nog I-FELT\n11 I-FELT\nBLK2 B-FELT"}
+{"example_id": "001610", "text": "Tekst: − f_SGG er regulert til gangareal .\nEntiteter:\nf_SGG B-FELT"}
+{"example_id": "000317", "text": "Tekst: Parkering ( o_SPA ) § 1.3 Grønnstruktur ( pbl §\nEntiteter:\no_SPA B-FELT"}
+{"example_id": "000964", "text": "Tekst: SKV1 er deler av kommunal vei Mjåvannsveien som inngå i planområdet .\nEntiteter:\nSKV1 B-FELT"}
+{"example_id": "000385", "text": "Tekst: Blå / grønnstruktur ( 3002 ) , GBG1-GBG3\nEntiteter:\nGBG1-GBG3 B-FELT"}
+{"example_id": "001580", "text": "Tekst: Gang - og sykkelvei skal være er etablert før første bolig i planområdene BFS4 , BKS1 , B1 og B2 tas i bruk .\nEntiteter:\nBFS4 B-FELT\nBKS1 B-FELT\nB1 B-FELT\nB2 B-FELT"}
+{"example_id": "001271", "text": "Tekst: 3.1.1 Hensynsone H370_1 er fareområde – høyspenningsanlegg .\nEntiteter:\nH370_1 B-FELT"}
+{"example_id": "001900", "text": "Tekst: I område « o_GF2 » skal det etableres sti .\nEntiteter:\no_GF2 B-FELT"}
+{"example_id": "000256", "text": "Tekst: - Støyanalyse skal leveres for BFS2 , BKS4 og BKS6 .\nEntiteter:\nBFS2 B-FELT\nBKS4 B-FELT\nBKS6 B-FELT"}
+{"example_id": "002056", "text": "Tekst: BKS6 8 . BFS2\nEntiteter:\nBKS6 B-FELT\nBFS2 B-FELT"}
+{"example_id": "000636", "text": "Tekst: Felt BS1-4 :\nEntiteter:\nBS1-4 B-FELT"}
+{"example_id": "001686", "text": "Tekst: 2.3 . Samferdselsanlegg og teknisk infrastruktur – kjøreveg ( SKV1 )\nEntiteter:\nSKV1 B-FELT"}
+{"example_id": "000893", "text": "Tekst: 2.1.3 ENERGIANLEGG , BE1 a )\nEntiteter:\nBE1 B-FELT"}
+{"example_id": "002098", "text": "Tekst: d ) f_BLK og f_SGT være ferdig opparbeidet e ) o_SGS med tilhørende undergang på RV9 og drenering være ferdig opparbeidet 7.3 .\nEntiteter:\nf_BLK B-FELT\nf_SGT B-FELT\no_SGS B-FELT\nRV9 B-FELT"}
+{"example_id": "000920", "text": "Tekst: 3.1.2 . Bustad / næring / forretning ( BKB ) a )\nEntiteter:\nBKB B-FELT"}
+{"example_id": "000342", "text": "Tekst: - Hensyn kulturmiljø , ( H570 )\nEntiteter:\nH570 B-FELT"}
+{"example_id": "000983", "text": "Tekst: I tillegg tillates det i BKS1-6 en biloppstillingsplass på terreng på 18 m2 BYA for hver boenhet .\nEntiteter:\nBKS1-6 B-FELT"}
+{"example_id": "002288", "text": "Tekst: e ) eksisterende bolig innenfor bestemmelsesområde # 8 skal være flyttet ut av området .\nEntiteter:\n# B-FELT\n8 I-FELT"}
+{"example_id": "002318", "text": "Tekst: 7.6 Før det gis igangsettingstillatelse til bebyggelse og anleggsarbeid i felt H310 , skal a ) tiltak være gjennomført som følge av geoteknisk utredning og tiltaksplan .\nEntiteter:\nH310 B-FELT"}
+{"example_id": "000867", "text": "Tekst:  Veier merket med OKV1-10 er offentlige kjøreveier og veier merket med PVK1 - 15 er privat kjøreveier .\nEntiteter:\nOKV1-10 B-FELT\nPVK1 B-FELT\n- I-FELT\n15 I-FELT"}
+{"example_id": "001959", "text": "Tekst: Felt o_SV2 er offentlig og det skal etableres rundkjøring .\nEntiteter:\no_SV2 B-FELT"}
+{"example_id": "000532", "text": "Tekst: – Usikker grunnforhold ( H390 )\nEntiteter:\nH390 B-FELT"}
+{"example_id": "000430", "text": "Tekst: Høyspenningsanlegg , H370_1 § 2\nEntiteter:\nH370_1 B-FELT"}
+{"example_id": "002247", "text": "Tekst: 8.3 SVT – Annan veggrunn – teknisk anlegg a .\nEntiteter:\nSVT B-FELT"}
+{"example_id": "000869", "text": "Tekst: BYA for området BKS skal være maksimalt % - BYA = 40 % .\nEntiteter:\nBKS B-FELT"}
+{"example_id": "002293", "text": "Tekst: 12.1 Frisiktsone ( H140 )\nEntiteter:\nH140 B-FELT"}
+{"example_id": "001845", "text": "Tekst: I « o_SPP1 » er det regulert 5 p-plasser , hvorav 1 er HC .\nEntiteter:\no_SPP1 B-FELT"}
+{"example_id": "000434", "text": "Tekst: 1.3 Barnehage , BH \nEntiteter:\nBH B-FELT"}
+{"example_id": "002053", "text": "Tekst: BKS4 6 . BKS5 7 .\nEntiteter:\nBKS4 B-FELT\nBKS5 B-FELT"}
+{"example_id": "001953", "text": "Tekst: 303 og utbedring av O-SGS2 skal være ferdig før det kan gis igangsettingstillatelse til bebyggelse innenfor BKS1 . 7.10 Siktsone\nEntiteter:\nO-SGS2 B-FELT\nBKS1 B-FELT"}
+{"example_id": "000141", "text": "Tekst: Innenfor bestemmelsesområde # 1 kan etableres bane med sittetribuner .\nEntiteter:\n# B-FELT\n1 I-FELT"}
+{"example_id": "002123", "text": "Tekst: Eksisterende bygninger og anlegg , markert H570_2 og H570_3 på plankartet , tillates ikke revet .\nEntiteter:\nH570_2 B-FELT\nH570_3 B-FELT"}
+{"example_id": "002058", "text": "Tekst: Møne ( meter ) % - BYA * Grader BFS1 Einebustad\nEntiteter:\nBFS1 B-FELT"}
+{"example_id": "000703", "text": "Tekst: 3.4 Områdene BFS1 , BFS2 , BFS3 , BFS4 og BFS5 Områdene skal benyttes til frittliggende småhusbebyggelse .\nEntiteter:\nBFS1 B-FELT\nBFS2 B-FELT\nBFS3 B-FELT\nBFS4 B-FELT\nBFS5 B-FELT"}
+{"example_id": "001659", "text": "Tekst: Samferdselsanlegg og teknisk infrastruktur – veg ( SV1-SV2 )\nEntiteter:\nSV1-SV2 B-FELT"}
+{"example_id": "001232", "text": "Tekst: Arealene omkring bebyggelsen på Iveland gård , gnr / bnr 31/1 , er avsatt til bevaring av kulturmiljø , hensynssone H570 .\nEntiteter:\nH570 B-FELT"}
+{"example_id": "000540", "text": "Tekst: 1.1.3 . Tilgjengelighet Alle boenhetene i BB1 skal tilfredsstille krav til tilgjengelig boenhet , ved at alle hovedfunksjoner skal ligge på inngangsplan .\nEntiteter:\nBB1 B-FELT"}
+{"example_id": "001099", "text": "Tekst: Støyskjerming skal ligge på grunneiers eiendom , og topp høyde for skjerming skal være 1 , 5 meter over g / s-veg langs fv.42 .\nEntiteter:\nfv.42 B-FELT"}
+{"example_id": "002310", "text": "Tekst: Før det gis rammetillatelse til bebyggelse i felt BS2 , skal det foreligge a ) plan for håndtering av overvann som viser at alt overvannet er håndtert lokalt .\nEntiteter:\nBS2 B-FELT"}
+{"example_id": "001850", "text": "Tekst: Det kan etableres en trappeløsning ved Stemmen ( H570_1 ) .\nEntiteter:\nH570_1 B-FELT"}
+{"example_id": "001745", "text": "Tekst: 2.6 . Samferdselsanlegg og teknisk infrastruktur – annen veggrunn - grøntareal ( SVG )\nEntiteter:\nSVG B-FELT"}
+{"example_id": "001881", "text": "Tekst: 3.3 . Badeplass ( GB )\nEntiteter:\nGB B-FELT"}
+{"example_id": "000499", "text": "Tekst: BKS1 •\nEntiteter:\nBKS1 B-FELT"}
+{"example_id": "001620", "text": "Tekst: Gangarealene på plankartet har bredde 2 , 0 fra hovedvei til BFF2 og 1 , 5 meter fra BFF2 og til resten av hyttetomtene på Flauberg .\nEntiteter:\nBFF2 B-FELT\nBFF2 B-FELT"}
+{"example_id": "000227", "text": "Tekst: Boligbebyggelse - Konsentrert småhusbebyggelse ( BKS )\nEntiteter:\nBKS B-FELT"}
+{"example_id": "001685", "text": "Tekst: BBB2 skal være ferdigstilt før boligene tillates tatt i bruk .\nEntiteter:\nBBB2 B-FELT"}
+{"example_id": "001483", "text": "Tekst: 1.3 . Bebyggelse og anlegg – lekeplass ( BLK )\nEntiteter:\nBLK B-FELT"}
+{"example_id": "000576", "text": "Tekst: Felt BS1-2 :\nEntiteter:\nBS1-2 B-FELT"}
+{"example_id": "000535", "text": "Tekst: I område BFS2 , 3 , 4 og 6 kan det oppføres eneboliger og to-mannsboliger .\nEntiteter:\nBFS2 B-FELT\n, I-FELT\n3 I-FELT\n, I-FELT\n4 I-FELT\nog I-FELT\n6 I-FELT"}
+{"example_id": "000332", "text": "Tekst: 12-5 , 2 . ledd nr 3 ) Friområde ( o_GF1-3 )\nEntiteter:\no_GF1-3 B-FELT"}
+{"example_id": "000237", "text": "Tekst: - Annet uteoppholdsareal , BAU ( 1690 ) Samferdselsanlegg og teknisk infrastruktur ( Pbl § 12-5 , ledd nr 2 )\nEntiteter:\nBAU B-FELT"}
+{"example_id": "000240", "text": "Tekst: , B1 \nEntiteter:\nB1 B-FELT"}
+{"example_id": "001112", "text": "Tekst: 3.4.2 BKS1\nEntiteter:\nBKS1 B-FELT"}
+{"example_id": "001660", "text": "Tekst: Energianlegg - BE § 4.27\nEntiteter:\nBE B-FELT"}
+{"example_id": "000327", "text": "Tekst: - Hensyn landskap , ( H560 )\nEntiteter:\nH560 B-FELT"}
+{"example_id": "001600", "text": "Tekst: 4.2.1 Gangareal , ( f_SGG ) • Utforming ( § 12-7 nr . 1 )\nEntiteter:\nf_SGG B-FELT"}
+{"example_id": "002165", "text": "Tekst: Bestemmelsesområde # 1 Innenfor bestemmelsesområde # 1 skal det etableres en allment tilgjengelig passasje gjennom bebyggelsen , som tilrettelegger for fri ferdsel for de gående og syklende , med en bredde på min . 3 , 5 meter .\nEntiteter:\n# B-FELT\n1 I-FELT"}
+{"example_id": "002348", "text": "Tekst: H570_1 .\nEntiteter:\nH570_1 B-FELT"}
+{"example_id": "001806", "text": "Tekst: Atkomst til SPA og SGS skal ikke anlegges vertikalt rett overfor hverandre .\nEntiteter:\nSPA B-FELT\nSGS B-FELT"}
+{"example_id": "000350", "text": "Tekst: H01 . •\nEntiteter:\nH01 B-FELT"}
+{"example_id": "001914", "text": "Tekst: Område o_GAA er offentlige og regulert til kombinert for mål for VA-trasé , flomveg for overvann og snarveg / sti\nEntiteter:\no_GAA B-FELT"}
+{"example_id": "000408", "text": "Tekst: VFS1 – VFS2\nEntiteter:\nVFS1 B-FELT\n– I-FELT\nVFS2 I-FELT"}
+{"example_id": "000547", "text": "Tekst: - Omsynssone – Bevaring av naturmiljø ( H560 )\nEntiteter:\nH560 B-FELT"}
+{"example_id": "000597", "text": "Tekst: I felt BBB2 kan svalganger , balkonger og takoverbygg plasseres utenfor byggegrensene .\nEntiteter:\nBBB2 B-FELT"}
+{"example_id": "000686", "text": "Tekst: Området BFS skal benyttes til boligformål med tilhørende anlegg .\nEntiteter:\nBFS B-FELT"}
+{"example_id": "001922", "text": "Tekst: 3.5 . Vegetasjonsskjerm ( GV )\nEntiteter:\nGV B-FELT"}
+{"example_id": "000222", "text": "Tekst: - Annen særskilt angitt bebyggelse , bod , pumpestasjon , f_BAS ( 1590 )\nEntiteter:\nf_BAS B-FELT"}
+{"example_id": "000364", "text": "Tekst: Friområde GF1 – GF3\nEntiteter:\nGF1 B-FELT\n– I-FELT\nGF3 I-FELT"}
+{"example_id": "001735", "text": "Tekst: Område « o_SKV2 , o_SKV3 og o_SKV4 » omfatter ny offentlige veg .\nEntiteter:\no_SKV2 B-FELT\no_SKV3 B-FELT\no_SKV4 B-FELT"}
+{"example_id": "001627", "text": "Tekst: Bygningar , anlegg og uteområde skal så langt som råd er ha eit heilskapleg byggjekonsept som prioriterer godt inneklima , samt miljøprofil og energieffektivitet både i byggje - og driftsfasen .\nEntiteter:\n"}
+{"example_id": "000145", "text": "Tekst: MED\nEntiteter:\n"}
+{"example_id": "001619", "text": "Tekst: - BESTEMMELSER Side 3\nEntiteter:\n"}
+{"example_id": "000581", "text": "Tekst: - Situasjonsplan og tegninger som viser bygningers plassering , adkomst og forstøtningsmurer .\nEntiteter:\n"}
+{"example_id": "000894", "text": "Tekst: Bygningene skal ha saltak med takvinkel maksimalt 34 grader .\nEntiteter:\n"}
+{"example_id": "000107", "text": "Tekst: 16.06.2022 § 1 .\nEntiteter:\n"}
+{"example_id": "001346", "text": "Tekst: d )\nEntiteter:\n"}
+{"example_id": "001912", "text": "Tekst: For tiltak som berører riks - og fylkesvei skal det foreligge teknisk plan som er godkjent av Statens vegvesen og fylkeskommunen før det kan gis tillatelse til tiltak .\nEntiteter:\n"}
+{"example_id": "000040", "text": "Tekst: 20190001 Plankart dato :\nEntiteter:\n"}
+{"example_id": "001189", "text": "Tekst: Tak skal være jordfarget eller mørke og med en matt overflate .\nEntiteter:\n"}
+{"example_id": "000173", "text": "Tekst: :\nEntiteter:\n"}
+{"example_id": "000654", "text": "Tekst: 3.1 Generelt\nEntiteter:\n"}
+{"example_id": "001073", "text": "Tekst: Utgifter i samband med den arkeologiske granskinga , skal dekkast av tiltakshavar , jf . Kulturminnelova § 10\nEntiteter:\n"}
+{"example_id": "001920", "text": "Tekst: DETALJREGULERING NATVEITLIA\nEntiteter:\n"}
+{"example_id": "000716", "text": "Tekst: Utforming ( § 12-7 nr . 1 ) :\nEntiteter:\n"}
+{"example_id": "002013", "text": "Tekst: Innenfor arealet kan det etableres gang - / sykkelveg , annen veggrunn – teknisk anlegg , annen veggrunn – grøntareal .\nEntiteter:\n"}
+{"example_id": "001945", "text": "Tekst: Opparbeidede utomhusarealer ( f.eks . plattinger ) skal utføres i naturmateriale og ha jordfarger som harmonerer med den omkringliggende naturen .\nEntiteter:\n"}
+{"example_id": "000864", "text": "Tekst: Maks mønehøyde for anneks / uthus settes til 5 meter målt fra gjennomsnittlig terreng .\nEntiteter:\n"}
+{"example_id": "000835", "text": "Tekst: 2.07\nEntiteter:\n"}
+{"example_id": "001154", "text": "Tekst: Maksimal utnyttelsesgrad :\nEntiteter:\n"}
+{"example_id": "000549", "text": "Tekst: OMRÅDE BESTEMMELSER ( pbl § 12-7 )\nEntiteter:\n"}
+{"example_id": "000837", "text": "Tekst: 12-5 . ledd nr 2 \nEntiteter:\n"}
+{"example_id": "002305", "text": "Tekst: a . 310_1 :\nEntiteter:\n"}
+{"example_id": "000673", "text": "Tekst: Garasjen kan være dobbeltgarasje , og det skal være tilstrekkelig areal til en biloppstillingsplass foran hver garasjeport .\nEntiteter:\n"}
+{"example_id": "002188", "text": "Tekst: Møne ( meter ) % - BYA\nEntiteter:\n"}
+{"example_id": "000466", "text": "Tekst: § 2.4\nEntiteter:\n"}
+{"example_id": "001170", "text": "Tekst: BRA forretning , offentlig og privat tjenesteyting og bevertning .\nEntiteter:\n"}
+{"example_id": "000320", "text": "Tekst: •\nEntiteter:\n"}
+{"example_id": "001092", "text": "Tekst: Tillatt utnyttelse i bruksareal ( BRA ) er 2.200 m².Eventuellinnglassingav balkonger / terrasser kommer i tillegg .\nEntiteter:\n"}
+{"example_id": "001596", "text": "Tekst: Det tillates forretninger , offentlig og privat tjenesteyting , kontor og bevertning i felt\nEntiteter:\n"}
+{"example_id": "000177", "text": "Tekst: Bebyggelse og anlegg ( Pbl § 12-5 , ledd nr 1 )\nEntiteter:\n"}
+{"example_id": "002030", "text": "Tekst: Vegetasjon / enkelttrær , terreng og andre elementer som skal bevares b ) Terrengbearbeiding og overganger mot tilstøtende områder .\nEntiteter:\n"}
+{"example_id": "001661", "text": "Tekst: 4.3.3 Gang - og sykkelvegene skal være i offentlig eie .\nEntiteter:\n"}
+{"example_id": "001404", "text": "Tekst: I forbindelse med opparbeidelse av feltet disponeres arealet til trafikkområde som anleggsveg .\nEntiteter:\n"}
+{"example_id": "001469", "text": "Tekst: 20.11.2015 . REGULERINGSPLANFORSLAG PLANID . :\nEntiteter:\n"}
+{"example_id": "001009", "text": "Tekst: 5.5 All bygging og opparbeidelse av offentlige trafikkområder skal skje etter godkjente byggeplaner .\nEntiteter:\n"}
+{"example_id": "000056", "text": "Tekst: AV STRANDHAGEN , PLANID 069\nEntiteter:\n"}
+{"example_id": "001335", "text": "Tekst: Det er ikke tillatt med flatsprenging av tomter .\nEntiteter:\n"}
+{"example_id": "001545", "text": "Tekst: −\nEntiteter:\n"}
+{"example_id": "000294", "text": "Tekst: Hovudsiktemålet med planen er å leggje til rette for sentrumsnære bustader ( leilegheiter ) i kombinasjon med næring / forretning .\nEntiteter:\n"}
+{"example_id": "001183", "text": "Tekst: Lekeplass\nEntiteter:\n"}
+{"example_id": "000413", "text": "Tekst: Det skal utarbeidast teknisk plan for vatn og avløp , inkludert overvatn , for planområdet .\nEntiteter:\n"}
+{"example_id": "001838", "text": "Tekst: b )\nEntiteter:\n"}
+{"example_id": "001032", "text": "Tekst: e ) VTEK 17 § 11-17 – preaksepterte ytelser – vannforsyning innendørs – stigeledning , gjeld for bygg med 3 etasjar .\nEntiteter:\n"}
+{"example_id": "001708", "text": "Tekst: NS 8175 : 2012\nEntiteter:\n"}
+{"example_id": "001675", "text": "Tekst: Terrenginngrep i forbindelse med opparbeidelse av gangveiene skal skje mest mulig skånsomt og med god terrengtilpasning .\nEntiteter:\n"}
+{"example_id": "000860", "text": "Tekst: Før det vert gjeve mellombels bruksløyve / ferdigattest for ny bueining innanfor kvart einskild felt , skal følgjande tilhøve vere etablert i samsvar med godkjent situasjonsplan :\nEntiteter:\n"}
+{"example_id": "000995", "text": "Tekst: Alle fyllinger skal tilsås eller beplantes med stedegen vegetasjon umiddelbart etter anleggsarbeidets slutt .\nEntiteter:\n"}
+{"example_id": "000060", "text": "Tekst: I IVELAND KOMMUNE\nEntiteter:\n"}
+{"example_id": "001224", "text": "Tekst: Det skal etableres minimum 3 nye lekeelementer , der minst ett av elementene skal være et større komplekst anlegg .\nEntiteter:\n"}
+{"example_id": "001109", "text": "Tekst: Detaljregulering , Solstad boligfelt , Evje og Hornnes kommune , Planid 201801\nEntiteter:\n"}
+{"example_id": "000701", "text": "Tekst: •\nEntiteter:\n"}
+{"example_id": "000569", "text": "Tekst: Detaljreguleringsplan for Skaiå godkjent kommunestyret den 12.10.2011 sak 39/11 Side 11 Skaiå - detaljregulering 1.5\nEntiteter:\n"}
+{"example_id": "001229", "text": "Tekst: BESTEMMELSER\nEntiteter:\n"}
+{"example_id": "000571", "text": "Tekst: Støyende aktivitet skal forega ̊ på dagtid .\nEntiteter:\n"}
+{"example_id": "001497", "text": "Tekst: 2.1.13 Terrengtilpasninger ( pbl § 12-7 )\nEntiteter:\n"}
+{"example_id": "002051", "text": "Tekst: h )\nEntiteter:\n"}
+{"example_id": "001361", "text": "Tekst: 7 . Faresoner i reguleringsplan , pbl .\nEntiteter:\n"}
+{"example_id": "001868", "text": "Tekst: Innenfor området kan det anlegges opplag for snø .\nEntiteter:\n"}
+{"example_id": "001906", "text": "Tekst: 7.1.3 Byggegrenser\nEntiteter:\n"}
+{"example_id": "002360", "text": "Tekst: b .\nEntiteter:\n"}
+{"example_id": "001067", "text": "Tekst: All boligbebyggelse skal ha overkant grunnmur over kote 180 , 3 .\nEntiteter:\n"}
+{"example_id": "000998", "text": "Tekst: Bebyggelse skal ha saltak med en takvinkel mellom 30 - 40 grader .\nEntiteter:\n"}
+{"example_id": "001925", "text": "Tekst: Unnateke frå byggjegrensa er frittståande langsgåande garasje / carport som kan plasserast minimum 2 meter frå vegkant .\nEntiteter:\n"}
+{"example_id": "000765", "text": "Tekst: 1.1.7 .\nEntiteter:\n"}
+{"example_id": "000900", "text": "Tekst: Vegen skal være tilgjengelig for allmennheten .\nEntiteter:\n"}
+{"example_id": "000013", "text": "Tekst: REGULERINGSPLANFORSLAG PLANID . :\nEntiteter:\n"}
+{"example_id": "001204", "text": "Tekst: 7 . HENSYNSSONER\nEntiteter:\n"}
+{"example_id": "000974", "text": "Tekst: For hver boenhet skal det avsettes 20 m² uteoppholdsareal .\nEntiteter:\n"}
+{"example_id": "001430", "text": "Tekst: Bru kan etableres på de eksisterende brukar .\nEntiteter:\n"}
+{"example_id": "001958", "text": "Tekst: 6 Gjeldende bestemmelser – Solstad boligfelt .\nEntiteter:\n"}
+{"example_id": "000041", "text": "Tekst: DEL\nEntiteter:\n"}
+{"example_id": "001764", "text": "Tekst: Overvatn skal handsamast på eigen grunn og skal takast i vare innanfor den enkelte utbyggingsetappe og integrerast som ein kvalitet i leike - og uteopphaldsareala .\nEntiteter:\n"}
+{"example_id": "001450", "text": "Tekst: fra formålsgrense samferdsel med unntak av grøft .\nEntiteter:\n"}
+{"example_id": "001971", "text": "Tekst: Det tillates ikke boring av brønn , fjernvarme el . i sikringssonen .\nEntiteter:\n"}
+{"example_id": "000996", "text": "Tekst: 3 . Grønnstruktur pbl .\nEntiteter:\n"}
+{"example_id": "001069", "text": "Tekst: Det er avsatt faresone som vist på plankartet .\nEntiteter:\n"}
+{"example_id": "000536", "text": "Tekst: 3.1 Bebyggelse og anlegg ( § 12-5 nr . 1 )\nEntiteter:\n"}
+{"example_id": "000130", "text": "Tekst: FORMÅL\nEntiteter:\n"}
+{"example_id": "001060", "text": "Tekst: g )\nEntiteter:\n"}
+{"example_id": "001180", "text": "Tekst: 2 § 4.11 Alle boenheter skal være gjennomgående og ha minst ett soverom plassert på vestsiden og østsiden .\nEntiteter:\n"}
+{"example_id": "001354", "text": "Tekst: Det avsettes 2 sykler pr boenhet .\nEntiteter:\n"}
+{"example_id": "000845", "text": "Tekst: f .\nEntiteter:\n"}
+{"example_id": "001040", "text": "Tekst: Tillate takhøyder er angitt i tabellen under .\nEntiteter:\n"}
+{"example_id": "001058", "text": "Tekst: 2.1.9 Krav til avfallshåndtering\nEntiteter:\n"}
+{"example_id": "000134", "text": "Tekst:  Byggeområder\nEntiteter:\n"}
+{"example_id": "000556", "text": "Tekst: Bygge - og anleggsstøy skal ikke overskride støygrensen i tabell 4 i retningslinje for behandling av støy i arealplanlegging ( T-1442/2021 ) .\nEntiteter:\n"}
+{"example_id": "001792", "text": "Tekst: Det tillates etablert ladestasjoner innenfor området .\nEntiteter:\n"}
+{"example_id": "000372", "text": "Tekst: 1.02 Planområdet er regulert til følgende formål :\nEntiteter:\n"}
+{"example_id": "001757", "text": "Tekst: mfl . skal vere opparbeidd før bruksløyve vert gjeve .\nEntiteter:\n"}
+{"example_id": "000979", "text": "Tekst: 3.1.3 Fritidsbebyggelse\nEntiteter:\n"}
+{"example_id": "000601", "text": "Tekst: Bebyggelse og anlegg ( pbl 12-5 nr . 1 ) Boligbebyggelse-konsentrert småhusbebyggelse\nEntiteter:\n"}
+{"example_id": "000367", "text": "Tekst: 1 . 2.1.3 Høyder\nEntiteter:\n"}
+{"example_id": "000330", "text": "Tekst:  Tillatt bebygd\nEntiteter:\n"}
+{"example_id": "000171", "text": "Tekst: Maksimal høyde gesims og maksimalt bebygd areal\nEntiteter:\n"}
+{"example_id": "001348", "text": "Tekst: Høyder skal være i tråd med de generelle bestemmelsene for denne type bebyggelse i Plan-og bygningsloven .\nEntiteter:\n"}
+{"example_id": "000818", "text": "Tekst: Ny beplantning .\nEntiteter:\n"}
+{"example_id": "000859", "text": "Tekst: Det tillates ensidige leiligheter mot stille side .\nEntiteter:\n"}
+{"example_id": "000698", "text": "Tekst: 2.8 .\nEntiteter:\n"}
+{"example_id": "000612", "text": "Tekst: Deravstandsbestemmelser mellom bygninger fravikes , vil det bli stilt branntekniske krav for å forhindre brannspredning mellom bygningene .\nEntiteter:\n"}
+{"example_id": "000734", "text": "Tekst: \nEntiteter:\n"}
+{"example_id": "001811", "text": "Tekst: Materialbruken skal være tilpasset den omkringliggende naturen og ha jordfarger .\nEntiteter:\n"}
+{"example_id": "000164", "text": "Tekst: - Eksisterende gårdstun  Offentlige trafikkområder - Kjøreveg\nEntiteter:\n"}
+{"example_id": "001118", "text": "Tekst: 002 Side 3 av 3\nEntiteter:\n"}
+{"example_id": "000707", "text": "Tekst: 3.2 . Grønnstruktur\nEntiteter:\n"}
+{"example_id": "000623", "text": "Tekst: 2.7 .\nEntiteter:\n"}
+{"example_id": "001555", "text": "Tekst: b )\nEntiteter:\n"}
+{"example_id": "001222", "text": "Tekst: Fangdam for sedimentering av finstoff skal være etablert før ny drift igangsettes for utvidelsesområdet .\nEntiteter:\n"}
+{"example_id": "001307", "text": "Tekst: Før brukstillatelse for nye boenheter kan gis skal det være etablert gatelys fra krysset ved Øvre Tingveg og langs hele adkomstvegen , Tingberget .\nEntiteter:\n"}
+{"example_id": "001991", "text": "Tekst: Det tillates ikke graving , sprengning eller fylling .\nEntiteter:\n"}
+{"example_id": "001960", "text": "Tekst: Det skal veljast eit heilskapleg grep kva gjeld belegg , beplantning , møblering og andre formingsdetaljer .\nEntiteter:\n"}
+{"example_id": "000713", "text": "Tekst: Universell utforming\nEntiteter:\n"}
+{"example_id": "001581", "text": "Tekst: 39/11\nEntiteter:\n"}
+{"example_id": "000643", "text": "Tekst: 3.3 Det skal avsettes 2 biloppstillingsplasser , medregnet garasje / carport på egen grunn pr . boenhet .\nEntiteter:\n"}
+{"example_id": "001919", "text": "Tekst: Byggegrenser er gjeve i plankartet .\nEntiteter:\n"}
+{"example_id": "000670", "text": "Tekst: •\nEntiteter:\n"}
+{"example_id": "001143", "text": "Tekst: •\nEntiteter:\n"}
+{"example_id": "001199", "text": "Tekst: Bustadene skal ha eit bruksareal på minst 30 m2 pr bueining , pluss bodareal .\nEntiteter:\n"}
+{"example_id": "001897", "text": "Tekst: For bebyggelse annet enn småhusbebyggelse kreves slokkevannskapasitet på min . 50 l / s .\nEntiteter:\n"}
+{"example_id": "000392", "text": "Tekst: Uttaket skal til enhver tid være forsvarlig sikret .\nEntiteter:\n"}
+{"example_id": "001133", "text": "Tekst: −\nEntiteter:\n"}
+{"example_id": "002295", "text": "Tekst: a .\nEntiteter:\n"}
+{"example_id": "002155", "text": "Tekst: Alle søknadspliktige tiltak skal forelegges byantikvaren til uttalelse før det gis tillatelse til tiltak .\nEntiteter:\n"}
+{"example_id": "001086", "text": "Tekst: gjeldende avfallsteknisk norm .\nEntiteter:\n"}
+{"example_id": "001268", "text": "Tekst: Overgangar mot tilgrensande samferdsleanlegg , samt tilgrensande bustadområde for å sikre heilskapleg terrengtilpassing .\nEntiteter:\n"}
+{"example_id": "002344", "text": "Tekst: Det kan ikkje plasserast bygningar eller tiltak som er til hinder for kantvegetasjonen .\nEntiteter:\n"}
+{"example_id": "002112", "text": "Tekst: 5 7 60 % Maks 35 * Ev .\nEntiteter:\n"}
+{"example_id": "001518", "text": "Tekst: På planområdet skal det anlegges kjøreveger , gang - og sykkelveger og tilhørende infrastruktur som vist i planen .\nEntiteter:\n"}
+{"example_id": "001124", "text": "Tekst: Støyfølsom bebyggelse\nEntiteter:\n"}
+{"example_id": "001928", "text": "Tekst: Innenfor feltene kan det etableres støyvoll og eller støyskjerm med en høyde inntil 2 m .\nEntiteter:\n"}
+{"example_id": "000812", "text": "Tekst: Maks gesimshøyde er 8 , 5 meter og maks mønehøyde er 9 meter , målt fra den mest eksponerte fasade fra terreng .\nEntiteter:\n"}
+{"example_id": "001478", "text": "Tekst: Det tillates mønehøyde på inntil 5 , 5 meter og gesimshøyde inntil 4 meter for garasjen .\nEntiteter:\n"}
+{"example_id": "001392", "text": "Tekst: Garasjen ( - e ) kan oppføres med underetasje .\nEntiteter:\n"}
+{"example_id": "001329", "text": "Tekst: 3.5.1 Det tillates etablering av garasjer / - anlegg i inntil en etasje .\nEntiteter:\n"}
+{"example_id": "001673", "text": "Tekst: Før rammeløyve 5.1.1 .\nEntiteter:\n"}
+{"example_id": "002189", "text": "Tekst: Krav til fri høyde gjelder ikke for overbyggets understøttede konstruksjoner .\nEntiteter:\n"}
+{"example_id": "002055", "text": "Tekst: Gesims ( meter )\nEntiteter:\n"}
+{"example_id": "000313", "text": "Tekst: 20.11.2015Bestemmelsenes dato : 24.11.2015 . Sist revidert :\nEntiteter:\n"}
+{"example_id": "001157", "text": "Tekst: Plassering og høgde av bygningar og ev . støttemurar\nEntiteter:\n"}
+{"example_id": "000276", "text": "Tekst: BYA er angitt på plankartet .\nEntiteter:\n"}
+{"example_id": "000648", "text": "Tekst: 3.1.3 Miljøverndepartementets retningslinjer for behandling av støy i arealplanlegging , T – 1442 , skal legges til grunn for gjennomføring av planforslaget .\nEntiteter:\n"}
+{"example_id": "001388", "text": "Tekst: trase for offentleg infrastruktur Til situasjonsplanen skal det følgje ei skriftleg grunngjeving for bygg si utforming , spesielt i høve tilgrensande bygg og leike - og uteopphaldsareal .\nEntiteter:\n"}
+{"example_id": "000103", "text": "Tekst: AV GBNR .\nEntiteter:\n"}
+{"example_id": "001176", "text": "Tekst: Bolig med tilhørende anlegg , blokkbebyggelse ,\nEntiteter:\n"}
+{"example_id": "001299", "text": "Tekst: 002\nEntiteter:\n"}
+{"example_id": "001765", "text": "Tekst: Side 4 av 4\nEntiteter:\n"}
+{"example_id": "002064", "text": "Tekst: 7 9 35 % Maks 35\nEntiteter:\n"}
+{"example_id": "000446", "text": "Tekst: Det er ikke tillatt med større terrenginngrep enn + / - 1 meter og bygningene skal ha jordfarger som harmonerer med den omkringliggende naturen .\nEntiteter:\n"}
+{"example_id": "000568", "text": "Tekst: Både midlertidige sikringstiltak under byggeperioden , og senere permanente tiltak skal beskrives .\nEntiteter:\n"}
+{"example_id": "001082", "text": "Tekst: Møne 6 , 0 m\nEntiteter:\n"}
+{"example_id": "001994", "text": "Tekst: TIL DETALJREGULERING\nEntiteter:\n"}
+{"example_id": "000234", "text": "Tekst: Saknr .\nEntiteter:\n"}
+{"example_id": "001972", "text": "Tekst: Side 4 av 5\nEntiteter:\n"}
+{"example_id": "001916", "text": "Tekst: 9 . Parken skal være offentlig .\nEntiteter:\n"}
+{"example_id": "000012", "text": "Tekst: Tvedestrand kommune\nEntiteter:\n"}
+{"example_id": "001738", "text": "Tekst: 5.2\nEntiteter:\n"}
+{"example_id": "001644", "text": "Tekst: Det skal legges opp til variert boligfordeling , med leiligheter og rekkehus .\nEntiteter:\n"}
+{"example_id": "000359", "text": "Tekst: I hvert byggeområde skal bebyggelsen plasseres innenfor de viste byggegrensene .\nEntiteter:\n"}
+{"example_id": "000635", "text": "Tekst: Det skal være minst to fasadematerialer på hallene .\nEntiteter:\n"}
+{"example_id": "001022", "text": "Tekst: Den ubebygde delen av tomta tillates ikke nyttet til lagring .\nEntiteter:\n"}
+{"example_id": "001244", "text": "Tekst: Bygg med flate tak eller pulttak skal ha maksimal gesimshøyde 3 , 8 meter målt fra gjennomsnittlig nytt terreng rundt bygget .\nEntiteter:\n"}
+{"example_id": "000981", "text": "Tekst: 5.3 Veifyllinger kan legges inn på tilstøtende areal selv om dette ikke er vist som veiformål på plankartet .\nEntiteter:\n"}
+{"example_id": "001766", "text": "Tekst: 5.3 Annen veggrunn a )\nEntiteter:\n"}
+{"example_id": "001823", "text": "Tekst: b .\nEntiteter:\n"}
+{"example_id": "000501", "text": "Tekst: Side 1 av 9 Alle takflater som ikke brukes til uteopphold skal utføres med materiale som bidrar med fordrøyning av regnvann eller energitiltak .\nEntiteter:\n"}
+{"example_id": "001429", "text": "Tekst: Det tillattes forstøtningsmurer for å tilpasse terrenget .\nEntiteter:\n"}
+{"example_id": "001563", "text": "Tekst: enn 3 : 1 . Forstøtningsmurer mot vei kan plasseres i formålsgrense når de er lavere enn 0 , 5 m , og i en avstand tilsvarende murens halve høyde når de er mellom 0 , 5 m og 1 , 5 m .\nEntiteter:\n"}
+{"example_id": "001057", "text": "Tekst: § 5 REKKEFØLGEBESTEMMELSER ( PBL § 12-7 )\nEntiteter:\n"}
+{"example_id": "001155", "text": "Tekst: T-1442 .\nEntiteter:\n"}
+{"example_id": "000154", "text": "Tekst: Bebyggelse og anlegg ( pbl\nEntiteter:\n"}
+{"example_id": "001967", "text": "Tekst: • Nye tiltak skal tilpasses bygningsmiljøet etter faglige kriterier .\nEntiteter:\n"}
+{"example_id": "002204", "text": "Tekst: Møne ( meter ) % - BYA\nEntiteter:\n"}
+{"example_id": "001515", "text": "Tekst:  Området er avsatt for bevaring av svartorforekomst .\nEntiteter:\n"}
+{"example_id": "001200", "text": "Tekst: j )\nEntiteter:\n"}
+{"example_id": "000638", "text": "Tekst: Renovasjon\nEntiteter:\n"}
+{"example_id": "000095", "text": "Tekst: 1.1 Generelt .\nEntiteter:\n"}
+{"example_id": "000051", "text": "Tekst: 01.09.2023 1 .\nEntiteter:\n"}
+{"example_id": "000358", "text": "Tekst: 1.01 Planen erstatterde deler av reguleringsplan for del av Labakken , sist revidert 21.10.08 med tilhørende bestemmelser vedtatt av Tvedestrand kommunestyre i møte 16.12.08 , som berøres i denne .\nEntiteter:\n"}
+{"example_id": "000515", "text": "Tekst: Deler av veggflaten skal ha felt med tre .\nEntiteter:\n"}
+{"example_id": "002349", "text": "Tekst: b .\nEntiteter:\n"}
+{"example_id": "000583", "text": "Tekst: Tiltakene godkjennes av kommunen .\nEntiteter:\n"}
+{"example_id": "000794", "text": "Tekst:  Det tillates ikke forretnings-virksomhet som medfører at omkringliggende boligeiendommer utsettes for støy over grenseverdier gitt i ” retningslinjer for støy i arealplanlegging ” ( T-1442 ) .\nEntiteter:\n"}
+{"example_id": "001690", "text": "Tekst: Side 4 av 10 5.2.4 Støy\nEntiteter:\n"}
+{"example_id": "000613", "text": "Tekst: 3.1 Alle boligenheter skal kobles til kommunalt vann - og avløpsanlegg .\nEntiteter:\n"}
+{"example_id": "001918", "text": "Tekst: Tekniske planer for vann og avløp skal omfatte hele planområdet med nødvendige tilknytninger til og omlegginger av eksisterende nett .\nEntiteter:\n"}
+{"example_id": "002122", "text": "Tekst: Detaljregulering , Solstad boligfelt , Evje og Hornnes kommune , Planid 201801 b )\nEntiteter:\n"}
+{"example_id": "000200", "text": "Tekst: Aust-Agder fylkeskommune v / kulturminnevernseksjonen\nEntiteter:\n"}
+{"example_id": "000858", "text": "Tekst: Området skal skjøttes som et naturområde .\nEntiteter:\n"}
+{"example_id": "001536", "text": "Tekst: 10.3 Felles grøntområder / lekeareal\nEntiteter:\n"}
+{"example_id": "001570", "text": "Tekst: Detaljreguleringsplan for Skaiå godkjent kommunestyret den 12.10.2011 sak\nEntiteter:\n"}
+{"example_id": "001663", "text": "Tekst: Parkering , køyreareal , snuplassar og renovasjonsareal inngår ikkje i areal til uteopphald eller leik .\nEntiteter:\n"}
+{"example_id": "001294", "text": "Tekst: Side 2 5.4 Gatelys\nEntiteter:\n"}
+{"example_id": "000729", "text": "Tekst: 3.3 Krav om utomhusplan\nEntiteter:\n"}
+{"example_id": "000179", "text": "Tekst: - Annen veggrunn\nEntiteter:\n"}
+{"example_id": "001650", "text": "Tekst: 2.2 .\nEntiteter:\n"}
+{"example_id": "000425", "text": "Tekst: 1.1.3 . Terrengtilpasninger ( pbl § 12-7 )\nEntiteter:\n"}
+{"example_id": "001871", "text": "Tekst: Bygg skal plasserast og utformast slik at ein i størst mogleg grad oppnår at bustader og uteopphaldsareal er skjerma frå støy og luftureining .\nEntiteter:\n"}
+{"example_id": "002040", "text": "Tekst: a .\nEntiteter:\n"}
+{"example_id": "002035", "text": "Tekst: I gul sone tillates boligbebyggelse dersom den er prosjektert i henhold til T-1442 . 7 . Rekkefølgebestemmelser ( pbl § 12-7 )\nEntiteter:\n"}
+{"example_id": "001196", "text": "Tekst: Før brukstillatelse for nye boenheter kan gis , skal lekeområde på gnr . 50 bnr . 614 utvides med minimum 200 m2 .\nEntiteter:\n"}
+{"example_id": "001285", "text": "Tekst: Reguleringsendring deler av reguleringsplan Strandhagen , PlanId 069 og Mjåvann , PlanID\nEntiteter:\n"}
+{"example_id": "000555", "text": "Tekst: Med hovedfunksjoner menes stue , kjøkken , soverom , bad og toalett .\nEntiteter:\n"}
+{"example_id": "001700", "text": "Tekst: Før busetnad blir teken i bruk 5.2.1 . Leike - og uteopphaldsareal skal vere sikra opparbeidd før det vert gjeve bruksløyve for nye bustader .\nEntiteter:\n"}
+{"example_id": "001123", "text": "Tekst: Bygningenes maksimale gesimshøyde ( G = høyde ) og mønehøyde\nEntiteter:\n"}
+{"example_id": "001122", "text": "Tekst:  Det legges restriksjoner på hogst i disse områdene .\nEntiteter:\n"}
+{"example_id": "001177", "text": "Tekst: 6.2 Frisiktsoner Innenfor frisiktsonene skal området planeres i samme nivå eller lavere enn tilstøtende vei .\nEntiteter:\n"}
+{"example_id": "000823", "text": "Tekst: §\nEntiteter:\n"}
+{"example_id": "001639", "text": "Tekst: Videre skal arealet utformes som gangsti og ligge på terreng , uten fysisk inngrep i fjell , kun med oppfylling mot naturstein eller treverk slik at tiltaket er reversibelt .\nEntiteter:\n"}
+{"example_id": "001506", "text": "Tekst: Bygninger kan oppføres med gesimshøyde 8 , 0 meter og mønehøyde 10 , 5 meter .\nEntiteter:\n"}
+{"example_id": "001439", "text": "Tekst: Avkjørsel til private eiendommer skal ha maksimal stigning i avkjørsel på 2 , 5 % de første 5 m\nEntiteter:\n"}
+{"example_id": "002015", "text": "Tekst: Side 5 av 5\nEntiteter:\n"}
+{"example_id": "001095", "text": "Tekst: 3 Gjeldende bestemmelser – Solstad boligfelt .\nEntiteter:\n"}
+{"example_id": "000544", "text": "Tekst: Enebolig eller 2-mannsbolig med saltak .\nEntiteter:\n"}
+{"example_id": "000736", "text": "Tekst: Terrenginngrep og grunnarbeider i forbindelse med opparbeidelse av tomtene tillattes utenfor byggegrense .\nEntiteter:\n"}
+{"example_id": "000779", "text": "Tekst:  Skråninger skal revegeteres med stedlige avgravningsmasser ved anleggsslutt .\nEntiteter:\n"}
+{"example_id": "000001", "text": "Tekst: Detaljregulering , Solstad boligfelt , Evje og Hornnes kommune , Planid 201801 Reguleringsbestemmelser for Detaljregulering for Solstad boligfelt Dato :\nEntiteter:\n"}
+{"example_id": "002164", "text": "Tekst: Det er ikkje tillete å mikse kjeda einebustad og rekkjehus innanfor kvart einskild felt .\nEntiteter:\n"}
+{"example_id": "001365", "text": "Tekst: Arealet skal være overbygd .\nEntiteter:\n"}
+{"example_id": "001036", "text": "Tekst: Midlertidige skur , haller m . v .\nEntiteter:\n"}
+{"example_id": "000770", "text": "Tekst: 1.1.8 . Overvann ( pbl § 12-7 )\nEntiteter:\n"}
+{"example_id": "001416", "text": "Tekst: 39/11 Side 13 Skaiå\nEntiteter:\n"}
+{"example_id": "001526", "text": "Tekst: Det tillates ingen tiltak inn forbi sonen .\nEntiteter:\n"}
+{"example_id": "000441", "text": "Tekst: Det skal tilstrebes differensiert og mangfoldig uttrykk og materialbruk .\nEntiteter:\n"}
+{"example_id": "001910", "text": "Tekst: Dato 11.05.2022 4\nEntiteter:\n"}
+{"example_id": "001705", "text": "Tekst: er adkomst for alle tilgrensende eiendommer .\nEntiteter:\n"}
+{"example_id": "000971", "text": "Tekst: 4 . HENSYNSSONER\nEntiteter:\n"}
+{"example_id": "001665", "text": "Tekst: Formålsgrense er byggegrense .\nEntiteter:\n"}
+{"example_id": "001070", "text": "Tekst: Maks gesimshøyde er 8 , 5 meter og maks mønehøyde er 9 meter , målt fra den mest eksponerte fasade fra terreng .\nEntiteter:\n"}
+{"example_id": "000493", "text": "Tekst: 2.4 Anleggene skal utføres så skånsomt som mulig mht inngrep i eksisterende terreng og vegetasjon .\nEntiteter:\n"}
+{"example_id": "000293", "text": "Tekst: Bygningar og anlegg , jf . PBL § 12-5 , 2 . ledd nr . 1\nEntiteter:\n"}
+{"example_id": "001381", "text": "Tekst: Det skal etableres felles adkomstvei og felles biloppstillings - / garasjeområde innenfor avgrenset område ( byggegrense ) mellom de to feltene .\nEntiteter:\n"}
+{"example_id": "000759", "text": "Tekst: Utomhusplan skal vise :\nEntiteter:\n"}
+{"example_id": "001767", "text": "Tekst: I LF områdene er det ikke tillatt med hogst av trær med diameter over 20 cm i brysthøyde eller hogst som kan gi bebyggelsen økt synlighet i landskapet .\nEntiteter:\n"}
+{"example_id": "001028", "text": "Tekst: 3.4.1 Generelt\nEntiteter:\n"}
+{"example_id": "000834", "text": "Tekst: Maksimal planert byggetomt kote 14\nEntiteter:\n"}
+{"example_id": "001042", "text": "Tekst: Bygg skal oppføres som trehusbebyggelse , og tillates etablert med pulttak eller flatt tak .\nEntiteter:\n"}
+{"example_id": "001671", "text": "Tekst: Det tillates uteservering mot tilliggende byrom .\nEntiteter:\n"}
+{"example_id": "000792", "text": "Tekst: Før utbygging av planområdet skal det foreligge en godkjent avtale mellom grunneier / utbygger ogTvedestrand kommune .\nEntiteter:\n"}
+{"example_id": "001277", "text": "Tekst: Det skal sikres teknisk godkjenning av offentlig samferdselsanlegg .\nEntiteter:\n"}
+{"example_id": "000769", "text": "Tekst: Side 1\nEntiteter:\n"}
+{"example_id": "001827", "text": "Tekst: I områdene er det tillat oppført bebyggelse og andre tekniske installasjoner som typisk beriker bruken av område .\nEntiteter:\n"}
+{"example_id": "000285", "text": "Tekst: – BYA = 160 m2 .  Bygninger tillates bare ombygd / påbygd eller utbedret under forutsetning av at eksteriøret beholdes uendret eller føres tilbake til det opprinnelige utseendet .\nEntiteter:\n"}
+{"example_id": "002199", "text": "Tekst: Passasjen skal ha minimum én kobling / åpning til Møllevannsveien til Grim torv og en kobling / åpning til torvet i felt\nEntiteter:\n"}
+{"example_id": "001662", "text": "Tekst: 25 000 m2 BRA bolig .\nEntiteter:\n"}
+{"example_id": "002366", "text": "Tekst: 13.1 Sikre kulturminne a .\nEntiteter:\n"}
+{"example_id": "001547", "text": "Tekst: Før boligene / boenhetene i et delområde tas i bruk , skal nærmeste felles grøntområde / lekeplass være ferdig opparbeidet i henhold til detaljplan godkjent av kommunen .\nEntiteter:\n"}
+{"example_id": "000844", "text": "Tekst: Der støynivået utenfor boligfasaden har en døgnekvivalent på mer enn 55 dB ( A ) skal alle leiligheter ha minimum ett soverom mot stille side .\nEntiteter:\n"}
+{"example_id": "001664", "text": "Tekst: 5.1 .\nEntiteter:\n"}
+{"example_id": "000148", "text": "Tekst: 74/244 ( NYVEI 15\nEntiteter:\n"}
+{"example_id": "001098", "text": "Tekst: Inntil 10 m² av overbygd terrasse kan erstatte krav til uteoppholdsareal .\nEntiteter:\n"}
+{"example_id": "000930", "text": "Tekst: 3.3.2 Garasjer tillates i en etasje og med et maksimalt bruksareal på 50 m² .\nEntiteter:\n"}
+{"example_id": "000509", "text": "Tekst: Tillatt bebygd\nEntiteter:\n"}
+{"example_id": "001682", "text": "Tekst: Teknisk plan for vatn og avløp , inkludert overvatn , må vere godkjend av Sogndal kommune før det kan gjevast rammeløyve .\nEntiteter:\n"}
+{"example_id": "001874", "text": "Tekst: Turstienes utforming og stigning skal dokumenteres i utomhusplan som skal være godkjent av kommunen .\nEntiteter:\n"}
+{"example_id": "001890", "text": "Tekst: 7.5\nEntiteter:\n"}
+{"example_id": "001826", "text": "Tekst: Området skal holdes åpent med rydding og skjøtsel , og det må utarbeides skjøtselsplan for området .\nEntiteter:\n"}
+{"example_id": "001734", "text": "Tekst: 5.2.4 . Fortau regulert i områdeplan for Øyane ( langs plangrensa ) må opparbeidast før ferdigattest vert gjeve .\nEntiteter:\n"}
+{"example_id": "001344", "text": "Tekst: møblering , vegetasjon , belysning og / eller materialbruk •\nEntiteter:\n"}
+{"example_id": "002070", "text": "Tekst: 9 35 % Maks 35\nEntiteter:\n"}
+{"example_id": "001304", "text": "Tekst: I hovedsak skal ny bebyggelse oppføres med tre som fasadekledning og i bærende konstruksjoner .\nEntiteter:\n"}
+{"example_id": "000004", "text": "Tekst: Reguleringsbestemmelser for Krossen KROSSEN ( PlanID : 201401 )\nEntiteter:\n"}
+{"example_id": "002365", "text": "Tekst: 13 Føresegnområde , jf . PBL § 12-6\nEntiteter:\n"}
+{"example_id": "001798", "text": "Tekst: 3.1 .\nEntiteter:\n"}
+{"example_id": "000091", "text": "Tekst: Bebyggelse og anlegg ( pbl § 12-5 )\nEntiteter:\n"}
+{"example_id": "000660", "text": "Tekst: 1.1.5 . Plassering av bebyggelse\nEntiteter:\n"}
+{"example_id": "000489", "text": "Tekst: ( overvann / grønnstruktur ) • LANDBRUKS - , NATUR OG FRILUFTSFORMÅL ( pbl § 12-5 , 2 . ledd nr . 5 )\nEntiteter:\n"}
+{"example_id": "001431", "text": "Tekst: av 9 2.1.12 Avkjørsel\nEntiteter:\n"}
+{"example_id": "002347", "text": "Tekst: Det er ikkje tillate å føre opp noko form for bygningar eller andre installasjonar innanfor område\nEntiteter:\n"}
+{"example_id": "000984", "text": "Tekst: Maks planeringshøyde er K + 182 . § 4.8 Takform :\nEntiteter:\n"}
+{"example_id": "000261", "text": "Tekst: Maksimal høyde møne og maksimalt bebygd areal\nEntiteter:\n"}
+{"example_id": "001286", "text": "Tekst: På tomt 9 kan bebyggelsen deles i to volum for å trappe bebyggelsen ned etter terrenget .\nEntiteter:\n"}
+{"example_id": "001505", "text": "Tekst: Den skal være gjerdet inne , og utstyrt med sandkasse , runse , faststøpt vippe , bord og benker .\nEntiteter:\n"}
+{"example_id": "001110", "text": "Tekst: Takvinkel 30-40 grader\nEntiteter:\n"}
+{"example_id": "000803", "text": "Tekst: b )\nEntiteter:\n"}
+{"example_id": "002017", "text": "Tekst: 4 . Grønnstruktur ( pbl § 12-5 , pbl § 12-7 )\nEntiteter:\n"}
+{"example_id": "001853", "text": "Tekst: I faresonen tillates ikke bebyggelse for opphold .\nEntiteter:\n"}
+{"example_id": "000884", "text": "Tekst: Overbygg til renovasjon eller dunker medregnes ikke i % - BYA .\nEntiteter:\n"}
+{"example_id": "001105", "text": "Tekst: Ved bygging innenfor hensynsone landskap er maksimalt tillatt bebygd areal pr . tomt i sum av hovedbygning og sekundærbygninger , BYA = 100 m² .\nEntiteter:\n"}
+{"example_id": "001480", "text": "Tekst: 0914-142 PLANBESTEMMELSER .\nEntiteter:\n"}
+{"example_id": "000239", "text": "Tekst:  Fellesområder\nEntiteter:\n"}
+{"example_id": "000079", "text": "Tekst: 20.08.17 § 1 .\nEntiteter:\n"}
