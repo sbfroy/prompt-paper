@@ -37,7 +37,7 @@ class DataManager:
 
         with filepath.open("w", encoding="utf-8") as f:
             for example in dataset.examples:
-                f.write(example.json(ensure_ascii=False) + "\n")
+                f.write(example.model_dump_json(by_alias=True) + "\n")
 
         return filepath
     
@@ -60,7 +60,7 @@ class DataManager:
         """Save embedded dataset as Parquet in processed directory."""
         filepath = self.get_processed_dir() / filename
         
-        records = [example.dict() for example in dataset.examples]
+        records = [example.model_dump() for example in dataset.examples]
         df = pd.DataFrame(records) # To DF for efficient storage
         df.to_parquet(filepath, compression='snappy', index=False)
 
@@ -85,7 +85,7 @@ class DataManager:
 
         with filepath.open("w", encoding="utf-8") as f:
             for cluster in dataset.clusters:
-                f.write(cluster.json(ensure_ascii=False) + "\n")
+                f.write(cluster.model_dump_json(by_alias=True) + "\n")
 
         return filepath
 
