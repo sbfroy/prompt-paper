@@ -21,19 +21,17 @@ class DataManager:
 
         # Create all required subdirs
         for p in (
-            self.get_scope_dir(),
-            self.get_dataset_dir(),
-            self.get_processed_dir(),
+            self.get_input_dir(),
             self.get_output_dir(),
         ):
             p.mkdir(parents=True, exist_ok=True)
 
     def save_input_dataset(self, dataset: InputDataset, filename: str = "input_dataset.jsonl"):
         """
-        Save InputDataset as JSONL in the processed directory.
+        Save InputDataset as JSONL in the input directory.
         This is the standardized format that enters the pipeline.
         """
-        filepath = self.get_processed_dir() / filename
+        filepath = self.get_input_dir() / filename
 
         with filepath.open("w", encoding="utf-8") as f:
             for example in dataset.examples:
@@ -42,8 +40,8 @@ class DataManager:
         return filepath
     
     def load_input_dataset(self, filename: str = "input_dataset.jsonl"):
-        """Load InputDataset from processed directory."""
-        filepath = self.get_processed_dir() / filename
+        """Load InputDataset from input directory."""
+        filepath = self.get_input_dir() / filename
         examples: list[InputExample] = []
         
         with filepath.open("r", encoding="utf-8") as f:
@@ -57,8 +55,8 @@ class DataManager:
         return InputDataset(examples=examples, task_type=self.task)
 
     def save_embedded_dataset(self, dataset: EmbeddedDataset, filename: str = "embedded_dataset.parquet"):
-        """Save embedded dataset as Parquet in processed directory."""
-        filepath = self.get_processed_dir() / filename
+        """Save embedded dataset as Parquet in output directory."""
+        filepath = self.get_output_dir() / filename
         
         records = [example.model_dump() for example in dataset.examples]
         df = pd.DataFrame(records) # To DF for efficient storage
@@ -68,8 +66,8 @@ class DataManager:
     
 
     def load_embedded_dataset(self, filename: str = "embedded_dataset.parquet"):
-        """Load embedded dataset from processed directory."""
-        filepath = self.get_processed_dir() / filename
+        """Load embedded dataset from output directory."""
+        filepath = self.get_output_dir() / filename
 
         df = pd.read_parquet(filepath)
         examples = [EmbeddedExample(**rec) for rec in df.to_dict(orient="records")]
@@ -78,10 +76,10 @@ class DataManager:
 
     def save_cluster_dataset(self, dataset: ClusterDataset, filename: str = "cluster_dataset.jsonl"):
         """
-        Save cluster dataset as JSONL in processed directory.
+        Save cluster dataset as JSONL in output directory.
         Preserves cluster structure for analysis.
         """
-        filepath = self.get_processed_dir() / filename
+        filepath = self.get_output_dir() / filename
 
         with filepath.open("w", encoding="utf-8") as f:
             for cluster in dataset.clusters:
@@ -90,8 +88,8 @@ class DataManager:
         return filepath
 
     def load_cluster_dataset(self, filename: str = "cluster_dataset.jsonl"):
-        """Load cluster dataset from processed directory."""
-        filepath = self.get_processed_dir() / filename
+        """Load cluster dataset from output directory."""
+        filepath = self.get_output_dir() / filename
         clusters: list[Cluster] = []
 
         with filepath.open("r", encoding="utf-8") as f:
@@ -115,14 +113,8 @@ class DataManager:
 
         return filepath
 
-    def get_scope_dir(self) -> Path:
-        return self.task_data_dir / "input" / "scope"
-    
-    def get_dataset_dir(self) -> Path:
-        return self.task_data_dir / "input" / "dataset"
-    
-    def get_processed_dir(self) -> Path:
-        return self.task_data_dir / "processed"
+    def get_input_dir(self) -> Path:
+        return self.task_data_dir / "input"
     
     def get_output_dir(self) -> Path:
         return self.task_data_dir / "output"
