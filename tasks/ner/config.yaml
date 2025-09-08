@@ -1,0 +1,16 @@
+# General settings
+task_name: "ner"
+skip_embedding: false
+
+# Clustering stage configuration
+clustering:
+  input_filename: "regplans-train.jsonl"
+  embedding_model: "text-embedding-3-small"
+  umap_n_components: 30
+  min_cluster_size: 15
+  min_samples: 1
+  cluster_selection_epsilon: 0.3
+
+# Evaluation settings
+evaluation:
+  # TODO: Add evaluation metrics specific to NER
