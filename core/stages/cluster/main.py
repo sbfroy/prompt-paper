@@ -26,7 +26,10 @@ class ClusterStage:
         )
 
     def run(self, skip_embedding: bool = False):
+        print("Starting clustering stage...")
+        
         if skip_embedding:
+            print("Loading existing embeddings...")
             embedded_dataset = self.data_manager.load_embedded_dataset(self.config.embedded_filename)
         else:
             input_dataset = self.data_manager.load_input_dataset(self.config.input_filename)
@@ -36,11 +39,13 @@ class ClusterStage:
         # Embeddings to numpy array
         embeddings = np.array([example.embedding for example in embedded_dataset.examples])
 
+        print("Reducing dimensionality with UMAP...")
         reduced_embeddings = self.reducer.reduce(
             embeddings,
             n_components=self.config.umap_n_components
         )
 
+        print("Clustering with HDBSCAN...")
         labels, probabilities = self.clusterer.cluster(reduced_embeddings)
 
         # Convert to schema format
@@ -53,6 +58,7 @@ class ClusterStage:
             cluster_dataset, self.config.output_filename
         )
 
+        print(f"Clustering stage completed! Output saved to: {output_path}")
         return output_path
 
     def _create_cluster_dataset(
