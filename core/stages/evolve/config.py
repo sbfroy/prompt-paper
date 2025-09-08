@@ -17,6 +17,9 @@ class EvolveConfig:
     inter_prob: float = 0.4  # Probability of inter-cluster mutation
     intra_prob: float = 0.4  # Probability of intra-cluster mutation
 
+    # Client parameters
+    openai_model: str = "gpt-4o-mini"
+
     # File names
     input_filename: str = "cluster_dataset.jsonl"
     output_filename: str = "evolved_dataset.jsonl"
