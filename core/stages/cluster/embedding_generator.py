@@ -1,6 +1,7 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 from typing import List
+from tqdm import tqdm
 
 from ...schemas import InputDataset, EmbeddedExample, EmbeddedDataset
 
@@ -14,7 +15,7 @@ class EmbeddingGenerator:
     def generate_embeddings(self, input_dataset: InputDataset) -> EmbeddedDataset:
         embedded_examples: List[EmbeddedExample] = []
         
-        for example in input_dataset.examples:
+        for example in tqdm(input_dataset.examples, desc="Generating embeddings", ncols=75):
             embedding = self._get_embedding(example.text)
             embedded_example = EmbeddedExample(
                 example_id=example.example_id,
