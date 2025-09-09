@@ -4,6 +4,39 @@ from dotenv import load_dotenv
 import os
 import time
 
+# Global cost tracking
+_total_cost = 0.0
+_total_tokens = {"prompt": 0, "completion": 0}
+
+MODEL_PRICING = {
+    "gpt-4o-mini": {"input": 1.65, "output": 6.60},  # per 1M tokens in NOK
+}
+
+def calculate_cost(usage, model):
+    """Calculate cost based on token usage and model pricing."""
+    if model not in MODEL_PRICING:
+        print(f"Warning: Unknown model {model}, cost tracking unavailable")
+        return 0.0
+    
+    pricing = MODEL_PRICING[model]
+    input_cost = (usage.prompt_tokens / 1_000_000) * pricing["input"]
+    output_cost = (usage.completion_tokens / 1_000_000) * pricing["output"]
+    return input_cost + output_cost
+
+def get_total_cost():
+    """Get total API cost so far in NOK."""
+    return _total_cost
+
+def get_total_tokens():
+    """Get total token usage so far."""
+    return _total_tokens.copy()
+
+def reset_cost_tracking():
+    """Reset cost tracking (useful for new experiments)."""
+    global _total_cost, _total_tokens
+    _total_cost = 0.0
+    _total_tokens = {"prompt": 0, "completion": 0}
+
 def get_llm_response(prompt_template, individual, test_sentence, cluster_dataset, model="gpt-4o-mini"):
     """   
     Args:
@@ -39,6 +72,17 @@ def get_llm_response(prompt_template, individual, test_sentence, cluster_dataset
                     {"role": "user", "content": prompt}
                 ]
             )
+            
+            # Track cost and tokens
+            global _total_cost, _total_tokens
+            if hasattr(response, 'usage') and response.usage:
+                cost = calculate_cost(response.usage, model)
+                _total_cost += cost
+                _total_tokens["prompt"] += response.usage.prompt_tokens
+                _total_tokens["completion"] += response.usage.completion_tokens
+                
+                print(f"API call: {cost:.2f} NOK ({response.usage.prompt_tokens} + {response.usage.completion_tokens} tokens)")
+            
             return response.choices[0].message.content
             
         except BadRequestError as e:
