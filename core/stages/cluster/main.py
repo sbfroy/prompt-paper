@@ -97,7 +97,7 @@ class ClusterStage:
             task_type=embedded_dataset.task_type
         )
     
-def run_clustering_stage(
+def run_cluster_stage(
     task: TaskType,
     base_dir: str,
     config_dict: dict,

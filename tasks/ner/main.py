@@ -6,7 +6,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from core.schemas import TaskType
-from core.stages.cluster.main import run_clustering_stage
+from core.stages.cluster.main import run_cluster_stage
 from core.stages.evolve.main import run_evolve_stage
 from .evaluation import evaluate_individual
 import yaml
@@ -40,7 +40,7 @@ def run_pipeline():
     
     try:
         # Run clustering stage
-        cluster_output = run_clustering_stage(
+        cluster_output = run_cluster_stage(
             task=TaskType.NER,
             base_dir=str(base_dir),
             config_dict=config.get('clustering', {}),
