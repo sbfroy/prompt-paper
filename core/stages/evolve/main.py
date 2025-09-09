@@ -6,9 +6,9 @@ from .operators import mate, composite_mutate
 from .config import EvolveConfig
 from ...data_manager import DataManager
 from ...schemas import TaskType
+from .client import get_total_cost, get_total_tokens, reset_cost_tracking
 
 # TODO: 4. implement wandb
-# TODO: 5. set up something that tracks cost
 
 class EvolveStage:
     def __init__(self, data_manager: DataManager, config: EvolveConfig, evaluate_fn):
@@ -18,6 +18,9 @@ class EvolveStage:
 
     def run(self):
         print("Starting evolution stage...")
+        
+        # Reset cost tracking for this run
+        reset_cost_tracking()
         
         # Load the clustered dataset 
         cluster_dataset = self.data_manager.load_cluster_dataset(self.config.input_filename)
@@ -41,9 +44,9 @@ class EvolveStage:
             return composite_mutate(
                 individual, 
                 cluster_dataset, 
-                indpb=self.config.mutation_indpb,
-                inter_prob=self.config.inter_cluster_mutation_prob,
-                intra_prob=self.config.intra_cluster_mutation_prob
+                indpb=self.config.indpb,
+                inter_prob=self.config.inter_prob,
+                intra_prob=self.config.intra_prob
             )
 
         # Initialize the algorithm
@@ -63,10 +66,13 @@ class EvolveStage:
         best_individual = tools.selBest(best_population, 1)[0]
         
         print(f"Evolution completed!")
+        
+        # Report costs
+        total_cost = get_total_cost()
+        total_tokens = get_total_tokens()
+        print(f"API Costs: {total_cost:.2f} NOK")
+        print(f"Token Usage: {total_tokens['prompt']:,} prompt + {total_tokens['completion']:,} completion = {sum(total_tokens.values()):,} total")
         print(f"Best individual fitness: {best_individual.fitness.values[0]}")
-        print(f"Best individual contains {len(best_individual)} examples:")
-        for cluster_id, example in best_individual:
-            print(f"  - Example {example.example_id} from cluster {cluster_id} (text: {example.text[:50]}...)")
         
         # Save results
         output_path = self._save_results(best_individual, logbook)
@@ -75,20 +81,14 @@ class EvolveStage:
         return output_path, best_individual, logbook
     
     def _save_results(self, best_individual, logbook):
-        """
-        Save the evolution results to output directory.
-        """
-        # Extract examples from the best individual
         selected_examples = []
         for cluster_id, example in best_individual:
             selected_examples.append({
                 "cluster_id": cluster_id,
                 "example_id": example.example_id,
-                "text": example.text,
-                "membership_probability": example.membership_probability
+                "text": example.text
             })
-        
-        # Prepare results data
+ 
         results = {
             "best_individual": {
                 "fitness": best_individual.fitness.values[0],
@@ -99,10 +99,13 @@ class EvolveStage:
                 "final_avg_fitness": logbook[-1]["avg"] if logbook else 0,
                 "final_max_fitness": logbook[-1]["max"] if logbook else 0,
                 "final_min_fitness": logbook[-1]["min"] if logbook else 0
+            },
+            "api_costs": {
+                "total_cost_nok": get_total_cost(),
+                "total_tokens": get_total_tokens()
             }
         }
         
-        # Save to output directory
         output_path = self.data_manager.save_final_output(results, self.config.output_filename)
         return output_path
 
