@@ -18,13 +18,3 @@ class TaskEvaluator(ABC):
             a tuple of fitness scores (float,)
         """
         pass
-    
-    @abstractmethod
-    def get_evaluation_config(self):
-        """
-        Return evaluation configuration for this task.
-
-        Returns:
-            A dict of configuration parameters specific to the task.
-        """
-        pass
