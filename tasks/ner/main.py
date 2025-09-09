@@ -53,14 +53,10 @@ def run_pipeline():
         config_dict=config.get('evolution', {}),
         evaluate_fn=evaluate_fn
     )
-        
-        print(f"Pipeline completed successfully!")
-        print(f"Cluster output: {cluster_output}")
-        print(f"Evolution output: {evolution_output}")
- 
-    except Exception as e:
-        print(f"Error: {e}")
-        raise
 
+    print(f"Pipeline completed successfully!")
+    print(f"Cluster output: {cluster_output}")
+    print(f"Evolution output: {evolution_output}")
+ 
 if __name__ == "__main__":
     run_pipeline()
