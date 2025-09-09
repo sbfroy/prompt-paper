@@ -27,4 +27,4 @@ class EvolveConfig:
     @classmethod
     def from_dict(cls, config_dict: dict) -> 'EvolveConfig':
         """Create config from dictionary, using defaults for missing keys."""
-        return cls(**{k: v for k, v in config_dict.items() if hasattr(cls, k)})
+        return cls(**{k: v for k, v in config_dict.items() if k in cls.__dataclass_fields__})
