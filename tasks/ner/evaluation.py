@@ -24,7 +24,7 @@ class NERTaskEvaluator(TaskEvaluator):
         config = self.config
 
         # Load validation data
-        val_df = create_df(Path(self.base_dir) / 'data/input' / config["validation_file"])
+        val_df = create_df(Path(self.base_dir) / 'ner/data/input' / config["validation_file"])
         val_df_sample = val_df.iloc[:int(len(val_df) * config["validation_sample_ratio"])]
         
         scores = []
