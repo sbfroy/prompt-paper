@@ -4,60 +4,57 @@ from sklearn.metrics import classification_report
 from collections import defaultdict
 from pathlib import Path
 from .utils import create_df, get_label_mappings
-from .prompts.evaluation_prompt import EVALUATION_PROMPT
+from core.stages.evolve import get_llm_response
+import sys
 
-def evaluate_individual(individual, cluster_dataset, base_dir: str, sample_ratio: float = 0.5):
-    """
-    Evaluate an individual (prompt with examples) on the validation dataset.
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from core.evaluation import TaskEvaluator
+
+class NERTaskEvaluator(TaskEvaluator):    
+    def __init__(self, base_dir: str, config: dict = None):
+        self.base_dir = base_dir
+        self.config = config or {}
     
-    Args:
-        individual: List of (cluster_id, example) tuples from GA
-        cluster_dataset: The clustered dataset containing all examples
-        base_dir: Base directory for task data
-        sample_ratio: Fraction of validation data to use for evaluation
+    def evaluate_individual(self, individual, cluster_dataset):
+        """Evaluate an individual on the NER validation dataset."""
+        config = self.config
+
+        # Load validation data
+        val_df = create_df(Path(self.base_dir) / 'data/input' / config["validation_file"])
+        val_df_sample = val_df.iloc[:int(len(val_df) * config["validation_sample_ratio"])]
         
-    Returns:
-        tuple: (f1_score,) - fitness value for genetic algorithm
-    """
-    # Load validation data
-    val_df = create_df(Path(base_dir) / 'data/input/regplans-dev.conllu')
-    val_df_sample = val_df.iloc[:int(len(val_df) * sample_ratio)]
-    
-    scores = []
-    for _, row in val_df_sample.iterrows():
-        sentence = row['full_text']
-        tokens = row['words']
-        true_labels = row['labels']
-        
-        # Get LLM response for this sentence using the individual's examples
-        try:
-            import sys
+        scores = []
+        for _, row in val_df_sample.iterrows():
+            sentence = row['full_text']
+            tokens = row['words']
+            true_labels = row['labels']
             
-            # Add project root to path for imports
-            project_root = Path(__file__).parent.parent.parent
-            if str(project_root) not in sys.path:
-                sys.path.insert(0, str(project_root))
-                
-            from core.stages.evolve.client import get_llm_response
             response = get_llm_response(
-                prompt_template=EVALUATION_PROMPT,
+                prompt_template=config["prompt_template"],
                 individual=individual,
                 test_sentence=sentence,
-                cluster_dataset=cluster_dataset
+                cluster_dataset=cluster_dataset,
+                model=config["model"]
             )
-            score = evaluate_llm_response(response, true_labels, tokens)
-            scores.append(score)
-        except Exception as e:
-            print(f"Error evaluating sentence {row['sent_id']}: {e}")
-            scores.append(0.0)  # Default to 0 score on error
-    
-    if not scores:
-        return (0.0,)
-    
-    avg_score = sum(scores) / len(scores)
-    return (avg_score,)
+            
+            # Handle empty responses (from client errors)
+            if not response.strip():
+                print(f"Empty response for sentence {row['sent_id']}, using score 0.0")
+                scores.append(0.0)
+            else:
+                score = evaluate_llm_response(response, true_labels, tokens)
+                scores.append(score)
         
-
+        if not scores:
+            return (0.0,)
+        
+        avg_score = sum(scores) / len(scores)
+        return (avg_score,)
+        
 def evaluate_llm_response(response_text, true_labels, tokens):
     """
     Evaluates LLM response against true labels and returns F1 score.
