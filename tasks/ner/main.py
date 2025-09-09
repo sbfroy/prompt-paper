@@ -1,14 +1,16 @@
 import sys
 import os
 from pathlib import Path
+from functools import partial
 
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from core.schemas import TaskType
-from core.stages.cluster.main import run_cluster_stage
-from core.stages.evolve.main import run_evolve_stage
-from .evaluation import evaluate_individual
+from core.stages.cluster import run_cluster_stage
+from core.stages.evolve import run_evolve_stage
+from core.data_manager import DataManager
+from .evaluation import NERTaskEvaluator
 import yaml
 
 def load_config():
@@ -16,20 +18,14 @@ def load_config():
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def create_evaluation_function(base_dir: str):
-    """Create evaluation function that has the right signature for the evolution stage."""
-    def evaluate_fn(individual):
-        # Load cluster dataset 
-        from core.data_manager import DataManager
-        data_manager = DataManager(TaskType.NER, base_dir)
-        cluster_dataset = data_manager.load_cluster_dataset("cluster_dataset.jsonl")
-        
-        return evaluate_individual(
-            individual=individual,
-            cluster_dataset=cluster_dataset, 
-            base_dir=base_dir
-        )
-    return evaluate_fn
+def create_evaluation_function(base_dir, config, cluster_dataset):
+    eval_config = config.get('evaluation', {}) if config else {}
+    evaluator = NERTaskEvaluator(base_dir, eval_config)
+
+    return partial(
+        evaluator.evaluate_individual,
+        cluster_dataset=cluster_dataset
+    )
 
 def run_pipeline():
     config = load_config()
@@ -38,23 +34,25 @@ def run_pipeline():
     task_dir = Path(__file__).parent
     base_dir = task_dir.parent  
     
-    try:
-        # Run clustering stage
-        cluster_output = run_cluster_stage(
-            task=TaskType.NER,
-            base_dir=str(base_dir),
-            config_dict=config.get('clustering', {}),
-            skip_embedding=config.get('skip_embedding', False)
-        )
+    # Run clustering stage
+    cluster_output = run_cluster_stage(
+        task=TaskType.NER,
+        base_dir=str(base_dir),
+        config_dict=config.get('clustering', {}),
+        skip_embedding=config.get('skip_embedding', False)
+    )
+
+    data_manager = DataManager(TaskType.NER, str(base_dir))
+    cluster_dataset = data_manager.load_cluster_dataset("cluster_dataset.jsonl")
         
-        # Run evolution stage with task-specific evaluation
-        evaluate_fn = create_evaluation_function(str(base_dir))
-        evolution_output = run_evolve_stage(
-            task=TaskType.NER,
-            base_dir=str(base_dir),
-            config_dict=config.get('evolution', {}),
-            evaluate_fn=evaluate_fn
-        )
+    # Run evolution stage with task-specific evaluation
+    evaluate_fn = create_evaluation_function(str(base_dir), config, cluster_dataset)
+    evolution_output = run_evolve_stage(
+        task=TaskType.NER,
+        base_dir=str(base_dir),
+        config_dict=config.get('evolution', {}),
+        evaluate_fn=evaluate_fn
+    )
         
         print(f"Pipeline completed successfully!")
         print(f"Cluster output: {cluster_output}")
