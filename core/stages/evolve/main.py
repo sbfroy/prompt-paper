@@ -109,19 +109,9 @@ class EvolveStage:
 def run_evolve_stage(
     task: TaskType,
     base_dir: str,
-    config_dict: dict = None,
-    evaluate_fn=None
+    config_dict: dict,
+    evaluate_fn
 ):
-    """
-    Run the evolution stage to find optimal example subsets.
-    
-    Args:
-        task: The task type
-        base_dir: Base directory for task data  
-        config_dict: Configuration dictionary for evolution
-        evaluate_fn: Function to evaluate individuals. Should take (individual, cluster_dataset, base_dir) 
-                    and return a fitness tuple. If None, uses default evaluation.
-    """
     # Setup
     data_manager = DataManager(task, base_dir)
     config = EvolveConfig.from_dict(config_dict or {})
