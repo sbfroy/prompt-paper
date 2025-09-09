@@ -1,80 +1,33 @@
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Tuple
+from conllu import parse
 
-def parse_conllu_file(file_path: Path) -> List[Dict]:
+def create_df(file_path):
+
     """
-    Parse a CONLLU file and return a list of sentence dictionaries.
-    
-    Args:
-        file_path: Path to the CONLLU file
-        
-    Returns:
-        List of dictionaries with keys: 'sent_id', 'full_text', 'words', 'labels'
+    Reads a CONLL-U formatted file, extracts words and enitity labels, 
+    and returns a df with the words and labels for each sentence.
     """
-    sentences = []
-    current_sentence = {
-        'sent_id': None,
-        'full_text': None,
-        'words': [],
-        'labels': []
-    }
-    
+
+    # Open and read the CoNLL-U file
     with open(file_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            
-            if not line:
-                # Empty line indicates end of sentence
-                if current_sentence['sent_id'] is not None:
-                    sentences.append(current_sentence)
-                    current_sentence = {
-                        'sent_id': None,
-                        'full_text': None,
-                        'words': [],
-                        'labels': []
-                    }
-                continue
-                
-            if line.startswith('# sent_id'):
-                current_sentence['sent_id'] = line.split('=')[1].strip()
-            elif line.startswith('# text'):
-                current_sentence['full_text'] = line.split('=', 1)[1].strip()
-            elif not line.startswith('#'):
-                # Parse token line
-                parts = line.split('\t')
-                if len(parts) >= 10:  # Standard CONLLU format has 10 columns
-                    word = parts[1]
-                    # Label is in the last column (MISC field)
-                    misc_field = parts[9]
-                    if 'name=' in misc_field:
-                        label = misc_field.split('name=')[1]
-                    else:
-                        label = 'O'  # Default label
-                    
-                    current_sentence['words'].append(word)
-                    current_sentence['labels'].append(label)
-        
-        # Don't forget the last sentence if file doesn't end with empty line
-        if current_sentence['sent_id'] is not None:
-            sentences.append(current_sentence)
-    
-    return sentences
+        sentences = parse(f.read())
 
-def create_df(file_path: Path) -> pd.DataFrame:
-    """
-    Create a pandas DataFrame from a CONLLU file.
-    
-    Args:
-        file_path: Path to the CONLLU file
-        
-    Returns:
-        DataFrame with columns: 'sent_id', 'full_text', 'words', 'labels'
-    """
-    sentences = parse_conllu_file(file_path)
-    return pd.DataFrame(sentences)
+    data = {'full_text': [], 'words': [], 'labels': []}
 
-def get_label_mappings() -> Tuple[Dict[str, int], Dict[int, str]]:
+    for sentence in sentences:
+
+        full_text = sentence.metadata['text'] # Extract the full text
+        words = [word['form'] for word in sentence] # Extract the words
+        labels = [word['misc']['name'] for word in sentence] # Extract the entity labels
+
+        data['full_text'].append(full_text)
+        data['words'].append(words)
+        data['labels'].append(labels)
+
+    return pd.DataFrame(data)
+
+def get_label_mappings():
     """
     Get label mappings for NER task.
     
