@@ -12,3 +12,37 @@ clustering:
 
 # Evolution stage config
 evolution:
+  subset_size: 5
+  pop_size: 5
+  generations: 2
+  cxpb: 0.7 # Crossover probability
+  mutpb: 0.2 # Mutation probability
+  tournsize: 3 # Tournament size for selection
+  indpb: 0.1 # Independent probability for each example to be mutated
+  inter_prob: 0.4 # Probability of inter-cluster mutation
+  intra_prob: 0.4 # Probability of intra-cluster mutation
+  openai_model: "gpt-4o-mini"
+  input_filename: "cluster_dataset.jsonl"
+  output_filename: "evolved_dataset.jsonl"
+  random_seed: 42
+
+# Evaluation config
+evaluation:
+  validation_sample_ratio: 0.5 # Ratio of validation set to use
+  model: "gpt-4o-mini"
+  validation_file: "regplans-dev.conllu"
+  prompt_template: |
+    Du er en ekspert på Named Entity Recognition (NER). 
+    Din oppgave er å identifisere entiteter som representerer feltnavn i tekstutdrag fra reguleringsplaner.
+
+    De eneste gyldige etikettene er B-FELT (begynnelsen på et feltnavn) og I-FELT (fortsettelsen av det samme feltnavnet).
+
+    Her er noen eksempler:
+
+    {examples}
+
+    Formuler svaret over flere linjer, med ett token per linje, og kun tokens som inngår i ett feltnavn. Hver linje skal inneholde tokenet etterfulgt av tilhørende etikett, atskilt med ett mellomrom.
+
+    Tekst: '{test_sentence}'
+
+    Entiteter:
