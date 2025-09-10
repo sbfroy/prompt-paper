@@ -7,8 +7,7 @@ from .config import EvolveConfig
 from ...data_manager import DataManager
 from ...schemas import TaskType
 from .client import get_total_cost, get_total_tokens, reset_cost_tracking
-
-# TODO: 4. implement wandb
+from ...wandb_utils import log_best_examples
 
 class EvolveStage:
     def __init__(self, data_manager: DataManager, config: EvolveConfig, evaluate_fn):
@@ -109,6 +108,13 @@ class EvolveStage:
         }
         
         output_path = self.data_manager.save_final_output(results, self.config.output_filename)
+        
+        # Log selected examples as a table
+        try:
+            log_best_examples(results["best_individual"]["selected_examples"])
+        except Exception:
+            pass
+            
         return output_path
 
 def run_evolve_stage(

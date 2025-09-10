@@ -12,6 +12,7 @@ from core.stages.evolve import run_evolve_stage
 from core.data_manager import DataManager
 from .evaluation import NERTaskEvaluator
 import yaml
+from core.wandb_utils import init_wandb, finish_wandb, log_metrics
 
 def load_config():
     config_path = Path(__file__).parent / "config.yaml"
@@ -34,6 +35,9 @@ def run_pipeline():
     task_dir = Path(__file__).parent
     base_dir = task_dir.parent  
     
+    # Init wandb (basic)
+    run = init_wandb(task_name=config.get('task_name', 'ner'), config=config)
+
     # Run clustering stage
     cluster_output = run_cluster_stage(
         task=TaskType.NER,
@@ -53,6 +57,8 @@ def run_pipeline():
         config_dict=config.get('evolution', {}),
         evaluate_fn=evaluate_fn
     )
+
+    finish_wandb()
 
     print(f"Pipeline completed successfully!")
  

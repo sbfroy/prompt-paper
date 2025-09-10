@@ -4,6 +4,7 @@ import random
 from dataclasses import dataclass
 
 from .client import get_total_cost, get_total_tokens, print_generation_cost_summary
+from ...wandb_utils import log_metrics
 
 @dataclass
 class GAConfig:
@@ -38,7 +39,11 @@ class GA:
         self.toolbox.register("individual", tools.initIterate, creator.Individual, self.toolbox.attr_sample) # builds one individual
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual) # repeats individual to make the whole population
 
-        self.toolbox.register("evaluate", self.evaluate_fn)
+        # Wrap evaluate since toolbox expects a function(pop_member) -> fitness tuple
+        def _eval(individual):
+            return self.evaluate_fn(individual)
+
+        self.toolbox.register("evaluate", _eval)
         self.toolbox.register("mate", self.mate_fn)
         self.toolbox.register("mutate", self.mutate_fn, cluster_dataset=self.cluster_dataset)
         self.toolbox.register("select", self.select_fn, tournsize=self.config.tournsize)
@@ -77,7 +82,12 @@ class GA:
         original_compile = stats.compile
         _last_total = [get_total_cost()]
 
+        _gen = [-1] # generation counter
+
         def compile_with_cost(population):
+            _gen[0] += 1
+            generation = _gen[0]
+
             rec = original_compile(population)  # avg/std/min/max stay numeric
 
             total = float(get_total_cost())
@@ -87,6 +97,29 @@ class GA:
             # Right-align numbers to fixed width; headers already padded
             rec["gen_cost"] = f"{gen_cost:.3f} NOK"
             rec["total_cost"] = f"{total:.3f} NOK"
+
+            # Numeric best fitness in current population
+            try:
+                best_fitness = max(ind.fitness.values[0] for ind in population)
+            except Exception:
+                best_fitness = None
+
+            # Log numeric metrics to wandb (skip if no run active)
+            try:
+                log_metrics(
+                    step=generation,
+                    avg=rec.get('avg'),
+                    max=rec.get('max'),
+                    min=rec.get('min'),
+                    std=rec.get('std'),
+                    nevals=rec.get('nevals'),
+                    gen_cost_nok=gen_cost,
+                    total_cost_nok=total,
+                    best_fitness=best_fitness
+                )
+            except Exception:
+                # Silent fail to avoid interfering with evolution if wandb not initialized
+                pass
 
             return rec
 
