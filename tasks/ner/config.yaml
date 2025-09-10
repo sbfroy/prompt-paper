@@ -1,5 +1,5 @@
 task_name: "ner"
-skip_embedding: true
+skip_embedding: false
 
 # Clustering stage config
 clustering:
@@ -13,10 +13,10 @@ clustering:
 # Evolution stage config
 evolution:
   subset_size: 5
-  pop_size: 5
-  generations: 2
+  pop_size: 10
+  generations: 5
   cxpb: 0.7 # Crossover probability
-  mutpb: 0.2 # Mutation probability
+  mutpb: 0.3 # Mutation probability
   tournsize: 3 # Tournament size for selection
   indpb: 0.1 # Independent probability for each example to be mutated
   inter_prob: 0.4 # Probability of inter-cluster mutation
@@ -28,7 +28,7 @@ evolution:
 
 # Evaluation config
 evaluation:
-  validation_sample_ratio: 0.5 # Ratio of validation set to use
+  validation_sample_ratio: 0.1 # Ratio of validation set to use
   model: "gpt-4o-mini"
   validation_file: "regplans-dev.conllu"
   prompt_template: |
