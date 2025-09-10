@@ -40,7 +40,7 @@ class EvolveStage:
             seed=self.config.random_seed
         )
         
-        def _mutate(individual):
+        def _mutate(individual, cluster_dataset):
             return composite_mutate(
                 individual, 
                 cluster_dataset, 
@@ -59,20 +59,11 @@ class EvolveStage:
             config=ga_config
         )
         
-        print("Running genetic algorithm...")
+        print("Running GA...")
         best_population, logbook = ga.run()
         
         # Get the best individual
         best_individual = tools.selBest(best_population, 1)[0]
-        
-        print(f"Evolution completed!")
-        
-        # Report costs
-        total_cost = get_total_cost()
-        total_tokens = get_total_tokens()
-        print(f"API Costs: {total_cost:.2f} NOK")
-        print(f"Token Usage: {total_tokens['prompt']:,} prompt + {total_tokens['completion']:,} completion = {sum(total_tokens.values()):,} total")
-        print(f"Best individual fitness: {best_individual.fitness.values[0]}")
         
         # Save results
         output_path = self._save_results(best_individual, logbook)
@@ -100,6 +91,17 @@ class EvolveStage:
                 "final_max_fitness": logbook[-1]["max"] if logbook else 0,
                 "final_min_fitness": logbook[-1]["min"] if logbook else 0
             },
+            "generation_data": [
+                {
+                    "generation": i,
+                    "avg": record["avg"],
+                    "std": record["std"],
+                    "min": record["min"],
+                    "max": record["max"],
+                    "nevals": record["nevals"]
+                }
+                for i, record in enumerate(logbook)
+            ],
             "api_costs": {
                 "total_cost_nok": get_total_cost(),
                 "total_tokens": get_total_tokens()
