@@ -17,3 +17,4 @@ hdbscan~=0.8.40
 seaborn~=0.13.2
 deap~=1.4.3
 conllu~=6.0.0
+wandb~=0.21.3
