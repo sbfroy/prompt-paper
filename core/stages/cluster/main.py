@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 from pathlib import Path
 
 from ...data_manager import DataManager
@@ -40,13 +41,17 @@ class ClusterStage:
         embeddings = np.array([example.embedding for example in embedded_dataset.examples])
 
         print("Reducing dimensionality with UMAP...")
-        reduced_embeddings = self.reducer.reduce(
-            embeddings,
-            n_components=self.config.umap_n_components
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning, module="umap")
+            reduced_embeddings = self.reducer.reduce(
+                embeddings,
+                n_components=self.config.umap_n_components
+            )
 
         print("Clustering with HDBSCAN...")
-        labels, probabilities = self.clusterer.cluster(reduced_embeddings)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
+            labels, probabilities = self.clusterer.cluster(reduced_embeddings)
 
         # Convert to schema format
         cluster_dataset = self._create_cluster_dataset(
