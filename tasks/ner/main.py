@@ -55,8 +55,6 @@ def run_pipeline():
     )
 
     print(f"Pipeline completed successfully!")
-    print(f"Cluster output: {cluster_output}")
-    print(f"Evolution output: {evolution_output}")
  
 if __name__ == "__main__":
     run_pipeline()
