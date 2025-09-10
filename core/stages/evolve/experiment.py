@@ -3,6 +3,8 @@ import numpy as np
 import random
 from dataclasses import dataclass
 
+from .client import get_total_cost, get_total_tokens, print_generation_cost_summary
+
 @dataclass
 class GAConfig:
     subset_size: int
@@ -62,18 +64,49 @@ class GA:
 
     def run(self):
         
-        # sets up the statistics
-        stats = tools.Statistics(key=lambda ind: ind.fitness.values)
+        # sets up the statistics with simple cost printing
+        stats = tools.Statistics(key=lambda ind: ind.fitness.values[0])
         stats.register("avg", np.mean); stats.register("std", np.std)
         stats.register("min", np.min); stats.register("max", np.max)
 
+        # Custom stats for cost tracking
+        stats.register("gen_cost",   lambda _: 0.0)
+        stats.register("total_cost", lambda _: 0.0)
+
+        # Simple cost printing after each generation
+        original_compile = stats.compile
+        _last_total = [get_total_cost()]
+
+        def compile_with_cost(population):
+            rec = original_compile(population)  # avg/std/min/max stay numeric
+
+            total = float(get_total_cost())
+            gen_cost = max(0.0, total - _last_total[0])
+            _last_total[0] = total
+
+            # Right-align numbers to fixed width; headers already padded
+            rec["gen_cost"] = f"{gen_cost:.3f} NOK"
+            rec["total_cost"] = f"{total:.3f} NOK"
+
+            return rec
+
+        stats.compile = compile_with_cost
+
         pop = self.toolbox.population(n=self.config.pop_size) # creates the init population
+        
+        import sys, shutil
+        width = shutil.get_terminal_size().columns
+        print("-" * width)
+     
         pop, logbook = algorithms.eaSimple(
             pop, self.toolbox,
             cxpb=self.config.cxpb, 
             mutpb=self.config.mutpb,
             ngen=self.config.generations, 
-            stats=stats
+            stats=stats,
+            verbose=True  
         )
+        
+        print("-" * width)
 
         return pop, logbook # final population, stats over generations
