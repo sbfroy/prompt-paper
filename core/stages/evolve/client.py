@@ -7,6 +7,9 @@ import time
 # Global cost tracking
 _total_cost = 0.0
 _total_tokens = {"prompt": 0, "completion": 0}
+_generation_cost = 0.0
+_generation_tokens = {"prompt": 0, "completion": 0}
+_generation_calls = 0
 
 MODEL_PRICING = {
     "gpt-4o-mini": {"input": 1.65, "output": 6.60},  # per 1M tokens in NOK
@@ -24,18 +27,36 @@ def calculate_cost(usage, model):
     return input_cost + output_cost
 
 def get_total_cost():
-    """Get total API cost so far in NOK."""
+    # Total API cost so far 
     return _total_cost
 
 def get_total_tokens():
-    """Get total token usage so far."""
+    # Total token usage so far
     return _total_tokens.copy()
 
 def reset_cost_tracking():
     """Reset cost tracking (useful for new experiments)."""
-    global _total_cost, _total_tokens
+    global _total_cost, _total_tokens, _generation_cost, _generation_tokens, _generation_calls
     _total_cost = 0.0
     _total_tokens = {"prompt": 0, "completion": 0}
+    _generation_cost = 0.0
+    _generation_tokens = {"prompt": 0, "completion": 0}
+    _generation_calls = 0
+
+def print_generation_cost_summary():
+    """Get generation cost summary for inline display."""
+    global _generation_cost, _generation_tokens, _generation_calls
+    if _generation_calls > 0:
+        gen_cost = _generation_cost
+        total_cost = _total_cost
+        
+        # Reset generation counters
+        _generation_cost = 0.0
+        _generation_tokens = {"prompt": 0, "completion": 0}
+        _generation_calls = 0
+        
+        return f"(Gen: {gen_cost:.3f} NOK | Total: {total_cost:.3f} NOK)"
+    return ""
 
 def get_llm_response(prompt_template, individual, test_sentence, cluster_dataset, model="gpt-4o-mini"):
     """   
@@ -74,14 +95,20 @@ def get_llm_response(prompt_template, individual, test_sentence, cluster_dataset
             )
             
             # Track cost and tokens
-            global _total_cost, _total_tokens
+            global _total_cost, _total_tokens, _generation_cost, _generation_tokens, _generation_calls
             if hasattr(response, 'usage') and response.usage:
                 cost = calculate_cost(response.usage, model)
+                
+                # Update totals
                 _total_cost += cost
                 _total_tokens["prompt"] += response.usage.prompt_tokens
                 _total_tokens["completion"] += response.usage.completion_tokens
                 
-                print(f"API call: {cost:.2f} NOK ({response.usage.prompt_tokens} + {response.usage.completion_tokens} tokens)")
+                # Update generation tracking
+                _generation_cost += cost
+                _generation_tokens["prompt"] += response.usage.prompt_tokens
+                _generation_tokens["completion"] += response.usage.completion_tokens
+                _generation_calls += 1
             
             return response.choices[0].message.content
             
