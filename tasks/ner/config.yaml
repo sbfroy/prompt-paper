@@ -1,5 +1,5 @@
 task_name: "ner"
-skip_embedding: false
+skip_embedding: true
 
 # Clustering stage config
 clustering:
@@ -13,8 +13,8 @@ clustering:
 # Evolution stage config
 evolution:
   subset_size: 5
-  pop_size: 10
-  generations: 5
+  pop_size: 2
+  generations: 3
   cxpb: 0.7 # Crossover probability
   mutpb: 0.3 # Mutation probability
   tournsize: 3 # Tournament size for selection
