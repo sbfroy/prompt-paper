@@ -1,6 +1,7 @@
 import numpy as np
 import warnings
 from pathlib import Path
+from collections import defaultdict
 
 from ...data_manager import DataManager
 from ...schemas import TaskType, Cluster, ClusterDataset, ClusterExample
@@ -10,7 +11,7 @@ from .clusterer import HDBSCANClusterer
 from .config import ClusterConfig
 
 class ClusterStage:
-    def __init__(self, data_manager: DataManager, config: ClusterConfig):
+    def __init__(self, data_manager, config):
         self.data_manager = data_manager
         self.config = config
 
@@ -26,10 +27,11 @@ class ClusterStage:
             cluster_selection_epsilon=config.cluster_selection_epsilon
         )
 
-    def run(self, skip_embedding: bool = False):
+    def run(self):
         print("Starting clustering stage...")
-        
-        if skip_embedding:
+
+        # ====== EMBEDDING ======
+        if self.config.skip_embedding:
             print("Loading existing embeddings...")
             embedded_dataset = self.data_manager.load_embedded_dataset(self.config.embedded_filename)
         else:
@@ -40,6 +42,8 @@ class ClusterStage:
         # Embeddings to numpy array
         embeddings = np.array([example.embedding for example in embedded_dataset.examples])
 
+        
+        # ====== UMAP ======
         print("Reducing dimensionality with UMAP...")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning, module="umap")
@@ -48,6 +52,7 @@ class ClusterStage:
                 n_components=self.config.umap_n_components
             )
 
+        # ====== HDBSCAN ======
         print("Clustering with HDBSCAN...")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
@@ -72,8 +77,6 @@ class ClusterStage:
         labels: np.ndarray,
         probabilities: np.ndarray
     ):
-        from collections import defaultdict
-
         # Group examples by cluster
         cluster_groups = defaultdict(list)
 
@@ -103,10 +106,9 @@ class ClusterStage:
         )
     
 def run_cluster_stage(
-    task: TaskType,
-    base_dir: str,
-    config_dict: dict,
-    skip_embedding: bool = False
+    task,
+    base_dir,
+    config_dict,
 ):
     # Setup
     data_manager = DataManager(task, base_dir)
@@ -114,4 +116,4 @@ def run_cluster_stage(
 
     # Run clustering
     stage = ClusterStage(data_manager, config)
-    return stage.run(skip_embedding=skip_embedding)
+    return stage.run()
