@@ -8,7 +8,6 @@ class HDBSCANClusterer:
         cluster_selection_epsilon,
         **kwargs
     ):
-
         self.clusterer = hdbscan.HDBSCAN(
             min_cluster_size=min_cluster_size,
             min_samples=min_samples,
@@ -26,5 +25,5 @@ class HDBSCANClusterer:
         """
         labels = self.clusterer.fit_predict(embeddings)
         probabilities = self.clusterer.probabilities_
-        
+
         return labels, probabilities
