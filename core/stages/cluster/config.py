@@ -5,6 +5,7 @@ class ClusterConfig:
     random_seed: int = 42
     
     # Embedding generation params
+    skip_embedding: bool = False
     embedding_model: str = "text-embedding-3-small"
     batch_size: int = 64
 
