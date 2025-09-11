@@ -6,6 +6,7 @@ class ClusterConfig:
     
     # Embedding generation params
     embedding_model: str = "text-embedding-3-small"
+    batch_size: int = 64
 
     # UMAP params
     umap_n_components: int = 30

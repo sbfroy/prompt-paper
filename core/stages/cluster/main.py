@@ -34,7 +34,7 @@ class ClusterStage:
             embedded_dataset = self.data_manager.load_embedded_dataset(self.config.embedded_filename)
         else:
             input_dataset = self.data_manager.load_input_dataset(self.config.input_filename)
-            embedded_dataset = self.embedding_generator.generate_embeddings(input_dataset)
+            embedded_dataset = self.embedding_generator.generate_embeddings(input_dataset, self.config.batch_size)
             self.data_manager.save_embedded_dataset(embedded_dataset, self.config.embedded_filename)
 
         # Embeddings to numpy array
