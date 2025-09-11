@@ -3,6 +3,7 @@ import hdbscan
 class HDBSCANClusterer:
     def __init__(
         self, 
+        # Should find better defaults
         min_cluster_size: int = 15,
         min_samples: int = 1,
         cluster_selection_epsilon: float = 0.3,
