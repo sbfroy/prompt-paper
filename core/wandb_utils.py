@@ -13,7 +13,7 @@ def init_wandb(task_name, config):
     config = _flatten_dict(config)
     run = wandb.init(
         project=f"{task_name}_task",
-        entity="sbfroy_work", 
+        entity="icl-research-team", 
         config=config
         )
     return run
