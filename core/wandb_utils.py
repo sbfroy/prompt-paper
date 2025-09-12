@@ -8,6 +8,7 @@ def init_wandb(task_name, config):
     Flattens config and initializes a wandb run.
 
     """
+    # TODO: task_name should be project name, so i get different projects for different tasks
     config = _flatten_dict(config)
     run = wandb.init(project="icl_project_2025", config=config)
     return run
@@ -19,10 +20,9 @@ def log_metrics(step, **metrics):
     """
     return wandb.log(metrics, step=step)
 
-
 def log_best_examples(selected_examples):
     """
-    Logs the best individual's selected examples as a wandb table.
+    Logs the best individual as a wandb table.
 
     """
     table = wandb.Table(columns=["cluster_id", "example_id", "text"])
