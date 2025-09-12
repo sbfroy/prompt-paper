@@ -19,7 +19,7 @@ class NERTaskEvaluator(TaskEvaluator):
         self.base_dir = base_dir
         self.config = config or {}
     
-    def evaluate_individual(self, individual, cluster_dataset):
+    def evaluate_individual(self, individual):
         """Evaluate an individual on the NER validation dataset."""
         config = self.config
 
@@ -36,8 +36,7 @@ class NERTaskEvaluator(TaskEvaluator):
             response = get_llm_response(
                 prompt_template=config["prompt_template"],
                 individual=individual,
-                test_sentence=sentence,
-                cluster_dataset=cluster_dataset,
+                input_text=sentence,
                 model=config["model"]
             )
             
