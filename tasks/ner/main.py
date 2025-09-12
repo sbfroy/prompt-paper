@@ -42,8 +42,7 @@ def run_pipeline():
     cluster_output = run_cluster_stage(
         task=TaskType.NER,
         base_dir=str(base_dir),
-        config_dict=config.get('clustering', {}),
-        skip_embedding=config.get('skip_embedding', False)
+        config_dict=config.get('clustering', {})
     )
 
     data_manager = DataManager(TaskType.NER, str(base_dir))

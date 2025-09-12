@@ -1,5 +1,5 @@
 task_name: "ner"
-skip_embedding: true
+skip_embedding: false
 
 # Clustering stage config
 clustering:
