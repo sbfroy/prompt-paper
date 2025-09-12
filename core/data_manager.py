@@ -11,8 +11,10 @@ from .schemas import (
     ClusterDataset,
 )
 
+# TODO: Should probably make use of wandb artifacts in the future
+
 class DataManager:
-    def __init__(self, task: TaskType, base_dir: str):
+    def __init__(self, task, base_dir):
         self.task = TaskType(task)
 
         # Creates the task data directory
@@ -26,7 +28,7 @@ class DataManager:
         ):
             p.mkdir(parents=True, exist_ok=True)
 
-    def save_input_dataset(self, dataset: InputDataset, filename: str = "input_dataset.jsonl"):
+    def save_input_dataset(self, dataset: InputDataset, filename="input_dataset.jsonl"):
         """
         Save InputDataset as JSONL in the input directory.
         This is the standardized format that enters the pipeline.
@@ -39,7 +41,7 @@ class DataManager:
 
         return filepath
     
-    def load_input_dataset(self, filename: str = "input_dataset.jsonl"):
+    def load_input_dataset(self, filename="input_dataset.jsonl"):
         """Load InputDataset from input directory."""
         filepath = self.get_input_dir() / filename
         examples: list[InputExample] = []
@@ -54,18 +56,18 @@ class DataManager:
 
         return InputDataset(examples=examples, task_type=self.task)
 
-    def save_embedded_dataset(self, dataset: EmbeddedDataset, filename: str = "embedded_dataset.parquet"):
+    def save_embedded_dataset(self, dataset, filename="embedded_dataset.parquet"):
         """Save embedded dataset as Parquet in output directory."""
         filepath = self.get_output_dir() / filename
         
         records = [example.model_dump() for example in dataset.examples]
-        df = pd.DataFrame(records) # To DF for efficient storage
+        df = pd.DataFrame(records) 
         df.to_parquet(filepath, compression='snappy', index=False)
 
         return filepath
     
 
-    def load_embedded_dataset(self, filename: str = "embedded_dataset.parquet"):
+    def load_embedded_dataset(self, filename="embedded_dataset.parquet"):
         """Load embedded dataset from output directory."""
         filepath = self.get_output_dir() / filename
 
@@ -74,7 +76,7 @@ class DataManager:
 
         return EmbeddedDataset(examples=examples, task_type=self.task)
 
-    def save_cluster_dataset(self, dataset: ClusterDataset, filename: str = "cluster_dataset.jsonl"):
+    def save_cluster_dataset(self, dataset, filename="cluster_dataset.jsonl"):
         """
         Save cluster dataset as JSONL in output directory.
         Preserves cluster structure for analysis.
@@ -87,7 +89,7 @@ class DataManager:
 
         return filepath
 
-    def load_cluster_dataset(self, filename: str = "cluster_dataset.jsonl"):
+    def load_cluster_dataset(self, filename="cluster_dataset.jsonl"):
         """Load cluster dataset from output directory."""
         filepath = self.get_output_dir() / filename
         clusters: list[Cluster] = []
@@ -102,7 +104,7 @@ class DataManager:
 
         return ClusterDataset(clusters=clusters, task_type=self.task)
 
-    def save_final_output(self, data: dict, filename: str):
+    def save_final_output(self, data, filename):
         """
         Save final pipeline results to output directory.
         Generic method for saving any final results as JSON.
