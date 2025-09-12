@@ -1,23 +1,13 @@
 from deap import base, creator, tools, algorithms
 import numpy as np
 import random
-from dataclasses import dataclass
+import sys, shutil
 
-from .client import get_total_cost, get_total_tokens, print_generation_cost_summary
+from .client import get_total_cost
 from ...wandb_utils import log_metrics
 
-@dataclass
-class GAConfig:
-    subset_size: int
-    pop_size: int
-    generations : int
-    cxpb: float
-    mutpb: float
-    tournsize: int
-    seed: int
-
 class GA:
-    def __init__(self, cluster_dataset, evaluate_fn, mate_fn, mutate_fn, select_fn, config: GAConfig):
+    def __init__(self, cluster_dataset, evaluate_fn, mate_fn, mutate_fn, select_fn, config):
         self.cluster_dataset = cluster_dataset  
         self.evaluate_fn = evaluate_fn 
         self.mate_fn = mate_fn
@@ -25,8 +15,8 @@ class GA:
         self.select_fn = select_fn
         self.config = config
         
-        random.seed(self.config.seed)
-        np.random.seed(self.config.seed)
+        random.seed(self.config.random_seed)
+        np.random.seed(self.config.random_seed)
 
         creator.create("FitnessMax", base.Fitness, weights=(1.0,)) # set to maximize the fitness
         creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -82,27 +72,20 @@ class GA:
         original_compile = stats.compile
         _last_total = [get_total_cost()]
 
-        _gen = [-1] # generation counter
+        _gen = [-1] # gen counter
 
         def compile_with_cost(population):
             _gen[0] += 1
             generation = _gen[0]
 
-            rec = original_compile(population)  # avg/std/min/max stay numeric
+            rec = original_compile(population)
 
             total = float(get_total_cost())
             gen_cost = max(0.0, total - _last_total[0])
             _last_total[0] = total
 
-            # Right-align numbers to fixed width; headers already padded
             rec["gen_cost"] = f"{gen_cost:.3f} NOK"
             rec["total_cost"] = f"{total:.3f} NOK"
-
-            # Numeric best fitness in current population
-            try:
-                best_fitness = max(ind.fitness.values[0] for ind in population)
-            except Exception:
-                best_fitness = None
 
             # Log numeric metrics to wandb (skip if no run active)
             try:
@@ -113,9 +96,7 @@ class GA:
                     min=rec.get('min'),
                     std=rec.get('std'),
                     nevals=rec.get('nevals'),
-                    gen_cost_nok=gen_cost,
-                    total_cost_nok=total,
-                    best_fitness=best_fitness
+                    total_cost=total
                 )
             except Exception:
                 # Silent fail to avoid interfering with evolution if wandb not initialized
@@ -127,7 +108,6 @@ class GA:
 
         pop = self.toolbox.population(n=self.config.pop_size) # creates the init population
         
-        import sys, shutil
         width = shutil.get_terminal_size().columns
         print("-" * width)
      
@@ -136,8 +116,7 @@ class GA:
             cxpb=self.config.cxpb, 
             mutpb=self.config.mutpb,
             ngen=self.config.generations, 
-            stats=stats,
-            verbose=True  
+            stats=stats 
         )
         
         print("-" * width)
