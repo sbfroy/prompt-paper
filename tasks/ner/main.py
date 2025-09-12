@@ -1,7 +1,6 @@
 import sys
 import os
 from pathlib import Path
-from functools import partial
 
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
@@ -23,10 +22,7 @@ def create_evaluation_function(base_dir, config, cluster_dataset):
     eval_config = config.get('evaluation', {}) if config else {}
     evaluator = NERTaskEvaluator(base_dir, eval_config)
 
-    return partial(
-        evaluator.evaluate_individual,
-        cluster_dataset=cluster_dataset
-    )
+    return evaluator.evaluate_individual
 
 def run_pipeline():
     config = load_config()
@@ -38,7 +34,8 @@ def run_pipeline():
     # Init wandb (basic)
     run = init_wandb(task_name=config.get('task_name', 'ner'), config=config)
 
-    # Run clustering stage
+    # ====== Run clustering stage ======
+
     cluster_output = run_cluster_stage(
         task=TaskType.NER,
         base_dir=str(base_dir),
@@ -47,8 +44,10 @@ def run_pipeline():
 
     data_manager = DataManager(TaskType.NER, str(base_dir))
     cluster_dataset = data_manager.load_cluster_dataset("cluster_dataset.jsonl")
-        
-    # Run evolution stage with task-specific evaluation
+    
+    # ====== Run evolution stage ======
+    # with custom evaluation script
+    
     evaluate_fn = create_evaluation_function(str(base_dir), config, cluster_dataset)
     evolution_output = run_evolve_stage(
         task=TaskType.NER,
