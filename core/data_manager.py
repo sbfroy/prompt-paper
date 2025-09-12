@@ -21,12 +21,12 @@ class DataManager:
         self.task_data_dir = Path(base_dir) / self.task.value / "data"
         self.task_data_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create input dir only (output goes to wandb)
+        # Create dataset dir only (output goes to wandb)
         self.get_input_dir().mkdir(parents=True, exist_ok=True)
 
     def save_input_dataset(self, dataset, file_name="input_dataset.jsonl"):
         """
-        Save InputDataset as JSONL in the input directory.
+        Save InputDataset as JSONL in the dataset directory.
         This is the standardized format that enters the pipeline.
         """
         filepath = self.get_input_dir() / file_name
@@ -38,7 +38,7 @@ class DataManager:
         return filepath
     
     def load_input_dataset(self, file_name="input_dataset.jsonl"):
-        """Load InputDataset from input directory."""
+        """Load InputDataset from dataset directory."""
         filepath = self.get_input_dir() / file_name
         examples: list[InputExample] = []
         
@@ -107,3 +107,5 @@ class DataManager:
 
     def get_input_dir(self) -> Path:
         return self.task_data_dir / "input"
+
+    # TODO: Make the scope folder function
