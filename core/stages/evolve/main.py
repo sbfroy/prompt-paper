@@ -1,16 +1,14 @@
-from pathlib import Path
 from deap import tools
 
-from .experiment import GAConfig, GA
+from .experiment import GA
 from .operators import mate, composite_mutate
 from .config import EvolveConfig
 from ...data_manager import DataManager
-from ...schemas import TaskType
 from .client import get_total_cost, get_total_tokens, reset_cost_tracking
 from ...wandb_utils import log_best_examples
 
 class EvolveStage:
-    def __init__(self, data_manager: DataManager, config: EvolveConfig, evaluate_fn):
+    def __init__(self, data_manager, config, evaluate_fn):
         self.data_manager = data_manager
         self.config = config
         self.evaluate_fn = evaluate_fn
@@ -29,15 +27,8 @@ class EvolveStage:
         if len(valid_clusters) < self.config.subset_size:
             print(f"Warning: Subset size {self.config.subset_size} is more than num clusters {len(valid_clusters)}. Reducing subset size.")
 
-        ga_config = GAConfig(
-            subset_size=min(self.config.subset_size, len(valid_clusters)), 
-            pop_size=self.config.pop_size,
-            generations=self.config.generations,
-            cxpb=self.config.cxpb,
-            mutpb=self.config.mutpb,
-            tournsize=self.config.tournsize,
-            seed=self.config.random_seed
-        )
+        # Update subset size if needed
+        self.config.subset_size = min(self.config.subset_size, len(valid_clusters))
         
         def _mutate(individual, cluster_dataset):
             return composite_mutate(
@@ -55,7 +46,7 @@ class EvolveStage:
             mate_fn=mate,
             mutate_fn=_mutate,
             select_fn=tools.selTournament,
-            config=ga_config
+            config=self.config
         )
         
         print("Running GA...")
@@ -118,9 +109,9 @@ class EvolveStage:
         return output_path
 
 def run_evolve_stage(
-    task: TaskType,
-    base_dir: str,
-    config_dict: dict,
+    task,
+    base_dir,
+    config_dict,
     evaluate_fn
 ):
     # Setup
