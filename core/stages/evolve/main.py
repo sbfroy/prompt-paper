@@ -100,12 +100,9 @@ class EvolveStage:
         
         output_path = self.data_manager.save_final_output(results, self.config.output_filename)
         
-        # Log selected examples as a table
-        try:
-            log_best_examples(results["best_individual"]["selected_examples"])
-        except Exception:
-            pass
-            
+        # log best examples to wandb
+        log_best_examples(results["best_individual"]["selected_examples"])
+ 
         return output_path
 
 def run_evolve_stage(
