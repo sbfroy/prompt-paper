@@ -1,85 +1,95 @@
 from openai import OpenAI
 from openai import BadRequestError, RateLimitError
 from dotenv import load_dotenv
-import os
 import time
-
-# Global cost tracking
-_total_cost = 0.0
-_total_tokens = {"prompt": 0, "completion": 0}
-_generation_cost = 0.0
-_generation_tokens = {"prompt": 0, "completion": 0}
-_generation_calls = 0
+import os
 
 MODEL_PRICING = {
-    "gpt-4o-mini": {"input": 1.65, "output": 6.60},  # per 1M tokens in NOK
+    # per 1M tokens in NOK
+    "gpt-4o-mini": {"input": 1.65, "output": 6.60},  
 }
 
-def calculate_cost(usage, model):
-    """Calculate cost based on token usage and model pricing."""
-    if model not in MODEL_PRICING:
-        print(f"Warning: Unknown model {model}, cost tracking unavailable")
+class _CostTracker:
+    """
+    Tracks the cost and token usage of all API calls.
+    Keeps a running sum of:
+        - total cost 
+        - total prompt tokens used
+        - total completion tokens used
+    """
+    def __init__(self):
+        self._total_cost = 0.0
+        self._total_tokens = {"prompt": 0, "completion": 0}
+
+    def add_usage(self, usage, model):
+        prompt_tokens = usage.prompt_tokens
+        completion_tokens = usage.completion_tokens
+        cost = calculate_cost(prompt_tokens, completion_tokens, model)
+       
+        self._total_cost += cost
+        self._total_tokens["prompt"] += prompt_tokens
+        self._total_tokens["completion"] += completion_tokens
+
+    def get_total_cost(self):
+        return self._total_cost
+
+    def get_total_tokens(self):
+        return dict(self._total_tokens)
+
+    def reset_all(self):
+        self._total_cost = 0.0
+        self._total_tokens = {"prompt": 0, "completion": 0}
+
+_tracker = _CostTracker()
+
+# ====== CLIENT INIT ======
+
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# ====== COST CALCULATION ======
+
+def calculate_cost(prompt_tokens, completion_tokens, model):
+    pricing = MODEL_PRICING.get(model)
+    if not pricing:
         return 0.0
     
-    pricing = MODEL_PRICING[model]
-    input_cost = (usage.prompt_tokens / 1_000_000) * pricing["input"]
-    output_cost = (usage.completion_tokens / 1_000_000) * pricing["output"]
+    input_cost = (prompt_tokens / 1_000_000) * pricing["input"]
+    output_cost = (completion_tokens / 1_000_000) * pricing["output"]
+
     return input_cost + output_cost
 
+# ====== PUBLIC API ======
+
 def get_total_cost():
-    # Total API cost so far 
-    return _total_cost
+    return _tracker.get_total_cost()
 
 def get_total_tokens():
-    # Total token usage so far
-    return _total_tokens.copy()
+    return _tracker.get_total_tokens()
 
 def reset_cost_tracking():
-    """Reset cost tracking (useful for new experiments)."""
-    global _total_cost, _total_tokens, _generation_cost, _generation_tokens, _generation_calls
-    _total_cost = 0.0
-    _total_tokens = {"prompt": 0, "completion": 0}
-    _generation_cost = 0.0
-    _generation_tokens = {"prompt": 0, "completion": 0}
-    _generation_calls = 0
+    _tracker.reset_all()
 
-def print_generation_cost_summary():
-    """Get generation cost summary for inline display."""
-    global _generation_cost, _generation_tokens, _generation_calls
-    if _generation_calls > 0:
-        gen_cost = _generation_cost
-        total_cost = _total_cost
-        
-        # Reset generation counters
-        _generation_cost = 0.0
-        _generation_tokens = {"prompt": 0, "completion": 0}
-        _generation_calls = 0
-        
-        return f"(Gen: {gen_cost:.3f} NOK | Total: {total_cost:.3f} NOK)"
-    return ""
+# ====== LLM INTERACTION ======
 
-def get_llm_response(prompt_template, individual, test_sentence, cluster_dataset, model="gpt-4o-mini"):
+def get_llm_response(prompt_template, individual, input_text, model):
     """   
     Args:
-        prompt_template: String template with placeholders for examples
-        individual: List of (cluster_id, example) pairs from GA
-        test_sentence: The sentence to evaluate
-        cluster_dataset: The dataset containing all clusters to lookup example text
-        model: OpenAI model to use
+        prompt_template: Prompt template with placeholders for individual and input text
+        individual: 
+        input_text: 
+        model: 
     
     Returns:
-        str: Raw response from the LLM
+        str: Response from the LLM
     """
-    load_dotenv()
-
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     examples_text = "\n\n".join(example.text for _, example in individual)
     
     # Insert examples and test sentence into template
     prompt = prompt_template.format(
         examples=examples_text,
-        test_sentence=test_sentence
+        input_text=input_text
     )
 
     max_retries=3 # Maximum number of retry attempts
@@ -93,22 +103,7 @@ def get_llm_response(prompt_template, individual, test_sentence, cluster_dataset
                     {"role": "user", "content": prompt}
                 ]
             )
-            
-            # Track cost and tokens
-            global _total_cost, _total_tokens, _generation_cost, _generation_tokens, _generation_calls
-            if hasattr(response, 'usage') and response.usage:
-                cost = calculate_cost(response.usage, model)
-                
-                # Update totals
-                _total_cost += cost
-                _total_tokens["prompt"] += response.usage.prompt_tokens
-                _total_tokens["completion"] += response.usage.completion_tokens
-                
-                # Update generation tracking
-                _generation_cost += cost
-                _generation_tokens["prompt"] += response.usage.prompt_tokens
-                _generation_tokens["completion"] += response.usage.completion_tokens
-                _generation_calls += 1
+            _tracker.add_usage(response.usage, model)
             
             return response.choices[0].message.content
             
