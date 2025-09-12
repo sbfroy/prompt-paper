@@ -80,7 +80,7 @@ def noise_injection_mutate(individual, cluster_dataset, indpb):
     return individual,
 
 
-def composite_mutate(individual, cluster_dataset, indpb=0.1, inter_prob=0.4, intra_prob=0.4):
+def composite_mutate(individual, cluster_dataset, indpb, inter_prob, intra_prob):
     """
     Composite mutation that randomly selects between inter-cluster, intra-cluster, and noise injection mutation.
     
@@ -88,8 +88,8 @@ def composite_mutate(individual, cluster_dataset, indpb=0.1, inter_prob=0.4, int
         individual: List of (cluster_id, ClusterExample) tuples
         cluster_dataset: The dataset containing all clusters
         indpb: Independent probability for each example to be mutated
-        inter_cluster_prob: Probability of using inter-cluster mutation
-        intra_cluster_prob: Probability of using intra-cluster mutation
+        inter_prob: Probability of using inter-cluster mutation
+        intra_prob: Probability of using intra-cluster mutation
     """
     rand_val = random.random()
     
