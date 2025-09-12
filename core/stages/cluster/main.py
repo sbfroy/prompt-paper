@@ -33,11 +33,11 @@ class ClusterStage:
         # ====== EMBEDDING ======
         if self.config.skip_embedding:
             print("Loading existing embeddings...")
-            embedded_dataset = self.data_manager.load_embedded_dataset(self.config.embedded_filename)
+            embedded_dataset = self.data_manager.load_embedded_dataset()
         else:
             input_dataset = self.data_manager.load_input_dataset(self.config.input_filename)
             embedded_dataset = self.embedding_generator.generate_embeddings(input_dataset, self.config.batch_size)
-            self.data_manager.save_embedded_dataset(embedded_dataset, self.config.embedded_filename)
+            self.data_manager.save_embedded_dataset(embedded_dataset)
 
         # Embeddings to numpy array
         embeddings = np.array([example.embedding for example in embedded_dataset.examples])
@@ -64,12 +64,12 @@ class ClusterStage:
             labels,
             probabilities
         )
-        output_path = self.data_manager.save_cluster_dataset(
-            cluster_dataset, self.config.output_filename
+        artifact = self.data_manager.save_cluster_dataset(
+            cluster_dataset
         )
 
-        print(f"Clustering stage completed! Output saved to: {output_path}")
-        return output_path
+        print(f"Clustering stage completed! Output saved as artifact: {artifact.name}")
+        return artifact
 
     def _create_cluster_dataset(
         self,

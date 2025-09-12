@@ -5,7 +5,6 @@ from .operators import mate, composite_mutate
 from .config import EvolveConfig
 from ...data_manager import DataManager
 from .client import get_total_cost, get_total_tokens, reset_cost_tracking
-from ...wandb_utils import log_best_examples
 
 class EvolveStage:
     def __init__(self, data_manager, config, evaluate_fn):
@@ -20,7 +19,7 @@ class EvolveStage:
         reset_cost_tracking()
         
         # Load the clustered dataset 
-        cluster_dataset = self.data_manager.load_cluster_dataset(self.config.input_filename)
+        cluster_dataset = self.data_manager.load_cluster_dataset()
         
         # Filter out noise cluster for subset size calculation
         valid_clusters = [cluster for cluster in cluster_dataset.clusters if cluster.cluster_id != -1]
@@ -56,10 +55,10 @@ class EvolveStage:
         best_individual = tools.selBest(best_population, 1)[0]
         
         # Save results
-        output_path = self._save_results(best_individual, logbook)
+        artifact = self._save_results(best_individual, logbook)
         
-        print(f"Evolution stage completed! Output saved to: {output_path}")
-        return output_path, best_individual, logbook
+        print(f"Evolution stage completed! Output saved as artifact: {artifact.name}")
+        return artifact, best_individual, logbook
     
     def _save_results(self, best_individual, logbook):
         selected_examples = []
@@ -81,29 +80,13 @@ class EvolveStage:
                 "final_max_fitness": logbook[-1]["max"] if logbook else 0,
                 "final_min_fitness": logbook[-1]["min"] if logbook else 0
             },
-            "generation_data": [
-                {
-                    "generation": i,
-                    "avg": record["avg"],
-                    "std": record["std"],
-                    "min": record["min"],
-                    "max": record["max"],
-                    "nevals": record["nevals"]
-                }
-                for i, record in enumerate(logbook)
-            ],
             "api_costs": {
                 "total_cost_nok": get_total_cost(),
                 "total_tokens": get_total_tokens()
             }
         }
         
-        output_path = self.data_manager.save_final_output(results, self.config.output_filename)
-        
-        # log best examples to wandb
-        log_best_examples(results["best_individual"]["selected_examples"])
- 
-        return output_path
+        return self.data_manager.save_results(results)
 
 def run_evolve_stage(
     task,

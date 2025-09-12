@@ -35,7 +35,6 @@ def run_pipeline():
     run = init_wandb(task_name=config.get('task_name', 'ner'), config=config)
 
     # ====== Run clustering stage ======
-
     cluster_output = run_cluster_stage(
         task=TaskType.NER,
         base_dir=str(base_dir),
@@ -43,11 +42,10 @@ def run_pipeline():
     )
 
     data_manager = DataManager(TaskType.NER, str(base_dir))
-    cluster_dataset = data_manager.load_cluster_dataset("cluster_dataset.jsonl")
+    cluster_dataset = data_manager.load_cluster_dataset()
     
     # ====== Run evolution stage ======
     # with custom evaluation script
-    
     evaluate_fn = create_evaluation_function(str(base_dir), config, cluster_dataset)
     evolution_output = run_evolve_stage(
         task=TaskType.NER,
