@@ -2,7 +2,7 @@ task_name: "ner"
 
 # Clustering stage config
 clustering:
-  skip_embedding: false
+  skip_embedding: true
   random_seed: 42
   batch_size: 64
   input_filename: "regplans-train.jsonl"
@@ -45,6 +45,6 @@ evaluation:
 
     Formuler svaret over flere linjer, med ett token per linje, og kun tokens som inngår i ett feltnavn. Hver linje skal inneholde tokenet etterfulgt av tilhørende etikett, atskilt med ett mellomrom.
 
-    Tekst: '{test_sentence}'
+    Tekst: '{input_text}'
 
     Entiteter:
