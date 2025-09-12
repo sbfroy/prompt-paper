@@ -1,95 +1,79 @@
 {
   "best_individual": {
-    "fitness": 0.9049214337553296,
+    "fitness": 0.8093962535262108,
     "selected_examples": [
       {
+        "cluster_id": 23,
+        "example_id": "001652",
+        "text": "Tekst: Bom skal kunne åpnes av utrykningskjøretøy .\nEntiteter:\n"
+      },
+      {
+        "cluster_id": 6,
+        "example_id": "002357",
+        "text": "Tekst: 12.7 Bandleggingssone etter kulturminne ( H730 )\nEntiteter:\nH730 B-FELT"
+      },
+      {
         "cluster_id": 5,
-        "example_id": "001921",
-        "text": "Tekst: •\nEntiteter:\n"
+        "example_id": "002245",
+        "text": "Tekst: o_SF2-3 er offentlege fortau , og skal vere universelt utforma .\nEntiteter:\no_SF2-3 B-FELT"
       },
       {
-        "cluster_id": 7,
-        "example_id": "001499",
-        "text": "Tekst: 3.2.2 . Parkering ( SPA ) a ) Innanfor SPA skal det opparbeidast parkering for bustadene .\nEntiteter:\nSPA B-FELT\nSPA B-FELT"
+        "cluster_id": 20,
+        "example_id": "000877",
+        "text": "Tekst: - BESTEMMELSER Side 2 § 4\nEntiteter:\n"
       },
       {
-        "cluster_id": 31,
-        "example_id": "000467",
-        "text": "Tekst: Tykkelsen på avdekkingsmassene som skal tilbakeføres settes til minimum 0 , 5 m og skal være tilstrekkelig til at det er mulig å reetablere produktiv skog i området .\nEntiteter:\n"
-      },
-      {
-        "cluster_id": 7,
-        "example_id": "000399",
-        "text": "Tekst: o Parkeringsplasser ( på grunnen ) , o_SPP1\nEntiteter:\no_SPP1 B-FELT"
-      },
-      {
-        "cluster_id": 7,
-        "example_id": "001859",
-        "text": "Tekst: I « o_SPP2 » er det regulert 2 p-plasser .\nEntiteter:\no_SPP2 B-FELT"
+        "cluster_id": 14,
+        "example_id": "000721",
+        "text": "Tekst: BYA gjelder byggegrense på 1 meter fra tomtegrense .\nEntiteter:\n"
       }
     ]
   },
   "evolution_stats": {
-    "generations": 6,
-    "final_avg_fitness": 0.8710626619628498,
-    "final_max_fitness": 0.9049214337553296,
-    "final_min_fitness": 0.8539788288729532
+    "generations": 4,
+    "final_avg_fitness": 0.7524225873606546,
+    "final_max_fitness": 0.8093962535262108,
+    "final_min_fitness": 0.6954489211950984
   },
   "generation_data": [
     {
       "generation": 0,
-      "avg": 0.631847407189863,
-      "std": 0.1330673807686189,
-      "min": 0.5061928338238171,
-      "max": 0.818216415813991,
-      "nevals": 10
+      "avg": 0.7456544051212923,
+      "std": 0.07412502946598193,
+      "min": 0.6715293756553105,
+      "max": 0.8197794345872743,
+      "nevals": 2
     },
     {
       "generation": 1,
-      "avg": 0.7350355635157653,
-      "std": 0.12555710911074516,
-      "min": 0.5346594687019076,
-      "max": 0.855161954675402,
-      "nevals": 7
+      "avg": 0.8115959637931415,
+      "std": 0.003853539058140343,
+      "min": 0.8077424247350011,
+      "max": 0.8154495028512818,
+      "nevals": 2
     },
     {
       "generation": 2,
-      "avg": 0.8174387083309039,
-      "std": 0.10077163539740638,
-      "min": 0.5268591863768441,
-      "max": 0.8935904502868652,
-      "nevals": 7
+      "avg": 0.8154826345188277,
+      "std": 0.01628106151308334,
+      "min": 0.7992015730057443,
+      "max": 0.831763696031911,
+      "nevals": 2
     },
     {
       "generation": 3,
-      "avg": 0.8427171523656163,
-      "std": 0.03941757862244492,
-      "min": 0.7605959568704878,
-      "max": 0.8935904502868652,
-      "nevals": 8
-    },
-    {
-      "generation": 4,
-      "avg": 0.8663494874962738,
-      "std": 0.018207091468686272,
-      "min": 0.8416950481278556,
-      "max": 0.8935904502868652,
-      "nevals": 6
-    },
-    {
-      "generation": 5,
-      "avg": 0.8710626619628498,
-      "std": 0.01837890160985478,
-      "min": 0.8539788288729532,
-      "max": 0.9049214337553296,
-      "nevals": 8
+      "avg": 0.7524225873606546,
+      "std": 0.056973666165556214,
+      "min": 0.6954489211950984,
+      "max": 0.8093962535262108,
+      "nevals": 2
     }
   ],
   "api_costs": {
-    "total_cost_nok": 1.1227887000000005,
+    "total_cost_nok": 0.1744429499999999,
     "total_tokens": {
-      "prompt": 551854,
-      "completion": 32156
+      "prompt": 84907,
+      "completion": 5204
     }
   }
 }
