@@ -2,7 +2,7 @@ task_name: "ner"
 
 # Clustering stage config
 clustering:
-  skip_embedding: true
+  skip_embedding: false
   random_seed: 42
   batch_size: 64
   input_filename: "regplans-train.jsonl"
@@ -16,8 +16,8 @@ clustering:
 evolution:
   random_seed: 42
   subset_size: 5
-  pop_size: 2
-  generations: 3
+  pop_size: 4
+  generations: 5
   cxpb: 0.7
   mutpb: 0.3 
   tournsize: 3
@@ -25,8 +25,6 @@ evolution:
   inter_prob: 0.4 # Probability of inter-cluster mutation
   intra_prob: 0.4 # Probability of intra-cluster mutation
   openai_model: "gpt-4o-mini"
-  input_filename: "cluster_dataset.jsonl"
-  output_filename: "evolved_dataset.jsonl"
 
 # Evaluation config
 evaluation:
