@@ -18,8 +18,6 @@ class ClusterConfig:
     cluster_selection_epsilon: float = 0.3
     
     input_filename: str = "input_dataset.jsonl"
-    embedded_filename: str = "embedded_dataset.parquet"
-    output_filename: str = "cluster_dataset.jsonl"
     
     @classmethod
     def from_dict(cls, config_dict):

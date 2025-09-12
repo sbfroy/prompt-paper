@@ -19,9 +19,6 @@ class EvolveConfig:
 
     # Client params
     openai_model: str = "gpt-4o-mini"
-
-    input_filename: str = "cluster_dataset.jsonl"
-    output_filename: str = "evolved_dataset.jsonl"
     
     @classmethod
     def from_dict(cls, config_dict):
