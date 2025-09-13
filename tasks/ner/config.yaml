@@ -16,15 +16,14 @@ clustering:
 evolution:
   random_seed: 42
   subset_size: 5
-  mu: 50 
+  mu: 25 
   lambda_: 50  
-  generations: 5
-  cxpb: 0.7
-  mutpb: 0.3 
-  tournsize: 3
+  generations: 20
+  cxpb: 0.6
+  mutpb: 0.2
+  tournsize: 2
   indpb: 0.2 
-  inter_prob: 0.4 # Probability of inter-cluster mutation
-  intra_prob: 0.4 # Probability of intra-cluster mutation
+  inter_prob: 0.5 # Probability of inter-cluster mutation
   openai_model: "gpt-4o-mini"
   hof_size: 5
 

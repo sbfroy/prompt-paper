@@ -20,15 +20,17 @@ class EvolveStage:
         
         # Load the clustered dataset 
         cluster_dataset = self.data_manager.load_cluster_dataset()
-        
-        # Filter out noise cluster for subset size calculation
-        valid_clusters = [cluster for cluster in cluster_dataset.clusters if cluster.cluster_id != -1]
-        if len(valid_clusters) < self.config.subset_size:
-            print(f"Warning: Subset size {self.config.subset_size} is more than num clusters {len(valid_clusters)}. Reducing subset size.")
 
-        # Update subset size if needed
-        self.config.subset_size = min(self.config.subset_size, len(valid_clusters))
+        # Filter out noise cluster
+        # My idea is that noise/outliers don't generalize
+        cluster_dataset = [cluster for cluster in cluster_dataset.clusters if cluster.cluster_id != -1]
         
+        if len(cluster_dataset) < self.config.subset_size:
+            raise ValueError(
+                "subset_size is larger than the number of clusters. "
+                "Should probably check if clustering stage is okay."
+            )
+
         def _mutate(individual, cluster_dataset):
             return composite_mutate(
                 individual, 
@@ -38,7 +40,7 @@ class EvolveStage:
                 intra_prob=self.config.intra_prob
             )
 
-        # Initialize the algorithm
+        # Initialize the GA
         ga = GA(
             cluster_dataset=cluster_dataset,
             evaluate_fn=self.evaluate_fn,
@@ -54,13 +56,13 @@ class EvolveStage:
         # Save results
         artifact = self._save_results(logbook, hof)
         
-        print(f"Evolution stage completed! Output saved as artifact: {artifact.name}")
+        print(f"Evolution stage completed! Results saved as artifact: {artifact.name}")
         return artifact, logbook, hof
     
     def _save_results(self, logbook, hof):
       
         hall_of_fame = [] # hof data
-        
+
         for i, individual in enumerate(hof):
             hof_examples = []
             for cluster_id, example in individual:
