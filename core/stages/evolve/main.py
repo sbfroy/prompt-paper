@@ -23,9 +23,12 @@ class EvolveStage:
 
         # Filter out noise cluster
         # My idea is that noise/outliers don't generalize
-        cluster_dataset = [cluster for cluster in cluster_dataset.clusters if cluster.cluster_id != -1]
-        
-        if len(cluster_dataset) < self.config.subset_size:
+        cluster_dataset.clusters = [
+            cluster for cluster in cluster_dataset.clusters 
+            if cluster.cluster_id != -1
+        ]
+
+        if len(cluster_dataset.clusters) < self.config.subset_size:
             raise ValueError(
                 "subset_size is larger than the number of clusters. "
                 "Should probably check if clustering stage is okay."
@@ -36,8 +39,7 @@ class EvolveStage:
                 individual, 
                 cluster_dataset, 
                 indpb=self.config.indpb,
-                inter_prob=self.config.inter_prob,
-                intra_prob=self.config.intra_prob
+                inter_prob=self.config.inter_prob
             )
 
         # Initialize the GA
