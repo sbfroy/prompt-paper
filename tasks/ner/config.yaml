@@ -29,7 +29,7 @@ evolution:
 
 # Evaluation config
 evaluation:
-  validation_sample_ratio: 0.1 # Ratio of validation set to use
+  validation_sample_ratio: 0.5 # Ratio of validation set to use
   model: "gpt-4o-mini"
   validation_file: "regplans-dev.conllu"
   prompt_template: |
