@@ -22,14 +22,14 @@ class DataManager:
         self.task_data_dir.mkdir(parents=True, exist_ok=True)
 
         # Create dataset dir only (output goes to wandb)
-        self.get_input_dir().mkdir(parents=True, exist_ok=True)
+        self.get_dataset_dir().mkdir(parents=True, exist_ok=True)
 
     def save_input_dataset(self, dataset, file_name="input_dataset.jsonl"):
         """
         Save InputDataset as JSONL in the dataset directory.
         This is the standardized format that enters the pipeline.
         """
-        filepath = self.get_input_dir() / file_name
+        filepath = self.get_dataset_dir() / file_name
 
         with filepath.open("w", encoding="utf-8") as f:
             for example in dataset.examples:
@@ -39,7 +39,7 @@ class DataManager:
     
     def load_input_dataset(self, file_name="input_dataset.jsonl"):
         """Load InputDataset from dataset directory."""
-        filepath = self.get_input_dir() / file_name
+        filepath = self.get_dataset_dir() / file_name
         examples: list[InputExample] = []
         
         with filepath.open("r", encoding="utf-8") as f:
@@ -105,7 +105,7 @@ class DataManager:
         artifact_name = f"{self.task.value}_results"
         return save_artifact(data, artifact_name, "GA_results")
 
-    def get_input_dir(self) -> Path:
-        return self.task_data_dir / "input"
+    def get_dataset_dir(self) -> Path:
+        return self.task_data_dir / "dataset"
 
     # TODO: Make the scope folder function
