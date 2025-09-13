@@ -45,9 +45,7 @@ class GA:
         Returns:
             List of (cluster_id, example) pairs 
         """
-        # Filter out noise cluster
-        valid_clusters = [cluster for cluster in self.cluster_dataset.clusters if cluster.cluster_id != -1]
-        random_clusters = random.sample(valid_clusters, self.config.subset_size)
+        random_clusters = random.sample(self.cluster_dataset.clusters, self.config.subset_size)
 
         examples = []
         for cluster in random_clusters:
