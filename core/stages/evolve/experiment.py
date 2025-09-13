@@ -87,38 +87,40 @@ class GA:
             rec["gen_cost"] = f"{gen_cost:.3f} NOK"
             rec["total_cost"] = f"{total:.3f} NOK"
 
-            # Log numeric metrics to wandb (skip if no run active)
-            try:
-                log_metrics(
-                    step=generation,
-                    avg=rec.get('avg'),
-                    max=rec.get('max'),
-                    min=rec.get('min'),
-                    std=rec.get('std'),
-                    nevals=rec.get('nevals'),
-                    total_cost=total
-                )
-            except Exception:
-                # Silent fail to avoid interfering with evolution if wandb not initialized
-                pass
-
+            # Log numeric metrics to wandb
+            log_metrics(
+                step=generation,
+                avg=rec.get('avg'),
+                max=rec.get('max'),
+                min=rec.get('min'),
+                std=rec.get('std'),
+                nevals=rec.get('nevals'),
+                total_cost=total
+            )
             return rec
 
         stats.compile = compile_with_cost
 
-        pop = self.toolbox.population(n=self.config.pop_size) # creates the init population
+        mu = self.config.mu # parents
+        lambda_ = self.config.lambda_ # offspring
+
+        pop = self.toolbox.population(n=mu) # creates the init population
+        hof = tools.HallOfFame(self.config.hof_size)  # Keep the best individuals
         
         width = shutil.get_terminal_size().columns
         print("-" * width)
-     
-        pop, logbook = algorithms.eaSimple(
+
+        pop, logbook = algorithms.eaMuPlusLambda(
             pop, self.toolbox,
+            mu=mu,
+            lambda_=lambda_,
             cxpb=self.config.cxpb, 
             mutpb=self.config.mutpb,
             ngen=self.config.generations, 
-            stats=stats 
+            stats=stats,
+            halloffame=hof
         )
         
         print("-" * width)
 
-        return pop, logbook # final population, stats over generations
+        return pop, logbook, hof # final population, stats over generations, hall of fame

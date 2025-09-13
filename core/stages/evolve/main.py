@@ -49,31 +49,34 @@ class EvolveStage:
         )
         
         print("Running GA...")
-        best_population, logbook = ga.run()
-        
-        # Get the best individual
-        best_individual = tools.selBest(best_population, 1)[0]
+        best_population, logbook, hof = ga.run()
         
         # Save results
-        artifact = self._save_results(best_individual, logbook)
+        artifact = self._save_results(logbook, hof)
         
         print(f"Evolution stage completed! Output saved as artifact: {artifact.name}")
-        return artifact, best_individual, logbook
+        return artifact, logbook, hof
     
-    def _save_results(self, best_individual, logbook):
-        selected_examples = []
-        for cluster_id, example in best_individual:
-            selected_examples.append({
-                "cluster_id": cluster_id,
-                "example_id": example.example_id,
-                "text": example.text
+    def _save_results(self, logbook, hof):
+      
+        hall_of_fame = [] # hof data
+        
+        for i, individual in enumerate(hof):
+            hof_examples = []
+            for cluster_id, example in individual:
+                hof_examples.append({
+                    "cluster_id": cluster_id,
+                    "example_id": example.example_id,
+                    "text": example.text
+                })
+            hall_of_fame.append({
+                "rank": i + 1,
+                "fitness": individual.fitness.values[0],
+                "selected_examples": hof_examples
             })
  
         results = {
-            "best_individual": {
-                "fitness": best_individual.fitness.values[0],
-                "selected_examples": selected_examples
-            },
+            "hall_of_fame": hall_of_fame,
             "evolution_stats": {
                 "generations": len(logbook),
                 "final_avg_fitness": logbook[-1]["avg"] if logbook else 0,
