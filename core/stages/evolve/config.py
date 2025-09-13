@@ -6,18 +6,17 @@ class EvolveConfig:
     
     # GA params
     subset_size: int = 5  # Number of ICL examples
-    mu: int = 50 
+    mu: int = 25 
     lambda_: int = 50  
-    generations: int = 20 
+    generations: int = 20
     cxpb: float = 0.6     
     mutpb: float = 0.2    
-    tournsize: int = 2 # :) higher increases selection pressure (risking premature convergence)  
+    tournsize: int = 2 # higher increases selection pressure (risking premature convergence)  
     hof_size: int = 5
     
     # Mutation params
     indpb: float = 0.2  # Probability for each example to be mutated
-    inter_prob: float = 0.4  # Probability of inter-cluster mutation
-    intra_prob: float = 0.4  # Probability of intra-cluster mutation
+    inter_prob: float = 0.5  # Probability of inter-cluster mutation
 
     # Client params
     openai_model: str = "gpt-4o-mini"

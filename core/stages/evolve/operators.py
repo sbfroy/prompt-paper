@@ -1,107 +1,65 @@
 from deap import tools
 import random
 
-def inter_cluster_mutate(individual, cluster_dataset, indpb):
+def composite_mutate(individual, cluster_dataset, indpb, inter_prob):
     """
-    Cluster-aware mutation that replaces examples with others from different clusters.
-    'inter' = 'between'
+    Per-gene mutation that applies inter-cluster and intra-cluster mutations
+    based on specified probabilities.
+    
     Args:
-        (described in composite_mutate)
+        individual: The individual to mutate, a list of (cluster_id, ClusterExample) pairs.
+        cluster_dataset: The dataset containing clusters and their examples.
+        indpb: Independent probability for each example to be mutated.
+        inter_prob: Probability of applying inter-cluster mutation.
+    
+    Returns:
+        A tuple containing the mutated individual.
     """
-    # Clusters that are already represented
-    used_cluster_ids = {cluster_id for cluster_id, example in individual}
-    
-    available_clusters = [
-        cluster for cluster in cluster_dataset.clusters 
-        if cluster.cluster_id not in used_cluster_ids
-    ]
-    
-    for i in range(len(individual)):
-        if random.random() < indpb and available_clusters:
-            new_cluster = random.choice(available_clusters)
-            new_example = random.choice(new_cluster.examples)
+    cluster_map = {} # lookup table
+    for cluster in cluster_dataset.clusters:
+        if cluster.examples: # skip empty clusters
+            cluster_map[cluster.cluster_id] = cluster
 
-            # Get the old cluster and example id
-            old_cluster_id, old_example = individual[i]
-    
-            old_cluster = next(c for c in cluster_dataset.clusters if c.cluster_id == old_cluster_id)
-            if old_cluster not in available_clusters:
-                # make the old cluster available again
-                available_clusters.append(old_cluster)
-            
-            # Remove the new cluster from available clusters  
-            available_clusters.remove(new_cluster)
-            used_cluster_ids.add(new_cluster.cluster_id)
-            used_cluster_ids.remove(old_cluster_id)
-            
-            # Replace the old example with the new one
-            individual[i] = (new_cluster.cluster_id, new_example)
-    
-    return individual,
+    used_cluster_ids = {cluster_id for cluster_id, _ in individual}
 
-def intra_cluster_mutate(individual, cluster_dataset, indpb):
-    """
-    Mutation that replaces examples with other examples from the same cluster.
-    'intra' = 'within'
-    Args:
-        (described in composite_mutate)
-    """
     for i in range(len(individual)):
-        if random.random() < indpb:
+        if random.random() >= indpb:
+            continue  # Skip mutation for this example
+        
+        did_mutate = False
+        if random.random() < inter_prob:
+            # Inter-cluster mutation that replaces examples with examples from different clusters
+            # inter means between
+            available_clusters = [
+                cluster for cluster in cluster_dataset.clusters 
+                if cluster.cluster_id not in used_cluster_ids
+            ]
+            if available_clusters:
+                new_cluster = random.choice(available_clusters)
+                new_example = random.choice(new_cluster.examples)
+
+                # Get the old cluster id
+                old_cluster_id, _ = individual[i]
+                used_cluster_ids.discard(old_cluster_id)
+                used_cluster_ids.add(new_cluster.cluster_id)
+                individual[i] = (new_cluster.cluster_id, new_example)
+                did_mutate = True
+
+        if not did_mutate:
+            # Intra-cluster mutation that replaces examples with other examples from the same cluster
+            # intra means within
             cluster_id, current_example = individual[i]
-            
-            # Find the cluster this example belongs to
-            current_cluster = next(c for c in cluster_dataset.clusters if c.cluster_id == cluster_id)
-            
+            current_cluster = cluster_map.get(cluster_id)
             if current_cluster and len(current_cluster.examples) > 1:
-                # Select a different example from the same cluster
                 other_examples = [ex for ex in current_cluster.examples if ex.example_id != current_example.example_id]
                 if other_examples:
                     individual[i] = (cluster_id, random.choice(other_examples))
-    
+
     return individual,
-
-def noise_injection_mutate(individual, cluster_dataset, indpb):
-    """
-    Mutation that replaces examples with noise examples from the -1 cluster.
-    
-    Args:
-        (described in composite_mutate)
-    """
-    # Find the noise cluster
-    noise_cluster = next(c for c in cluster_dataset.clusters if c.cluster_id == -1)
-    
-    if len(noise_cluster.examples) > 0:
-        for i in range(len(individual)):
-            if random.random() < indpb:
-                noise_example = random.choice(noise_cluster.examples)
-                individual[i] = (-1, noise_example)
-    
-    return individual,
-
-
-def composite_mutate(individual, cluster_dataset, indpb, inter_prob, intra_prob):
-    """
-    Composite mutation that randomly selects between inter-cluster, intra-cluster, and noise injection mutation.
-    
-    Args:
-        individual: List of (cluster_id, ClusterExample) tuples
-        cluster_dataset: The dataset containing all clusters
-        indpb: Independent probability for each example to be mutated
-        inter_prob: Probability of using inter-cluster mutation
-        intra_prob: Probability of using intra-cluster mutation
-    """
-    rand_val = random.random()
-    
-    if rand_val < inter_prob:
-        return inter_cluster_mutate(individual, cluster_dataset, indpb)
-    elif rand_val < inter_prob + intra_prob:
-        return intra_cluster_mutate(individual, cluster_dataset, indpb)
-    else:
-        # noise_injection_prob = 1 - inter_prob - intra_prob
-        return noise_injection_mutate(individual, cluster_dataset, indpb)
-
 
 def mate(ind1, ind2):
-    """Crosses two individuals by swapping the middle segment between two random cut points."""
+    """
+    Crosses two individuals by swapping the middle segment between two random cut points.
+    
+    """
     return tools.cxTwoPoint(ind1, ind2)
