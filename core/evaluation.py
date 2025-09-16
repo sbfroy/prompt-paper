@@ -9,12 +9,12 @@ class TaskEvaluator(ABC):
     @abstractmethod
     def evaluate_individual(self, individual, **kwargs):
         """
-        Evaluate an individual and return fitness scores.
+        Evaluate an individual and return fitness score.
 
         Args:
             individual: The individual to evaluate.
             **kwargs: Additional arguments (flexibility for tasks that need different inputs)
         Returns:
-            a tuple of fitness scores (float,)
+            float: The fitness score for this individual
         """
         pass

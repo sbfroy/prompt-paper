@@ -31,7 +31,8 @@ class GA:
 
         # Wrap evaluate since toolbox expects a function(pop_member) -> fitness tuple
         def _eval(individual):
-            return self.evaluate_fn(individual)
+            score = self.evaluate_fn(individual)
+            return (score,)  # Convert single score to tuple for DEAP
 
         self.toolbox.register("evaluate", _eval)
         self.toolbox.register("mate", self.mate_fn)

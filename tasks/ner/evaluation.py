@@ -49,10 +49,10 @@ class NERTaskEvaluator(TaskEvaluator):
                 scores.append(score)
         
         if not scores:
-            return (0.0,)
+            return 0.0
         
         avg_score = sum(scores) / len(scores)
-        return (avg_score,)
+        return avg_score
         
 def evaluate_llm_response(response_text, true_labels, tokens):
     """
