@@ -1,7 +1,10 @@
 import numpy as np
 import warnings
+import logging
 from pathlib import Path
 from collections import defaultdict
+
+logging.basicConfig(level=logging.INFO)
 
 from ...data_manager import DataManager
 from ...schemas import TaskType, Cluster, ClusterDataset, ClusterExample
@@ -28,11 +31,11 @@ class ClusterStage:
         )
 
     def run(self):
-        print("Starting clustering stage...")
+        logging.info("Starting clustering stage...")
 
         # ====== EMBEDDING ======
         if self.config.skip_embedding:
-            print("Loading existing embeddings...")
+            logging.info("Loading existing embeddings...")
             embedded_dataset = self.data_manager.load_embedded_dataset()
         else:
             input_dataset = self.data_manager.load_input_dataset(self.config.input_filename)
@@ -44,7 +47,7 @@ class ClusterStage:
 
         
         # ====== UMAP ======
-        print("Reducing dimensionality with UMAP...")
+        logging.info("Reducing dimensionality with UMAP...")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning, module="umap")
             reduced_embeddings = self.reducer.reduce(
@@ -53,7 +56,7 @@ class ClusterStage:
             )
 
         # ====== HDBSCAN ======
-        print("Clustering with HDBSCAN...")
+        logging.info("Clustering with HDBSCAN...")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
             labels, probabilities = self.clusterer.cluster(reduced_embeddings)
@@ -68,7 +71,7 @@ class ClusterStage:
             cluster_dataset
         )
 
-        print(f"Clustering stage completed! Output saved as artifact: {artifact.name}")
+        logging.info(f"Clustering stage completed! Output saved as artifact: {artifact.name}")
         return artifact
 
     def _create_cluster_dataset(

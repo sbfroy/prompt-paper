@@ -3,6 +3,9 @@ from openai import BadRequestError, RateLimitError
 from dotenv import load_dotenv
 import time
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 MODEL_PRICING = {
     # per 1M tokens in NOK
@@ -108,24 +111,24 @@ def get_llm_response(prompt_template, individual, input_text, model):
             return response.choices[0].message.content
             
         except BadRequestError as e:
-            print(f"BadRequestError: {e}. Skipping this prompt.")
+            logging.info(f"BadRequestError: {e}. Skipping this prompt.")
             return ""  # Return empty string instead of crashing
         except ValueError as e:
-            print(f"ValueError (possibly content filter): {e}. Skipping this prompt.")
+            logging.info(f"ValueError (possibly content filter): {e}. Skipping this prompt.")
             return ""
         except RateLimitError as e:
             if attempt < max_retries - 1:
                 wait_time = retry_delay * (2 ** attempt)
-                print(f"Rate limit error: {e}. Retrying in {wait_time} seconds...")
+                logging.info(f"Rate limit error: {e}. Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
-                print(f"Rate limit error after {max_retries} attempts: {e}")
+                logging.info(f"Rate limit error after {max_retries} attempts: {e}")
                 return ""
         except Exception as e:
             if attempt < max_retries - 1:
                 wait_time = retry_delay * (2 ** attempt)
-                print(f"Unexpected error: {e}. Retrying in {wait_time} seconds...")
+                logging.info(f"Unexpected error: {e}. Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
-                print(f"Failed after {max_retries} attempts: {e}")
+                logging.info(f"Failed after {max_retries} attempts: {e}")
                 return ""

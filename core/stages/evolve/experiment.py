@@ -2,6 +2,9 @@ from deap import base, creator, tools, algorithms
 import numpy as np
 import random
 import sys, shutil
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 from .client import get_total_cost
 from ...wandb_utils import log_metrics
@@ -107,7 +110,7 @@ class GA:
         hof = tools.HallOfFame(self.config.hof_size)  # Keep the best individuals
         
         width = shutil.get_terminal_size().columns
-        print("-" * width)
+        logging.info("-" * width)
 
         pop, logbook = algorithms.eaMuPlusLambda(
             pop, self.toolbox,
@@ -120,6 +123,6 @@ class GA:
             halloffame=hof
         )
         
-        print("-" * width)
+        logging.info("-" * width)
 
         return pop, logbook, hof # final population, stats over generations, hall of fame

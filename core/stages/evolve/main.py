@@ -1,4 +1,7 @@
+import logging
 from deap import tools
+
+logging.basicConfig(level=logging.INFO)
 
 from .experiment import GA
 from .operators import mate, composite_mutate
@@ -13,7 +16,7 @@ class EvolveStage:
         self.evaluate_fn = evaluate_fn
 
     def run(self):
-        print("Starting evolution stage...")
+        logging.info("Starting evolution stage...")
         
         # Reset cost tracking for this run
         reset_cost_tracking()
@@ -52,13 +55,13 @@ class EvolveStage:
             config=self.config
         )
         
-        print("Running GA...")
+        logging.info("Running GA...")
         best_population, logbook, hof = ga.run()
         
         # Save results
         artifact = self._save_results(logbook, hof)
         
-        print(f"Evolution stage completed! Results saved as artifact: {artifact.name}")
+        logging.info(f"Evolution stage completed! Results saved as artifact: {artifact.name}")
         return artifact, logbook, hof
     
     def _save_results(self, logbook, hof):
