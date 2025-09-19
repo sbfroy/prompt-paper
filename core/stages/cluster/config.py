@@ -6,7 +6,7 @@ class ClusterConfig:
     
     # Embedding generation params
     skip_embedding: bool = False
-    embedding_model: str = "text-embedding-3-small"
+    embedding_model: str = "NbAiLab/nb-sbert-base"
     batch_size: int = 64
 
     # UMAP params

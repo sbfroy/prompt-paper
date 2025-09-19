@@ -1,15 +1,11 @@
-from openai import OpenAI
-from dotenv import load_dotenv
+from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
 from ...schemas import EmbeddedExample, EmbeddedDataset
 
-load_dotenv()
-
 class EmbeddingGenerator:
     def __init__(self, model):
-        self.client = OpenAI()
-        self.model = model
+        self.model = SentenceTransformer(model)
 
     def generate_embeddings(self, input_dataset, batch_size):
         embedded_examples = []
@@ -39,8 +35,4 @@ class EmbeddingGenerator:
         )
 
     def _get_embeddings(self, texts):
-        response = self.client.embeddings.create(
-            input=texts,
-            model=self.model
-        )
-        return [d.embedding for d in response.data]
+        return self.model.encode(texts).tolist()
