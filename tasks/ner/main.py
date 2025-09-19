@@ -1,6 +1,9 @@
 import sys
 import os
+import logging
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO)
 
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
@@ -56,7 +59,7 @@ def run_pipeline():
 
     finish_wandb()
 
-    print(f"Pipeline completed successfully!")
+    logging.info(f"Pipeline completed successfully!")
  
 if __name__ == "__main__":
     run_pipeline()

@@ -1,8 +1,12 @@
 import torch
+import logging
 from torchmetrics import Precision, Recall, F1Score
 from sklearn.metrics import classification_report
 from collections import defaultdict
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO)
+
 from .utils import create_df, get_label_mappings
 from core.stages.evolve import get_llm_response
 import sys
@@ -42,7 +46,7 @@ class NERTaskEvaluator(TaskEvaluator):
             
             # Handle empty responses (from client errors)
             if not response.strip():
-                print(f"Empty response for sentence {row['sent_id']}, using score 0.0")
+                logging.info(f"Empty response for sentence {row['sent_id']}, using score 0.0")
                 scores.append(0.0)
             else:
                 score = evaluate_llm_response(response, true_labels, tokens)
