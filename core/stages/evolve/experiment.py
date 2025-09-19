@@ -6,7 +6,6 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-from .client import get_total_cost
 from ...wandb_utils import log_metrics
 
 class GA:
@@ -61,33 +60,20 @@ class GA:
 
     def run(self):
         
-        # sets up the statistics with simple cost printing
+        # sets up the statistics
         stats = tools.Statistics(key=lambda ind: ind.fitness.values[0])
         stats.register("avg", np.mean); stats.register("std", np.std)
         stats.register("min", np.min); stats.register("max", np.max)
 
-        # Custom stats for cost tracking
-        stats.register("gen_cost",   lambda _: 0.0)
-        stats.register("total_cost", lambda _: 0.0)
-
-        # Simple cost printing after each generation
+        # Log metrics to wandb after each generation
         original_compile = stats.compile
-        _last_total = [get_total_cost()]
-
         _gen = [-1] # gen counter
 
-        def compile_with_cost(population):
+        def compile_with_logging(population):
             _gen[0] += 1
             generation = _gen[0]
 
             rec = original_compile(population)
-
-            total = float(get_total_cost())
-            gen_cost = max(0.0, total - _last_total[0])
-            _last_total[0] = total
-
-            rec["gen_cost"] = f"{gen_cost:.3f} NOK"
-            rec["total_cost"] = f"{total:.3f} NOK"
 
             # Log numeric metrics to wandb
             log_metrics(
@@ -96,12 +82,11 @@ class GA:
                 max=rec.get('max'),
                 min=rec.get('min'),
                 std=rec.get('std'),
-                nevals=rec.get('nevals'),
-                total_cost=total
+                nevals=rec.get('nevals')
             )
             return rec
 
-        stats.compile = compile_with_cost
+        stats.compile = compile_with_logging
 
         mu = self.config.mu # parents
         lambda_ = self.config.lambda_ # offspring
