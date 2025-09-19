@@ -29,7 +29,7 @@ evolution:
 # Evaluation config
 evaluation:
   validation_sample_ratio: 0.5 # Ratio of validation set to use
-  model: "openai/gpt-oss-120b"
+  model: "meta-llama/Meta-Llama-3-8B-Instruct" # "openai/gpt-oss-20b"
   temperature: 0.2
   max_tokens: 128
   validation_file: "regplans-dev.conllu"
