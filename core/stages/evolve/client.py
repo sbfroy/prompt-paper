@@ -27,7 +27,7 @@ def get_llm_response(prompt_template, individual, input_text, model, temperature
         input_text=input_text
     )
 
-    llm = LLM(model=model)
+    llm = LLM(model=model, dtype="half") # Use half precision for efficiency
     params = SamplingParams(temperature=temperature, max_tokens=max_tokens)
 
     max_retries=3 # Maximum number of retry attempts
