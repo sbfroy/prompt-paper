@@ -19,7 +19,9 @@ class EvolveConfig:
     inter_prob: float = 0.5  # Probability of inter-cluster mutation
 
     # Client params
-    openai_model: str = "gpt-4o-mini"
+    model: str = "openai/gpt-oss-120b"
+    temperature: float = 0.2
+    max_tokens: int = 128
     
     @classmethod
     def from_dict(cls, config_dict):
