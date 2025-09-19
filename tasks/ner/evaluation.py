@@ -41,7 +41,9 @@ class NERTaskEvaluator(TaskEvaluator):
                 prompt_template=config["prompt_template"],
                 individual=individual,
                 input_text=sentence,
-                model=config["model"]
+                model=config["model"],
+                temperature=config["temperature"],
+                max_tokens=config["max_tokens"],
             )
             
             # Handle empty responses (from client errors)
