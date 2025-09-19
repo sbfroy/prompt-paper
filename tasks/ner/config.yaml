@@ -6,7 +6,7 @@ clustering:
   random_seed: 42
   batch_size: 64
   input_filename: "regplans-train.jsonl"
-  embedding_model: "text-embedding-3-small"
+  embedding_model: "NbAiLab/nb-sbert-base"
   umap_n_components: 30
   min_cluster_size: 15
   min_samples: 1
