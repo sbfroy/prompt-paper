@@ -7,7 +7,6 @@ from .experiment import GA
 from .operators import mate, composite_mutate
 from .config import EvolveConfig
 from ...data_manager import DataManager
-from .client import get_total_cost, get_total_tokens, reset_cost_tracking
 
 class EvolveStage:
     def __init__(self, data_manager, config, evaluate_fn):
@@ -17,9 +16,6 @@ class EvolveStage:
 
     def run(self):
         logging.info("Starting evolution stage...")
-        
-        # Reset cost tracking for this run
-        reset_cost_tracking()
         
         # Load the clustered dataset 
         cluster_dataset = self.data_manager.load_cluster_dataset()
@@ -89,10 +85,6 @@ class EvolveStage:
                 "final_avg_fitness": logbook[-1]["avg"] if logbook else 0,
                 "final_max_fitness": logbook[-1]["max"] if logbook else 0,
                 "final_min_fitness": logbook[-1]["min"] if logbook else 0
-            },
-            "api_costs": {
-                "total_cost_nok": get_total_cost(),
-                "total_tokens": get_total_tokens()
             }
         }
         
