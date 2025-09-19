@@ -48,7 +48,7 @@ class NERTaskEvaluator(TaskEvaluator):
             
             # Handle empty responses (from client errors)
             if not response.strip():
-                logging.info(f"Empty response for sentence {row['sent_id']}, using score 0.0")
+                logging.info(f"Empty response for sentence, using score 0.0")
                 scores.append(0.0)
             else:
                 score = evaluate_llm_response(response, true_labels, tokens)
