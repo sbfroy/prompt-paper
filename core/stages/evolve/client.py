@@ -28,10 +28,6 @@ def get_llm_response(prompt_template, individual, input_text, llm_instance, samp
     try:
         res = llm_instance.generate([prompt], sampling_params=sampling_params)
         text = (res[0].outputs[0].text or "").strip() # falls back to empty string
-        if text:
-            print(f"vLLM Response: {text}")
-        else:
-            print("vLLM Response was empty.")
         return text
 
     except Exception as e:
