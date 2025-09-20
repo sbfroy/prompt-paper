@@ -36,10 +36,10 @@ evaluation:
     quantization: null
     max_model_len: 4096
     gpu_memory_utilization: 0.9
-    disable_log_stats: false
+    disable_log_stats: true
   sampling: # Sampling config for evaluation
     temperature: 0.1
-    max_tokens: 128
+    max_tokens: 32
   prompt_template: |
     Du er en ekspert på Named Entity Recognition (NER). 
     Din oppgave er å identifisere entiteter som representerer feltnavn i tekstutdrag fra reguleringsplaner.
