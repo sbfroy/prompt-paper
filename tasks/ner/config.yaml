@@ -26,13 +26,20 @@ evolution:
   inter_prob: 0.5 # Probability of inter-cluster mutation
   hof_size: 5
 
-# Evaluation config
+# Evaluation config 
 evaluation:
   validation_sample_ratio: 0.5 # Ratio of validation set to use
-  model: "meta-llama/Meta-Llama-3-8B-Instruct" # "openai/gpt-oss-20b"
-  temperature: 0.2
-  max_tokens: 128
   validation_file: "regplans-dev.conllu"
+  llm: # LLM config for evaluation
+    model: "meta-llama/Meta-Llama-3-8B-Instruct"
+    dtype: "half"
+    quantization: null
+    max_model_len: 4096
+    gpu_memory_utilization: 0.9
+    disable_log_stats: false
+  sampling: # Sampling config for evaluation
+    temperature: 0.1
+    max_tokens: 128
   prompt_template: |
     Du er en ekspert på Named Entity Recognition (NER). 
     Din oppgave er å identifisere entiteter som representerer feltnavn i tekstutdrag fra reguleringsplaner.

@@ -19,12 +19,17 @@ if str(project_root) not in sys.path:
 from core.evaluation import TaskEvaluator
 
 class NERTaskEvaluator(TaskEvaluator):    
-    def __init__(self, base_dir: str, config: dict = None):
+    def __init__(self, base_dir, config, llm_instance, sampling_params):
         self.base_dir = base_dir
         self.config = config or {}
+        self.llm_instance = llm_instance
+        self.sampling_params = sampling_params
     
     def evaluate_individual(self, individual):
-        """Evaluate an individual on the NER validation dataset."""
+        """
+        Evaluate an individual on the NER validation dataset.
+        
+        """
         config = self.config
 
         # Load validation data
@@ -41,13 +46,12 @@ class NERTaskEvaluator(TaskEvaluator):
                 prompt_template=config["prompt_template"],
                 individual=individual,
                 input_text=sentence,
-                model=config["model"],
-                temperature=config["temperature"],
-                max_tokens=config["max_tokens"],
+                llm_instance=self.llm_instance,
+                sampling_params=self.sampling_params,
             )
             
             # Handle empty responses (from client errors)
-            if not response.strip():
+            if not response:
                 logging.info(f"Empty response for sentence, using score 0.0")
                 scores.append(0.0)
             else:
