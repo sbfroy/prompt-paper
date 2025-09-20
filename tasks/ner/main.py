@@ -2,6 +2,8 @@ import sys
 import os
 import logging
 from pathlib import Path
+from vllm import LLM, SamplingParams
+import yaml
 
 logging.basicConfig(level=logging.INFO)
 
@@ -12,19 +14,17 @@ from core.schemas import TaskType
 from core.stages.cluster import run_cluster_stage
 from core.stages.evolve import run_evolve_stage
 from core.data_manager import DataManager
-from .evaluation import NERTaskEvaluator
-import yaml
+from core.llm_factory import create_llm_instance, create_sampling_params
 from core.wandb_utils import init_wandb, finish_wandb, log_metrics
+from .evaluation import NERTaskEvaluator
 
 def load_config():
     config_path = Path(__file__).parent / "config.yaml"
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def create_evaluation_function(base_dir, config, cluster_dataset):
-    eval_config = config.get('evaluation', {}) if config else {}
-    evaluator = NERTaskEvaluator(base_dir, eval_config)
-
+def create_evaluation_function(base_dir, eval_config, cluster_dataset, llm_instance, sampling_params):
+    evaluator = NERTaskEvaluator(base_dir, eval_config, llm_instance, sampling_params)
     return evaluator.evaluate_individual
 
 def run_pipeline():
@@ -37,7 +37,7 @@ def run_pipeline():
     # Init wandb (basic)
     run = init_wandb(task_name=config.get('task_name', 'ner'), config=config)
 
-    # ====== Run clustering stage ======
+    # ====== Run CLUSTERING STAGE ======
     cluster_output = run_cluster_stage(
         task=TaskType.NER,
         base_dir=str(base_dir),
@@ -46,10 +46,25 @@ def run_pipeline():
 
     data_manager = DataManager(TaskType.NER, str(base_dir))
     cluster_dataset = data_manager.load_cluster_dataset()
-    
-    # ====== Run evolution stage ======
-    # with custom evaluation script
-    evaluate_fn = create_evaluation_function(str(base_dir), config, cluster_dataset)
+
+    # ====== RUN EVOLUTION STAGE ======
+
+    eval_config = config.get('evaluation', {})
+
+    # Initialize LLM and sampling parameters for evaluation
+    logging.info(f"Creating vLLM instance for evaluation...")
+    llm_instance = LLM(eval_config.get("llm", {}))
+    sampling_params = SamplingParams(**eval_config.get("sampling", {}))
+
+    # Create custom evaluation function
+    evaluate_fn = create_evaluation_function(
+        str(base_dir), 
+        eval_config, 
+        cluster_dataset, 
+        llm_instance, 
+        sampling_params
+    )
+
     evolution_output = run_evolve_stage(
         task=TaskType.NER,
         base_dir=str(base_dir),

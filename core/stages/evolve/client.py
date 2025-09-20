@@ -1,22 +1,20 @@
-from vllm import LLM, SamplingParams
 import logging
-import time
-import os
 
 logging.basicConfig(level=logging.INFO)
 
 # ====== LLM INTERACTION ======
 
-def get_llm_response(prompt_template, individual, input_text, model, temperature, max_tokens):
+def get_llm_response(prompt_template, individual, input_text, llm_instance, sampling_params):
     """   
     Args:
         prompt_template: Prompt template with placeholders for individual and input text
-        individual: 
-        input_text: 
-        model: 
+        individual: The ICL examples from the GA
+        input_text: The input to be tested
+        llm_instance: Pre-initialized vLLM instance
+        sampling_params: Pre-initialized sampling parameters
     
     Returns:
-        str: Response from the LLM
+        str: Model response or empty string on failure
     """
 
     examples_text = "\n\n".join(example.text for _, example in individual)
@@ -27,30 +25,15 @@ def get_llm_response(prompt_template, individual, input_text, model, temperature
         input_text=input_text
     )
 
-    llm = LLM(model=model, dtype="half", quantization=None) # Use half precision for efficiency
-    params = SamplingParams(temperature=temperature, max_tokens=max_tokens)
+    try:
+        res = llm_instance.generate([prompt], sampling_params=sampling_params)
+        text = (res[0].outputs[0].text or "").strip() # falls back to empty string
+        if text:
+            print(f"vLLM Response: {text}")
+        else:
+            print("vLLM Response was empty.")
+        return text
 
-    max_retries=3 # Maximum number of retry attempts
-    retry_delay=1 # Base delay between retries (exponential backoff)
-    
-    for attempt in range(max_retries):
-        try:
-            outputs = llm.generate([prompt], sampling_params=params)
-            return outputs.outputs[0].text.strip()
-            
-        except RuntimeError as e:
-            if attempt < max_retries - 1:
-                wait_time = retry_delay * (2 ** attempt)
-                logging.info(f"RuntimeError: {e}. Retrying in {wait_time}s...")
-                time.sleep(wait_time)
-            else:
-                logging.info(f"Failed after {max_retries} attempts: {e}")
-                return ""
-        except Exception as e:
-            if attempt < max_retries - 1:
-                wait_time = retry_delay * (2 ** attempt)
-                logging.info(f"Unexpected error: {e}. Retrying in {wait_time}s...")
-                time.sleep(wait_time)
-            else:
-                logging.info(f"Failed after {max_retries} attempts: {e}")
-                return ""
+    except Exception as e:
+        logging.info(f"vLLM generation failed: {e}")
+        return ""
