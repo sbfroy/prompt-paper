@@ -14,7 +14,6 @@ from core.schemas import TaskType
 from core.stages.cluster import run_cluster_stage
 from core.stages.evolve import run_evolve_stage
 from core.data_manager import DataManager
-from core.llm_factory import create_llm_instance, create_sampling_params
 from core.wandb_utils import init_wandb, finish_wandb, log_metrics
 from .evaluation import NERTaskEvaluator
 
@@ -53,8 +52,10 @@ def run_pipeline():
 
     # Initialize LLM and sampling parameters for evaluation
     logging.info(f"Creating vLLM instance for evaluation...")
-    llm_instance = LLM(eval_config.get("llm", {}))
-    sampling_params = SamplingParams(**eval_config.get("sampling", {}))
+    llm_config = eval_config.get("llm", {})
+    llm_instance = LLM(**llm_config)
+    sampling_config = eval_config.get("sampling", {})
+    sampling_params = SamplingParams(**sampling_config)
 
     # Create custom evaluation function
     evaluate_fn = create_evaluation_function(
