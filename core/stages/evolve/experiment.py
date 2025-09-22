@@ -16,6 +16,7 @@ class GA:
         self.mutate_fn = mutate_fn
         self.select_fn = select_fn
         self.config = config
+        self._eval_calls_total = 0
         
         random.seed(self.config.random_seed)
         np.random.seed(self.config.random_seed)
@@ -34,6 +35,7 @@ class GA:
         # Wrap evaluate since toolbox expects a function(pop_member) -> fitness tuple
         def _eval(individual):
             score = self.evaluate_fn(individual)
+            self._eval_calls_total += 1
             return (score,)  # Convert single score to tuple for DEAP
 
         self.toolbox.register("evaluate", _eval)
@@ -68,10 +70,15 @@ class GA:
         # Log metrics to wandb after each generation
         original_compile = stats.compile
         _gen = [-1] # gen counter
+        prev_eval_calls = [0]
 
         def compile_with_logging(population):
             _gen[0] += 1
             generation = _gen[0]
+
+            # nevals = calls since last compile (this generations evals)
+            nevals = self._eval_calls_total - prev_eval_calls[0]
+            prev_eval_calls[0] = self._eval_calls_total
 
             rec = original_compile(population)
 
@@ -82,7 +89,7 @@ class GA:
                 max=rec.get('max'),
                 min=rec.get('min'),
                 std=rec.get('std'),
-                nevals=rec.get('nevals')
+                nevals=nevals
             )
             return rec
 
