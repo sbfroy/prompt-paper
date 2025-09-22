@@ -34,7 +34,9 @@ class NERTaskEvaluator(TaskEvaluator):
 
         # Load validation data
         val_df = create_df(Path(self.base_dir) / 'ner/data/dataset' / config["validation_file"])
-        val_df_sample = val_df.iloc[:int(len(val_df) * config["validation_sample_ratio"])]
+        # val_df_sample = val_df.iloc[:int(len(val_df) * config["validation_sample_ratio"])]
+        # Uses consistent random sampling instead
+        val_df_sample = val_df.sample(n=int(len(val_df) * config["validation_sample_ratio"]), random_state=42)
         
         scores = []
         for _, row in val_df_sample.iterrows():
