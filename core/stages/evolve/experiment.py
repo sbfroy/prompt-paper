@@ -24,7 +24,6 @@ class GA:
         self.config = config
         self._eval_calls_total = 0
         self._eval_lock = threading.Lock()
-        self.population_workers = config.population_workers
         
         random.seed(self.config.random_seed)
         np.random.seed(self.config.random_seed)
@@ -49,12 +48,7 @@ class GA:
 
         self.toolbox.register("evaluate", _eval)
         
-        # Register parallel evaluation
-        if self.population_workers > 1:
-            self.toolbox.register("map", self._parallel_map)
-        else:
-            self.toolbox.register("map", map)
-
+        self.toolbox.register("map", self._parallel_map)
         self.toolbox.register("mate", self.mate_fn)
         self.toolbox.register("mutate", self.mutate_fn, cluster_dataset=self.cluster_dataset)
         self.toolbox.register("select", self.select_fn, tournsize=self.config.tournsize)
@@ -85,7 +79,7 @@ class GA:
         Parallel mapping function for population evaluation.
         Uses ThreadPoolExecutor to evaluate multiple individuals at the same time.
         """
-        with ThreadPoolExecutor(max_workers=self.population_workers) as executor:
+        with ThreadPoolExecutor(max_workers=self.config.workers) as executor:
             results = list(executor.map(func, iterable))
         return results
 
