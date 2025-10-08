@@ -105,6 +105,14 @@ class DataManager:
         artifact_name = f"{self.task.value}_results"
         return save_artifact(data, artifact_name, "GA_results")
 
+    def save_artifact(self, data, artifact_name, artifact_type):
+        """
+        Generic method to save data as wandb artifact.
+        Ensures consistent naming with task prefix.
+        """
+        full_artifact_name = f"{self.task.value}_{artifact_name}"
+        return save_artifact(data, full_artifact_name, artifact_type)
+
     def get_dataset_dir(self) -> Path:
         return self.task_data_dir / "dataset"
 

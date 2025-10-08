@@ -24,6 +24,7 @@ class GA:
         self.config = config
         self._eval_calls_total = 0
         self._eval_lock = threading.Lock()
+        self.evolution_trace_callback = None  # Callback to log evolution trace
         
         random.seed(self.config.random_seed)
         np.random.seed(self.config.random_seed)
@@ -124,6 +125,10 @@ class GA:
             prev_eval_calls[0] = self._eval_calls_total
 
             rec = original_compile(population)
+
+            # Call evolution trace callback if set
+            if self.evolution_trace_callback:
+                self.evolution_trace_callback(generation, population)
 
             # early stopping check
             if self.config.early_stopping:

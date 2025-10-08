@@ -13,6 +13,7 @@ class EvolveStage:
         self.data_manager = data_manager
         self.config = config
         self.evaluate_fn = evaluate_fn
+        self.evolution_trace = []  # Store example usage across generations
 
     def run(self):
         logging.info("Starting evolution stage...")
@@ -51,15 +52,47 @@ class EvolveStage:
             config=self.config
         )
         
+        # Set up evolution trace logging
+        ga.evolution_trace_callback = self._log_examples
+        
         logging.info("Running GA...")
         best_population, logbook, hof = ga.run()
         
         # Save results
         artifact = self._save_results(logbook, hof)
         
+        # Save evolution trace as wandb artifact
+        self._save_evolution_trace_artifact()
+        
         logging.info(f"Evolution stage completed! Results saved as artifact: {artifact.name}")
         return artifact, logbook, hof
     
+    def _log_examples(self, generation, population):
+        """Simple callback to log example usage for each generation"""
+        generation_examples = []
+        for individual in population:
+            individual_examples = []
+            for cluster_id, example in individual:
+                individual_examples.append({
+                    "cluster_id": cluster_id,
+                    "example_id": example.example_id
+                })
+            generation_examples.append(individual_examples)
+        
+        self.evolution_trace.append({
+            "generation": generation,
+            "examples": generation_examples
+        })
+
+    def _save_evolution_trace_artifact(self):
+        artifact = self.data_manager.save_artifact(
+            data=self.evolution_trace,
+            artifact_name="evolution_trace",
+            artifact_type="evolution_data"
+        )
+        
+        logging.info(f"Evolution trace saved as wandb artifact: {artifact.name}")
+
     def _save_results(self, logbook, hof):
       
         hall_of_fame = [] # hof data
