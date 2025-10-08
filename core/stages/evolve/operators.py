@@ -59,7 +59,7 @@ def composite_mutate(individual, cluster_dataset, indpb, inter_prob):
 
 def mate(ind1, ind2):
     """
-    Crosses two individuals by swapping the middle segment between two random cut points.
+    Crosses two individuals by swapping the middle segment between two points.
     
     """
     return tools.cxTwoPoint(ind1, ind2)
