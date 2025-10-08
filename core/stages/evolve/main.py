@@ -82,9 +82,9 @@ class EvolveStage:
             "hall_of_fame": hall_of_fame,
             "evolution_stats": {
                 "generations": len(logbook),
-                "final_avg_fitness": logbook[-1]["avg"] if logbook else 0,
-                "final_max_fitness": logbook[-1]["max"] if logbook else 0,
-                "final_min_fitness": logbook[-1]["min"] if logbook else 0
+                "final_avg_fitness": logbook[-1]["avg"],
+                "final_max_fitness": logbook[-1]["max"],
+                "final_min_fitness": logbook[-1]["min"]
             }
         }
         
