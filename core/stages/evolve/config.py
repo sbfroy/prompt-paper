@@ -5,18 +5,26 @@ class EvolveConfig:
     random_seed: int = 42
     
     # GA params
-    subset_size: int = 5  # Number of ICL examples
+    subset_size: int = 5  # Number of demonstrations
     mu: int = 25 
     lambda_: int = 50  
     generations: int = 20
     cxpb: float = 0.6     
     mutpb: float = 0.2    
-    tournsize: int = 2 # higher increases selection pressure (risking premature convergence)  
+    tournsize: int = 2 # higher increases selection pressure (risks premature convergence)  
     hof_size: int = 5
     
     # Mutation params
     indpb: float = 0.2  # Probability for each example to be mutated
     inter_prob: float = 0.5  # Probability of inter-cluster mutation
+    
+    # Threading params
+    population_workers: int = 4  # Number of threads for population-level parallelization
+    
+    # Early stopping params
+    early_stopping: bool = False  # Enable early stopping
+    early_stopping_patience: int = 5  # Number of generations to wait for improvement
+    early_stopping_min_delta: float = 0.005  # Minimum change to consider as improvement
     
     @classmethod
     def from_dict(cls, config_dict):

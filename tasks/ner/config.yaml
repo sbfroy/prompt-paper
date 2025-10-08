@@ -25,6 +25,11 @@ evolution:
   indpb: 0.2 
   inter_prob: 0.5 # Probability of inter-cluster mutation
   hof_size: 5
+  population_workers: 4 # Number of threads (individuals) for parallelization
+  # Early stopping params
+  early_stopping: true
+  early_stopping_patience: 5  # Number of generations to wait for improvement
+  early_stopping_min_delta: 0.005  # Minimum change to consider as improvement
 
 # Evaluation config 
 evaluation:
