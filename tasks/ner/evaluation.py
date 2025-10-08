@@ -16,9 +16,7 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from core.evaluation import TaskEvaluator
-
-class NERTaskEvaluator(TaskEvaluator):    
+class NERTaskEvaluator:    
     def __init__(self, base_dir, config, llm_instance, sampling_params):
         self.base_dir = base_dir
         self.config = config or {}
