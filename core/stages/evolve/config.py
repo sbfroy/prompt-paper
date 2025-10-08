@@ -19,7 +19,7 @@ class EvolveConfig:
     inter_prob: float = 0.5  # Probability of inter-cluster mutation
     
     # Threading params
-    population_workers: int = 4  # Number of threads for population-level parallelization
+    workers: int = 4  # Number of threads for population-level parallelization
     
     # Early stopping params
     early_stopping: bool = False  # Enable early stopping
