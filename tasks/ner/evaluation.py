@@ -19,7 +19,7 @@ if str(project_root) not in sys.path:
 class Evaluator:    
     def __init__(self, base_dir, config, llm_instance, sampling_params):
         self.base_dir = base_dir
-        self.config = config or {}
+        self.config = config
         self.llm_instance = llm_instance
         self.sampling_params = sampling_params
     
@@ -28,13 +28,11 @@ class Evaluator:
         Evaluate an individual on the NER validation dataset.
         
         """
-        config = self.config
-
         # Load validation data
-        val_df = create_df(Path(self.base_dir) / 'ner/data/dataset' / config["validation_file"])
+        val_df = create_df(Path(self.base_dir) / 'ner/data/dataset' / self.config["validation_file"])
         # val_df_sample = val_df.iloc[:int(len(val_df) * config["validation_sample_ratio"])]
         # Uses consistent random sampling instead
-        val_df_sample = val_df.sample(n=int(len(val_df) * config["validation_sample_ratio"]), random_state=42)
+        val_df_sample = val_df.sample(n=int(len(val_df) * self.config["validation_sample_ratio"]), random_state=42)
         
         scores = []
         for _, row in val_df_sample.iterrows():
@@ -43,7 +41,7 @@ class Evaluator:
             true_labels = row['labels']
             
             response = get_llm_response(
-                prompt_template=config["prompt_template"],
+                prompt_template=self.config["prompt_template"],
                 individual=individual,
                 input_text=sentence,
                 llm_instance=self.llm_instance,
