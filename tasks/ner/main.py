@@ -1,8 +1,9 @@
 import sys
 import logging
 from pathlib import Path
-from vllm import LLM, SamplingParams
+from openai import OpenAI
 import yaml
+import os
 
 logging.basicConfig(level=logging.INFO)
 
@@ -20,8 +21,11 @@ def load_config():
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def create_evaluation_function(base_dir, eval_config, cluster_dataset, llm_instance, sampling_params):
-    evaluator = Evaluator(base_dir, eval_config, llm_instance, sampling_params)
+def create_evaluator(base_dir, eval_config, client):
+    """
+    Function factory because GA requires a single-argument function.
+    """
+    evaluator = Evaluator(base_dir, eval_config, client)
     return evaluator.evaluate_individual
 
 def run_pipeline():
@@ -38,6 +42,7 @@ def run_pipeline():
     run = init_wandb(task_name=config['task'], config=config)
 
     # ====== Run CLUSTERING STAGE ======
+
     cluster_output = run_cluster_stage(
         task=config['task'],
         base_dir=str(base_dir),
@@ -49,29 +54,25 @@ def run_pipeline():
 
     # ====== RUN EVOLUTION STAGE ======
 
-    # Initialize LLM and sampling parameters for evaluation
-    logging.info(f"Creating vLLM instance for evaluation...")
+    # Initialize OpenAI-compatible client and sampling parameters for evaluation
+    logging.info("Creating OpenAI client for evaluation...")
 
-    eval_config = config['evaluation']
-    llm_config = eval_config['llm']
-    llm_instance = LLM(**llm_config)
-    sampling_config = eval_config['sampling']
-    sampling_params = SamplingParams(**sampling_config)
-
-    # Create custom evaluation function
-    evaluate_fn = create_evaluation_function(
-        str(base_dir), 
-        eval_config, 
-        cluster_dataset, 
-        llm_instance, 
-        sampling_params
+    client = OpenAI(
+        base_url=os.getenv("OPENAI_BASE_URL", "http://localhost:8000/v1"),
+        api_key=os.getenv("OPENAI_API_KEY", "EMPTY"),
+    )
+    
+    eval_fn = create_evaluator(
+        base_dir=str(base_dir), 
+        eval_config=config['evaluation'], 
+        client=client
     )
 
     evolution_output = run_evolve_stage(
         task=config['task'],
         base_dir=str(base_dir),
-        config_dict=config['evolution'],
-        evaluate_fn=evaluate_fn
+        config=config['evolution'],
+        eval_fn=eval_fn
     )
 
     finish_wandb()

@@ -1,8 +1,9 @@
 import sys
 import logging
 from pathlib import Path
-from vllm import LLM, SamplingParams
+from openai import OpenAI
 import yaml
+import os
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,6 +22,12 @@ def load_config(): # Loading the config file
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
+def create_evaluator(base_dir, eval_config, client):
+    """
+    Function factory because GA requires a single-argument function.
+    """
+    evaluator = Evaluator(base_dir, eval_config, client)
+    return evaluator.evaluate_individual
 
 def run_pipeline():
     config = load_config()
@@ -45,6 +52,29 @@ def run_pipeline():
 
     # Load cluster dataset from wandb
     cluster_dataset = data_manager.load_cluster_dataset()
+
+    # ====== RUN EVOLUTION STAGE ======
+
+    # Initialize OpenAI-compatible client and sampling parameters for evaluation
+    logging.info("Creating OpenAI client for evaluation...")
+
+    client = OpenAI(
+        base_url=os.getenv("OPENAI_BASE_URL", "http://localhost:8000/v1"),
+        api_key=os.getenv("OPENAI_API_KEY", "EMPTY"),
+    )
+
+    eval_fn = create_evaluator(
+        base_dir=str(base_dir), 
+        eval_config=config['evaluation'], 
+        client=client
+    )
+
+    evolution_output = run_evolve_stage(
+        task=config['task'],
+        base_dir=str(base_dir),
+        config=config['evolution'],
+        eval_fn=eval_fn
+    )
 
     finish_wandb()
 

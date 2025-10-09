@@ -45,9 +45,6 @@ evaluation:
     max_model_len: 4096
     gpu_memory_utilization: 0.90
     disable_log_stats: true
-
-  # Sampling for evaluation
-  sampling:
     temperature: 0.0
     max_tokens: 32
 

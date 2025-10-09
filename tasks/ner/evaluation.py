@@ -17,11 +17,10 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 class Evaluator:    
-    def __init__(self, base_dir, config, llm_instance, sampling_params):
+    def __init__(self, base_dir, config, client):
         self.base_dir = base_dir
         self.config = config
-        self.llm_instance = llm_instance
-        self.sampling_params = sampling_params
+        self.client = client
     
     def evaluate_individual(self, individual):
         """
@@ -30,8 +29,6 @@ class Evaluator:
         """
         # Load validation data
         val_df = create_df(Path(self.base_dir) / 'ner/data/dataset' / self.config["validation_file"])
-        # val_df_sample = val_df.iloc[:int(len(val_df) * config["validation_sample_ratio"])]
-        # Uses consistent random sampling instead
         val_df_sample = val_df.sample(n=int(len(val_df) * self.config["validation_sample_ratio"]), random_state=42)
         
         scores = []
@@ -41,11 +38,10 @@ class Evaluator:
             true_labels = row['labels']
             
             response = get_llm_response(
-                prompt_template=self.config["prompt_template"],
+                config=self.config,
+                client=self.client,
                 individual=individual,
-                input_text=sentence,
-                llm_instance=self.llm_instance,
-                sampling_params=self.sampling_params,
+                input_text=sentence
             )
             
             # Handle empty responses (from client errors)
