@@ -2,8 +2,8 @@ from pathlib import Path
 import pandas as pd
 import json
 import tempfile
+
 from .schemas import (
-    TaskType,
     InputExample,
     InputDataset,
     EmbeddedExample,
@@ -11,14 +11,15 @@ from .schemas import (
     Cluster,
     ClusterDataset,
 )
+
 from .wandb_utils import save_artifact, save_file_artifact, load_artifact
 
 class DataManager:
     def __init__(self, task, base_dir):
-        self.task = TaskType(task)
+        self.task = task
 
         # Create task-specific directory structure
-        self.task_data_dir = Path(base_dir) / self.task.value / "data"
+        self.task_data_dir = Path(base_dir) / self.task / "data"
         self.task_data_dir.mkdir(parents=True, exist_ok=True)
 
         # Create dataset dir only (output goes to wandb)
@@ -62,12 +63,12 @@ class DataManager:
             df = pd.DataFrame(records) 
             df.to_parquet(temp_path, compression='snappy', index=False)
             
-            artifact_name = f"{self.task.value}_embedded_dataset"
+            artifact_name = f"{self.task}_embedded_dataset"
             return save_file_artifact(temp_path, artifact_name, "embedded_dataset")
 
     def load_embedded_dataset(self):
         """Load embedded dataset from wandb artifact."""
-        artifact_name = f"{self.task.value}_embedded_dataset"
+        artifact_name = f"{self.task}_embedded_dataset"
         file_path = load_artifact(artifact_name)
 
         # Read parquet back into df and convert to pydantic models
@@ -81,12 +82,12 @@ class DataManager:
         # Convert cluster objects to JSON-serializable format
         cluster_data = [cluster.model_dump(by_alias=True) for cluster in dataset.clusters]
         
-        artifact_name = f"{self.task.value}_cluster_dataset"
+        artifact_name = f"{self.task}_cluster_dataset"
         return save_artifact(cluster_data, artifact_name, "cluster_dataset")
 
     def load_cluster_dataset(self):
         """Load cluster dataset from wandb artifact."""
-        artifact_name = f"{self.task.value}_cluster_dataset"
+        artifact_name = f"{self.task}_cluster_dataset"
         file_path = load_artifact(artifact_name)
         
         # Load JSON data and reconstruct cluster objects
@@ -102,7 +103,7 @@ class DataManager:
         Save final pipeline results as wandb artifact.
         
         """
-        artifact_name = f"{self.task.value}_results"
+        artifact_name = f"{self.task}_results"
         return save_artifact(data, artifact_name, "GA_results")
 
     def save_artifact(self, data, artifact_name, artifact_type):
@@ -110,7 +111,7 @@ class DataManager:
         Generic method to save data as wandb artifact.
         Ensures consistent naming with task prefix.
         """
-        full_artifact_name = f"{self.task.value}_{artifact_name}"
+        full_artifact_name = f"{self.task}_{artifact_name}"
         return save_artifact(data, full_artifact_name, artifact_type)
 
     def get_dataset_dir(self) -> Path:

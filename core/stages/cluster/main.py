@@ -7,7 +7,7 @@ from collections import defaultdict
 logging.basicConfig(level=logging.INFO)
 
 from ...data_manager import DataManager
-from ...schemas import TaskType, Cluster, ClusterDataset, ClusterExample
+from ...schemas import Cluster, ClusterDataset, ClusterExample
 from .embedding_generator import EmbeddingGenerator
 from .dimensionality_reducer import DimensionalityReducer
 from .clusterer import HDBSCANClusterer
