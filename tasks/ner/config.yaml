@@ -1,4 +1,4 @@
-task_name: "ner"
+task: "ner"
 
 # Clustering stage config
 clustering:
