@@ -9,10 +9,10 @@ from .config import EvolveConfig
 from ...data_manager import DataManager
 
 class EvolveStage:
-    def __init__(self, data_manager, config, evaluate_fn):
+    def __init__(self, data_manager, config, eval_fn):
         self.data_manager = data_manager
         self.config = config
-        self.evaluate_fn = evaluate_fn
+        self.eval_fn = eval_fn
         self.evolution_trace = []  # Store example usage across generations
 
     def run(self):
@@ -126,13 +126,13 @@ class EvolveStage:
 def run_evolve_stage(
     task,
     base_dir,
-    config_dict,
-    evaluate_fn
+    config,
+    eval_fn
 ):
     # Setup
     data_manager = DataManager(task, base_dir)
-    config = EvolveConfig.from_dict(config_dict or {})
+    config = EvolveConfig.from_dict(config)
 
     # Run evolution
-    stage = EvolveStage(data_manager, config, evaluate_fn)
+    stage = EvolveStage(data_manager, config, eval_fn)
     return stage.run()

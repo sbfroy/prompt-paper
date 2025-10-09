@@ -2,34 +2,40 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-# ====== LLM INTERACTION ======
+def get_llm_response(config, client, individual, input_text):
+    """
+    Generate a response from the LLM using a prompt template and given input text.
 
-def get_llm_response(prompt_template, individual, input_text, llm_instance, sampling_params):
-    """   
     Args:
-        prompt_template: Prompt template with placeholders for individual and input text
-        individual: The ICL examples from the GA
-        input_text: The input to be tested
-        llm_instance: Pre-initialized vLLM instance
-        sampling_params: Pre-initialized sampling parameters
-    
+        config: Config containing prompt template and LLM params
+        client: OpenAI-compatible client (vLLM OpenAI server)
+        individual: The ICL examples
+        input_text: The input to evaluate
+
     Returns:
-        str: Model response or empty string on failure
+        str: The model's response or empty string on failure
     """
 
     examples_text = "\n\n".join(example.text for _, example in individual)
-    
+
     # Insert examples and test sentence into template
-    prompt = prompt_template.format(
+    user_prompt = config['prompt_template'].format(
         examples=examples_text,
         input_text=input_text
     )
 
     try:
-        res = llm_instance.generate([prompt], sampling_params=sampling_params)
-        text = (res[0].outputs[0].text or "").strip() # falls back to empty string
+        completion = client.chat.completions.create(
+            model=config['llm']['model_name'],
+            messages=[
+                {'role': 'user', 'content': user_prompt}
+            ],
+            temperature=config['llm']['temperature'],
+            max_tokens=config['llm']['max_tokens'],
+        )
+        text = (completion.choices[0].message.content or "").strip()
         return text
 
     except Exception as e:
-        logging.info(f"vLLM generation failed: {e}")
+        logging.info(f"OpenAI client generation failed: {e}")
         return ""

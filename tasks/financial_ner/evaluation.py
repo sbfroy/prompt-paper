@@ -1,11 +1,10 @@
 from core.stages.evolve import get_llm_response
 
 class Evaluator:
-    def __init__(self, base_dir, config, llm_instance, sampling_params):
+    def __init__(self, base_dir, config, client):
         self.base_dir = base_dir
         self.config = config
-        self.llm_instance = llm_instance
-        self.sampling_params = sampling_params
+        self.client = client
 
     def evaluate_individual(self, individual):
         """
@@ -16,10 +15,7 @@ class Evaluator:
         """
         # Load validation data
 
-        # TODO: Use the json mode in vLLM
-        # I need to change to the OpenAI API for that, maybe not, only if it fixes the threading issue
-
-        
+        # TODO: Use json mode 
 
 
 
