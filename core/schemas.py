@@ -1,9 +1,5 @@
 from pydantic import BaseModel, Field
 from typing import List
-from enum import Enum
-
-class TaskType(str, Enum):
-    NER = "ner"
 
 class InputExample(BaseModel):
     """Schema for the examples entering the pipeline"""
@@ -13,7 +9,7 @@ class InputExample(BaseModel):
 class InputDataset(BaseModel):
     """Schema for the input dataset"""
     examples: list[InputExample]
-    task_type: TaskType
+    task_type: str
 
 class EmbeddedExample(BaseModel):
     """Schema after embedding stage"""
@@ -24,7 +20,7 @@ class EmbeddedExample(BaseModel):
 class EmbeddedDataset(BaseModel):
     """Schema for the embedded dataset"""
     examples: list[EmbeddedExample]
-    task_type: TaskType
+    task_type: str
 
 class ClusterExample(BaseModel):
     """Schema for a single example within a cluster"""
@@ -40,4 +36,4 @@ class Cluster(BaseModel):
 class ClusterDataset(BaseModel):
     """Schema for the cluster dataset"""
     clusters: list[Cluster]
-    task_type: TaskType
+    task_type: str
