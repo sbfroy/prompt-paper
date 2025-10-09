@@ -1,0 +1,64 @@
+task: "financial_ner"
+
+# Clustering stage config
+clustering:
+  random_seed: 42
+  skip_embedding: false
+  input_filename: "Financial-NER-NLP_train.jsonl"
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  batch_size: 64
+  umap_n_components: 30
+  min_cluster_size: 15
+  min_samples: 1
+  cluster_selection_epsilon: 0.30
+
+# Evolution stage config
+evolution:
+  random_seed: 42
+  subset_size: 5
+  mu: 25
+  lambda_: 50
+  generations: 20
+  cxpb: 0.60
+  mutpb: 0.20
+  tournsize: 3
+  indpb: 0.20
+  inter_prob: 0.50          
+  hof_size: 5
+  workers: 4      
+
+  # Early stopping
+  early_stopping: true
+  early_stopping_patience: 5  
+  early_stopping_min_delta: 0.005  
+
+# Evaluation config
+evaluation:
+  validation_file: "Financial-NER-NLP_dev.jsonl"
+
+  # LLM config for evaluation
+  llm:
+    model: "meta-llama/Meta-Llama-3-8B-Instruct"
+    dtype: "half"
+    quantization: null
+    max_model_len: 4096
+    gpu_memory_utilization: 0.90
+    disable_log_stats: true
+
+  # Sampling for evaluation
+  sampling:
+    temperature: 0.0
+    max_tokens: 32
+
+  prompt_template: |-
+    Extract the named entities in this text using 139 XBRL tags in the IOB2 format.
+    
+    Here are some examples:
+
+    {examples}
+
+    Return the results in JSON format.
+
+    User: '{input_text}'
+
+    Assistant Prediction:
