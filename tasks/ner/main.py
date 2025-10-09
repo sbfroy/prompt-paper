@@ -13,7 +13,7 @@ from core.data_manager import DataManager
 from core.wandb_utils import init_wandb, finish_wandb
 from core.stages.cluster import run_cluster_stage
 from core.stages.evolve import run_evolve_stage
-from .evaluation import NERTaskEvaluator
+from .evaluation import Evaluator
 
 def load_config():
     config_path = Path(__file__).parent / "config.yaml"
@@ -21,7 +21,7 @@ def load_config():
         return yaml.safe_load(f)
 
 def create_evaluation_function(base_dir, eval_config, cluster_dataset, llm_instance, sampling_params):
-    evaluator = NERTaskEvaluator(base_dir, eval_config, llm_instance, sampling_params)
+    evaluator = Evaluator(base_dir, eval_config, llm_instance, sampling_params)
     return evaluator.evaluate_individual
 
 def run_pipeline():
