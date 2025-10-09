@@ -1,5 +1,4 @@
 import sys
-import os
 import logging
 from pathlib import Path
 from vllm import LLM, SamplingParams
@@ -10,11 +9,10 @@ logging.basicConfig(level=logging.INFO)
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from core.schemas import TaskType
+from core.data_manager import DataManager
+from core.wandb_utils import init_wandb, finish_wandb
 from core.stages.cluster import run_cluster_stage
 from core.stages.evolve import run_evolve_stage
-from core.data_manager import DataManager
-from core.wandb_utils import init_wandb, finish_wandb, log_metrics
 from .evaluation import NERTaskEvaluator
 
 def load_config():
@@ -32,29 +30,32 @@ def run_pipeline():
     # Set up paths
     task_dir = Path(__file__).parent
     base_dir = task_dir.parent  
+
+    # Initialize DataManager
+    data_manager = DataManager(config['task'], str(base_dir))
     
-    # Init wandb (basic)
-    run = init_wandb(task_name=config.get('task_name', 'ner'), config=config)
+    # Initialize wandb
+    run = init_wandb(task_name=config['task'], config=config)
 
     # ====== Run CLUSTERING STAGE ======
     cluster_output = run_cluster_stage(
-        task=TaskType.NER,
+        task=config['task'],
         base_dir=str(base_dir),
-        config_dict=config.get('clustering', {})
+        config_dict=config['clustering']
     )
 
-    data_manager = DataManager(TaskType.NER, str(base_dir))
+    # Load cluster dataset from wandb
     cluster_dataset = data_manager.load_cluster_dataset()
 
     # ====== RUN EVOLUTION STAGE ======
 
-    eval_config = config.get('evaluation', {})
-
     # Initialize LLM and sampling parameters for evaluation
     logging.info(f"Creating vLLM instance for evaluation...")
-    llm_config = eval_config.get("llm", {})
+
+    eval_config = config['evaluation']
+    llm_config = eval_config['llm']
     llm_instance = LLM(**llm_config)
-    sampling_config = eval_config.get("sampling", {})
+    sampling_config = eval_config['sampling']
     sampling_params = SamplingParams(**sampling_config)
 
     # Create custom evaluation function
@@ -67,9 +68,9 @@ def run_pipeline():
     )
 
     evolution_output = run_evolve_stage(
-        task=TaskType.NER,
+        task=config['task'],
         base_dir=str(base_dir),
-        config_dict=config.get('evolution', {}),
+        config_dict=config['evolution'],
         evaluate_fn=evaluate_fn
     )
 
