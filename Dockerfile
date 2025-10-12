@@ -1,22 +1,15 @@
-FROM python:3.10-slim
+# What base image to use
+FROM python:3.10-slim 
 
-WORKDIR /app
+# Set the working directory in the container
+WORKDIR /workspace
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Install and updates necessary dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install the dependencies listed in requirements.txt
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-# Copy the application code
-COPY . .
-
-# Set Python path
-ENV PYTHONPATH=/app
-
-# Default command (can be overridden)
-CMD ["python", "-m", "tasks.ner.main"]
+ENV PYTHONPATH=/workspace

@@ -1,24 +1,11 @@
-# Ignore Git and VCS
 .git
-.gitignore
-
-# Python caches
+.vscode
+.venv
 __pycache__/
 *.py[cod]
 *.pyo
 *.so
-
-# Notebooks and outputs
 *.ipynb_checkpoints/
-
-# Local data and artifacts not needed for image
-artifacts/
-wandb/
-
-# Docker compose file (optional to ignore); keep Dockerfile in context
-docker-compose.yaml
-
-# OS junk
-.DS_Store
-*.swp
-*.swo
+artifacts
+wandb
+.env
