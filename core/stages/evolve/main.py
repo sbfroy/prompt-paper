@@ -45,7 +45,7 @@ class EvolveStage:
         # Initialize the GA
         ga = GA(
             cluster_dataset=cluster_dataset,
-            evaluate_fn=self.evaluate_fn,
+            evaluate_fn=self.eval_fn,
             mate_fn=mate,
             mutate_fn=_mutate,
             select_fn=tools.selTournament,
