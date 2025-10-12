@@ -1,6 +1,7 @@
 import logging
 
 logging.basicConfig(level=logging.INFO)
+logging.getLogger('httpx').setLevel(logging.WARNING)
 
 def get_llm_response(config, client, individual, input_text):
     """
@@ -26,7 +27,7 @@ def get_llm_response(config, client, individual, input_text):
 
     try:
         completion = client.chat.completions.create(
-            model=config['llm']['model_name'],
+            model=config['llm']['model'],
             messages=[
                 {'role': 'user', 'content': user_prompt}
             ],
