@@ -115,6 +115,10 @@ class GA:
         original_compile = stats.compile
         _gen = [-1] # gen counter
         prev_eval_calls = [0]
+        
+        # Store logbook and population state for early stopping
+        logbook_entries = []
+        current_population = [None] 
 
         def compile_with_logging(population):
             _gen[0] += 1
@@ -125,17 +129,13 @@ class GA:
             prev_eval_calls[0] = self._eval_calls_total
 
             rec = original_compile(population)
+            
+            logbook_entries.append(rec) # Store the record in our backup list
+            current_population[0] = population[:] # Store current population state
 
             # Call evolution trace callback if set
             if self.evolution_trace_callback:
                 self.evolution_trace_callback(generation, population)
-
-            # early stopping check
-            if self.config.early_stopping:
-                current_max = rec.get("max")
-                if self._should_early_stop(current_max):
-                    logging.info("Early stopping!")
-                    raise EarlyStoppingException()
 
             # Log numeric metrics to wandb
             log_metrics(
@@ -146,6 +146,14 @@ class GA:
                 std=rec.get('std'),
                 nevals=nevals
             )
+
+            # early stopping check
+            if self.config.early_stopping:
+                current_max = rec.get("max")
+                if self._should_early_stop(current_max):
+                    logging.info("Early stopping!")
+                    raise EarlyStoppingException()
+
             return rec
 
         stats.compile = compile_with_logging
@@ -154,6 +162,7 @@ class GA:
         lambda_ = self.config.lambda_ # offspring
 
         pop = self.toolbox.population(n=mu) # creates the init population
+        current_population[0] = pop[:]
         hof = tools.HallOfFame(self.config.hof_size)  # Keep the best individuals
         
         width = shutil.get_terminal_size().columns
@@ -172,7 +181,12 @@ class GA:
                 halloffame=hof
             )
         except EarlyStoppingException:
-            pass
+            logbook = tools.Logbook()
+            for entry in logbook_entries:
+                logbook.record(**entry)
+            pop = current_population[0]
+            if hof is not None:
+                hof.update(pop)
         
         logging.info("-" * width)
 
