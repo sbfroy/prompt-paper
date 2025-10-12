@@ -9,6 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 # suppress the batch logging 
 logging.getLogger('sentence_transformers').setLevel(logging.WARNING)
+logging.getLogger('httpx').setLevel(logging.WARNING)
 
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root)) # step out to 'prompt-paper'

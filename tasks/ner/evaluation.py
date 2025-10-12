@@ -6,6 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
+logging.getLogger('httpx').setLevel(logging.WARNING)
 
 from .utils import create_df, get_label_mappings
 from core.stages.evolve import get_llm_response
