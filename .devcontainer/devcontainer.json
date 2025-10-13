@@ -1,0 +1,7 @@
+{
+  "dockerFile": "../Dockerfile",
+  "workspaceFolder": "/workspace",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind"
+  ]
+}
