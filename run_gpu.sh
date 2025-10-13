@@ -11,7 +11,8 @@ if ! docker ps --format '{{.Names}}' | grep -q "^${VLLM_NAME}$"; then
     --model "$MODEL" \
     --host 0.0.0.0 --port 8000 \
     --max-model-len 4096 --tensor-parallel-size 1 \
-    --gpu-memory-utilization 0.9 --disable-log-stats
+    --gpu-memory-utilization 0.9 --disable-log-stats \
+    --enforce-eager 
 fi
 
 docker run --rm -it \
