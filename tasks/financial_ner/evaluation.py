@@ -1,11 +1,15 @@
 import json
 from pathlib import Path
+from pydantic import RootModel
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('httpx').setLevel(logging.WARNING)
 
 from core.stages.evolve import get_llm_response
+
+class XBRLResponse(RootModel[dict[str, list[str]]]):
+    pass
 
 class Evaluator:
     def __init__(self, base_dir, config, client):
@@ -42,7 +46,8 @@ class Evaluator:
                 config=self.config,
                 client=self.client,
                 individual=individual,
-                input_text=user_part
+                input_text=user_part,
+                response_schema=XBRLResponse
             )
 
             # Convert prediction_part to comparable dict
