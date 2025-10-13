@@ -71,6 +71,8 @@ class ClusterStage:
             cluster_dataset
         )
 
+        # TODO: Implement some details logging (stats about clusters)
+
         logging.info(f"Clustering stage completed! Output saved as artifact: {artifact.name}")
         return artifact
 

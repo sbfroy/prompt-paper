@@ -164,6 +164,9 @@ class GA:
         pop = self.toolbox.population(n=mu) # creates the init population
         current_population[0] = pop[:]
         hof = tools.HallOfFame(self.config.hof_size)  # Keep the best individuals
+
+        # TODO: Maybe implement some sort of cooling (lower lambda and increase tournsize over time?)
+        # or increase the intra_prob over time to focus more on finding the best examples rather than best clusters.
         
         width = shutil.get_terminal_size().columns
         logging.info("-" * width)
