@@ -17,6 +17,8 @@ sys.path.insert(0, str(project_root)) # step out to 'prompt-paper'
 from core.data_manager import DataManager
 from core.wandb_utils import init_wandb, finish_wandb
 from core.stages.cluster import run_cluster_stage
+from core.stages.evolve import run_evolve_stage
+from .evaluation import Evaluator
 
 def load_config(): # Loading the config file
     config_path = Path(__file__).parent / "config.yaml"
@@ -45,7 +47,7 @@ def run_pipeline():
 
     # ====== Run CLUSTERING STAGE ======
 
-    cluster_output = run_cluster_stage(
+    run_cluster_stage(
         task=config['task'],
         base_dir=str(base_dir),
         config_dict=config['clustering']
@@ -56,7 +58,7 @@ def run_pipeline():
 
     # ====== RUN EVOLUTION STAGE ======
 
-    # Initialize OpenAI-compatible client and sampling parameters for evaluation
+    # Initialize OpenAI-compatible client for evaluation
     logging.info("Creating OpenAI client for evaluation...")
 
     client = OpenAI(
@@ -70,7 +72,7 @@ def run_pipeline():
         client=client
     )
 
-    evolution_output = run_evolve_stage(
+    run_evolve_stage(
         task=config['task'],
         base_dir=str(base_dir),
         config=config['evolution'],
