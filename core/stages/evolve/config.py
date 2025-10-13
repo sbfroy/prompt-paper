@@ -10,12 +10,12 @@ class EvolveConfig:
     lambda_: int = 50  
     generations: int = 20
     cxpb: float = 0.6     
-    mutpb: float = 0.2    
+    mutpb: float = 0.2 # the probability of mutating an individual
     tournsize: int = 2 # higher increases selection pressure (risks premature convergence)  
     hof_size: int = 5
     
     # Mutation params
-    indpb: float = 0.2  # Probability for each example to be mutated
+    indpb: float = 0.2  # Probability for each example inside an individual to be mutated
     inter_prob: float = 0.5  # Probability of inter-cluster mutation
     
     # Threading params
