@@ -9,7 +9,7 @@ clustering:
   batch_size: 64
   umap_n_components: 30
   min_cluster_size: 15
-  min_samples: 1
+  min_samples: 10
   cluster_selection_epsilon: 0.30
 
 # Evolution stage config
@@ -39,8 +39,6 @@ evaluation:
   # LLM config for evaluation
   llm:
     model: "meta-llama/Meta-Llama-3-8B-Instruct"
-    dtype: "half"
-    quantization: null
     max_model_len: 4096
     gpu_memory_utilization: 0.90
     disable_log_stats: true
@@ -54,7 +52,9 @@ evaluation:
 
     {examples}
 
-    Return the results in JSON format.
+    Return the results in JSON format. 
+    Each key must be an XBRL tag. Each value must be a list of string values.
+    If there are no entities in the text, return an empty JSON object.
 
     User: '{input_text}'
 
