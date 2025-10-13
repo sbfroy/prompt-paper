@@ -4,6 +4,7 @@ spacy~=3.8.7
 nb_core_news_md @ https://github.com/explosion/spacy-models/releases/download/nb_core_news_md-3.8.0/nb_core_news_md-3.8.0-py3-none-any.whl
 transformers~=4.55.4
 sentence-transformers~=5.1.0
+vllm~=0.11.0
 conllu~=6.0.0
 numpy~=2.2.0
 pandas>=2.2.2
