@@ -3,7 +3,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('httpx').setLevel(logging.WARNING)
 
-def get_llm_response(config, client, individual, input_text):
+def get_llm_response(config, client, individual, input_text, response_schema):
     """
     Generate a response from the LLM using a prompt template and given input text.
 
@@ -12,6 +12,7 @@ def get_llm_response(config, client, individual, input_text):
         client: OpenAI-compatible client (vLLM OpenAI server)
         individual: The ICL examples
         input_text: The input to evaluate
+        response_schema: Pydantic model class for the expected response format
 
     Returns:
         str: The model's response or empty string on failure
@@ -31,6 +32,14 @@ def get_llm_response(config, client, individual, input_text):
             messages=[
                 {'role': 'user', 'content': user_prompt}
             ],
+            response_format={
+                'type': 'json_schema',
+                'json_schema': {
+                    "name": "response", 
+                    'schema': response_schema.model_json_schema(),
+                    'strict': True
+                }
+            },
             temperature=config['llm']['temperature'],
             max_tokens=config['llm']['max_tokens'],
         )
