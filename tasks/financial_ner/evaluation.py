@@ -2,11 +2,14 @@ import json
 from pathlib import Path
 from pydantic import RootModel
 import logging
+import random
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('httpx').setLevel(logging.WARNING)
 
 from core.stages.evolve import get_llm_response
+
+random.seed(42)
 
 class XBRLResponse(RootModel[dict[str, list[str]]]):
     pass
@@ -25,6 +28,10 @@ class Evaluator:
             for line in f:
                 if line.strip():
                     self.validation_data.append(json.loads(line))
+        
+        # Sample validation data
+        sample_size = int(len(self.validation_data) * self.config["validation_sample_ratio"])
+        self.validation_data = random.sample(self.validation_data, sample_size)
 
     def evaluate_individual(self, individual):
         """

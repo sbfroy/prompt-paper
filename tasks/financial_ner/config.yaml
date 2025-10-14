@@ -4,7 +4,7 @@ task: "financial_ner"
 clustering:
   random_seed: 42
   skip_embedding: false
-  input_filename: "Financial-NER-NLP_train.jsonl"
+  input_filename: "Financial-NER-NLP_train.jsonl" # 7202 samples
   embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
   batch_size: 64
   umap_n_components: 30
@@ -34,7 +34,8 @@ evolution:
 
 # Evaluation config
 evaluation:
-  validation_file: "Financial-NER-NLP_dev.jsonl"
+  validation_file: "Financial-NER-NLP_dev.jsonl" # 900 samples
+  validation_sample_ratio: 0.30 
 
   # LLM config for evaluation
   llm:
