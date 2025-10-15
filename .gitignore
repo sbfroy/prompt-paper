@@ -177,3 +177,5 @@ cython_debug/
 testing_clustering_pipeline.ipynb
 /wandb
 /artifacts
+notebooks/wandb
+notebooks/artifacts
