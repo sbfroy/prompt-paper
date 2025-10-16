@@ -1,15 +1,13 @@
-# What base image to use
-FROM python:3.10-slim 
+# FROM nvcr.io/nvidia/pytorch:25.03-py3
+FROM vllm/vllm-openai:latest
 
-# Set the working directory in the container
-WORKDIR /workspace
 
-# Install and updates necessary dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git curl && rm -rf /var/lib/apt/lists/*
+# Set an argument for the frontend, making it clear this is for build-time
+ARG DEBIAN_FRONTEND=noninteractive
+# Set the timezone to a default value like UTC to prevent prompts
+ENV TZ=Etc/UTC
 
-# Install the dependencies listed in requirements.txt
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-ENV PYTHONPATH=/workspace
+# In your Dockerfile
+RUN apt-get update && apt-get install -y python3-tk
+

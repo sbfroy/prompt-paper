@@ -5,6 +5,9 @@ from datetime import datetime
 import tempfile
 from pathlib import Path
 
+import weave
+
+
 def init_wandb(task_name, config):
     """
     Flattens config and initializes a wandb run.
@@ -12,11 +15,10 @@ def init_wandb(task_name, config):
     """
     config = _flatten_dict(config)
     run = wandb.init(
-        project=f"{task_name}_task",
-        entity="icl-research-team", 
-        config=config
-        )
+        project=f"{task_name}_task", entity="icl-research-team", config=config
+    )
     return run
+
 
 def log_metrics(step, **metrics):
     """
@@ -25,9 +27,11 @@ def log_metrics(step, **metrics):
     """
     return wandb.log(metrics, step=step)
 
+
 def finish_wandb():
     if wandb.run is not None:
         wandb.finish()
+
 
 def save_artifact(data, artifact_name, artifact_type):
     """
@@ -41,9 +45,9 @@ def save_artifact(data, artifact_name, artifact_type):
 
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir) / f"{artifact_name}.json"
-        with open(temp_path, 'w') as f:
+        with open(temp_path, "w") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        
+
         artifact = wandb.Artifact(artifact_name, type=artifact_type)
         artifact.add_file(str(temp_path))
 
@@ -52,6 +56,7 @@ def save_artifact(data, artifact_name, artifact_type):
         artifact.wait()  # Wait for upload to complete
 
         return artifact
+
 
 def save_file_artifact(file_path, artifact_name, artifact_type):
     """
@@ -67,14 +72,15 @@ def save_file_artifact(file_path, artifact_name, artifact_type):
 
     wandb.log_artifact(artifact)
 
-    artifact.wait() 
+    artifact.wait()
 
     return artifact
+
 
 def load_artifact(artifact_name):
     """
     Load wandb artifact and return the downloaded file path.
-    
+
     """
     artifact = wandb.use_artifact(f"{artifact_name}:latest")
     artifact_dir = artifact.download()
@@ -83,7 +89,7 @@ def load_artifact(artifact_name):
     files = list(Path(artifact_dir).glob("*"))
 
     return files[0]
-    
+
 
 def _flatten_dict(d: dict, parent_key: str = "", sep: str = "."):
     items = {}
