@@ -27,3 +27,5 @@ python-dotenv~=1.1.1
 openai>=1.0.0
 deap~=1.4.3
 pydantic~=2.11.7
+langchain_openai
+weave
