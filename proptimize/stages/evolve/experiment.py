@@ -174,6 +174,13 @@ class GA:
                 std=rec.get("std"),
                 nevals=nevals,
             )
+            
+            # Update evaluator with stats for individual early stopping
+            if hasattr(self.evaluate_fn, '__self__') and hasattr(self.evaluate_fn.__self__, 'update_generation_stats'):
+                self.evaluate_fn.__self__.update_generation_stats(
+                    avg=rec.get("avg"),
+                    std=rec.get("std")
+                )
 
             # early stopping check
             if self.config.early_stopping:

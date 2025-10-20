@@ -40,6 +40,34 @@ class Evaluator:
             len(self.validation_data) * self.config["validation_sample_ratio"]
         )
         self.validation_data = random.sample(self.validation_data, sample_size)
+        
+        # Shuffled data for current generation (shuffled once per generation)
+        self.shuffled_validation_data = self.validation_data.copy()
+        
+        # Generation statistics for early stopping of individuals
+        self.prev_gen_avg = None
+        self.prev_gen_std = None
+        self.early_stopped_count = 0
+    
+    def update_generation_stats(self, avg, std):
+        """
+        Update statistics from the previous generation.
+        Shuffle the validation data for the new generation.
+
+        Args:
+            avg (float): average fitness of previous generation
+            std (float): std deviation of fitness of previous generation
+        """
+        self.prev_gen_avg = avg
+        self.prev_gen_std = std
+        if self.early_stopped_count > 0:
+            logging.info(f"{self.early_stopped_count} individuals were early-stopped.")
+        else: 
+            logging.info("No individuals were early-stopped.")
+        self.early_stopped_count = 0
+        
+        # Shuffle validation data for the new generation
+        self.shuffled_validation_data = random.sample(self.validation_data, len(self.validation_data))
 
     def evaluate_individual(self, individual):
         """
@@ -48,10 +76,15 @@ class Evaluator:
         Returns:
             float: average f1 score across validation set
         """
+        # Calculate early stopping checkpoint based on fraction of val set
+        early_stop_fraction = self.config["early_stop_checkpoint_fraction"]
+        early_stop_checkpoint = int(len(self.shuffled_validation_data) * early_stop_fraction)
+
+        std_multiplier = self.config["early_stop_std_multiplier"]
 
         scores = []
 
-        for example in self.validation_data:
+        for idx, example in enumerate(self.shuffled_validation_data):
             text = example["text"]
             parts = text.split("Assistant Prediction:")
             user_part = parts[0][6:].strip()  # Also removes "User: " prefix
@@ -77,6 +110,18 @@ class Evaluator:
             else:
                 score = compare_json_objects(gold_labels, response)
                 scores.append(score)
+            
+            # Check for early stopping after reaching the checkpoint
+            if (self.prev_gen_avg is not None and  
+                idx + 1 == early_stop_checkpoint):
+                
+                current_avg = sum(scores) / len(scores)
+                threshold = self.prev_gen_avg - (std_multiplier * self.prev_gen_std)
+
+                if current_avg < threshold:
+                    # Individual is performing poorly, stop evaluation
+                    self.early_stopped_count += 1
+                    return current_avg
 
         return sum(scores) / len(scores) if scores else 0.0
 
