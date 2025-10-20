@@ -27,6 +27,7 @@ from proptimize.wandb_utils import init_wandb, finish_wandb
 from proptimize.stages.cluster import run_cluster_stage
 from proptimize.stages.evolve import run_evolve_stage
 from proptimize.stages.evolve import get_llm_response
+from proptimize.run_vllm import start_vllm_servers
 
 
 random.seed(42)
@@ -72,7 +73,7 @@ class Evaluator:
         scores = []
 
         for example in self.validation_data:
-            text = example["text"]
+            text: str = example["text"]
             parts = text.split("Assistant Prediction:")
             user_part = parts[0][6:].strip()  # Also removes "User: " prefix
             prediction_part = parts[1].strip()
@@ -101,7 +102,9 @@ class Evaluator:
         return sum(scores) / len(scores) if scores else 0.0
 
 
-def compare_json_objects(gold, pred):
+def compare_json_objects(
+    gold: dict[str, list[str]], pred: dict[str, list[str]]
+) -> float:
     """
     Compares two JSON objects (dictionaries) and calculates the f1 score.
 
@@ -214,4 +217,5 @@ def run_pipeline():
 
 
 if __name__ == "__main__":
+    start_vllm_servers()
     run_pipeline()

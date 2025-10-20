@@ -18,7 +18,7 @@ def get_llm_response(
     individual: list[tuple[str, InputExample]],
     input_text: str,
     response_schema: BaseModel,
-):
+) -> dict[str, list[str]]:
     """
     Generate a response from the LLM using a prompt template and given input text.
 
@@ -42,35 +42,47 @@ def get_llm_response(
     user_prompt = config["prompt_template"].format(
         examples=examples_text, input_text=input_text
     )
-    print("Hei")
+
+    # print("=====" * 10)
+    # print("Examples:", examples_text)
+
     # try:
-    completion = client.chat.completions.create(
+    completion = client.chat.completions.parse(
         model="openai/gpt-oss-120b",
         messages=[
             {
                 "role": "system",
                 "content": """
-                    You are a helpful assistant that finds named entities (NER) in text.                         
+                    You are a helpful assistant that finds named entities (NER) in text.  
+                    Only respond with the requested JSON object and nothing else.                       
                     """.strip(),
             },
             {"role": "user", "content": user_prompt},
         ],
-        # response_format={
-        #     "type": "json_schema",
-        #     "json_schema": response_schema.model_json_schema(),
-        # },
-        # temperature=config["llm"]["temperature"],
+        response_format=response_schema,
+        extra_body=dict(guided_decoding_backend="outlines"),
+        # extra_body={"guided_json": response_schema.model_json_schema()},
+        temperature=config["llm"]["temperature"],
         # max_tokens=config["llm"]["max_tokens"],
     )
 
-    print("Type:", type(completion.choices[0].message.content))
+    out = completion.choices[0].message.content
 
-    text = (completion.choices[0].message.content or "").strip()
-    return text
+    if out is None:
+        return ""
 
-    # except Exception as e:
-    #     logging.info(f"OpenAI client generation failed: {e}")
-    #     print("Error:", e)
+    # print("=====" * 10)
+    # print("LLM output:", out)
+    # print("Text to evaluate:", input_text)
+    # print("User prompt:", user_prompt)
+
+    # input("Press Enter to continue...")
+
+    try:
+        return response_schema.model_validate_json(out).model_dump()
+    except Exception as e:
+        logging.info(f"OpenAI client generation failed: {e}")
+        print("Warning:", e)
     #     return ""
 
 
