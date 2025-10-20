@@ -129,7 +129,7 @@ class Evaluator:
                 logging.info(f"Empty response for sentence, using score 0.0")
                 scores.append(0.0)
             else:
-                score = compare_json_objects(gold_labels, response)
+                score = self.compare_json_objects(gold_labels, response)
                 scores.append(score)
             
             # Check for early stopping after reaching the checkpoint
@@ -146,57 +146,57 @@ class Evaluator:
 
         return sum(scores) / len(scores) if scores else 0.0
 
+    @staticmethod
+    def compare_json_objects(
+        gold: dict[str, list[str]], pred: dict[str, list[str]]
+    ) -> float:
+        """
+        Compares two JSON objects (dictionaries) and calculates the f1 score.
 
-def compare_json_objects(
-    gold: dict[str, list[str]], pred: dict[str, list[str]]
-) -> float:
-    """
-    Compares two JSON objects (dictionaries) and calculates the f1 score.
+        Args:
+            gold: Dict containing the gold labels.
+            pred: Dict containing the predicted labels.
+        Returns:
+            float: f1 score
+        """
 
-    Args:
-        gold: Dict containing the gold labels.
-        pred: Dict containing the predicted labels.
-    Returns:
-        float: f1 score
-    """
+        if not gold and not pred:
+            return 1.0  # perfect match if both are empty
+        if not gold or not pred:
+            return 0.0
 
-    if not gold and not pred:
-        return 1.0  # perfect match if both are empty
-    if not gold or not pred:
-        return 0.0
+        tp = 0
+        fp = 0
+        fn = 0
 
-    tp = 0
-    fp = 0
-    fn = 0
+        for key, gold_values in gold.items():
 
-    for key, gold_values in gold.items():
+            pred_values = pred.get(key, [])  # default to empty list if key not found
 
-        pred_values = pred.get(key, [])  # default to empty list if key not found
+            for value in gold_values:
+                if value in pred_values:
+                    tp += 1  # correctly predicted
+                else:
+                    fn += 1  # in gold but not predicted
 
-        for value in gold_values:
-            if value in pred_values:
-                tp += 1  # correctly predicted
-            else:
-                fn += 1  # in gold but not predicted
+            fp += len(set(pred_values) - set(gold_values))  # predicted but not in gold
 
-        fp += len(set(pred_values) - set(gold_values))  # predicted but not in gold
+        extra_keys = set(pred.keys()) - set(gold.keys())  # Keys in pred but not in gold
 
-    extra_keys = set(pred.keys()) - set(gold.keys())  # Keys in pred but not in gold
+        for key in extra_keys:
+            # all values in these keys are incorrect
+            pred_values = pred[key]
+            fp += len(pred_values)
 
-    for key in extra_keys:
-        # all values in these keys are incorrect
-        pred_values = pred[key]
-        fp += len(pred_values)
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = (
+            2 * (precision * recall) / (precision + recall)
+            if (precision + recall) > 0
+            else 0.0
+        )
 
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    f1 = (
-        2 * (precision * recall) / (precision + recall)
-        if (precision + recall) > 0
-        else 0.0
-    )
-
-    return f1
+        return f1
 
 
 def load_config():  # Loading the config file
