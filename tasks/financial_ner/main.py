@@ -125,11 +125,12 @@ class Evaluator:
             else:
                 gold_labels = json.loads(prediction_part.replace("'", '"'))
 
-            if not response:
-                logging.info(f"Empty response for sentence, using score 0.0")
+            if response is None:
+                logging.info(f"Response is None, using score 0.0, but something is probably wrong.")
                 scores.append(0.0)
             else:
-                score = self.compare_json_objects(gold_labels, response)
+                payload = response.root if hasattr(response, "root") else response # .root to access the actual data
+                score = self.compare_json_objects(gold_labels, payload)
                 scores.append(score)
             
             # Check for early stopping after reaching the checkpoint
