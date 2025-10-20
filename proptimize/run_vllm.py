@@ -2,6 +2,7 @@ import shlex
 from pathlib import Path
 import subprocess
 import os
+import signal
 from typing import Optional
 from time import sleep
 
@@ -10,6 +11,8 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env file
+
+_EMBEDDING_SERVER_PID = None  # Stores the process ID of the embedding server
 
 
 def start_daemon(
@@ -88,6 +91,8 @@ def run_script_daemon(
 
 
 def start_vllm_servers() -> int:
+    global _EMBEDDING_SERVER_PID
+    
     LLM_server_script = Path("/workspace/scripts/run_vllm_oss120.sh")
     EMBEDD_server_script = Path("/workspace/scripts/run_vllm_qwen3_embedd.sh")
 
@@ -102,7 +107,7 @@ def start_vllm_servers() -> int:
         script_path=str(LLM_server_script),
     )
 
-    run_script_daemon(
+    _EMBEDDING_SERVER_PID = run_script_daemon(
         script_path=str(EMBEDD_server_script),
     )
 
@@ -163,3 +168,17 @@ def start_vllm_servers() -> int:
     print()
 
     return 0
+
+
+def shutdown_embedding_server():
+    """
+    Function to shutdown the embedding server to free GPU resources.
+    Should be called after embeddings are generated and cached.
+    """
+    global _EMBEDDING_SERVER_PID
+    
+    os.killpg(
+        _EMBEDDING_SERVER_PID, # Process group ID
+        signal.SIGTERM # Termination signal
+    )
+    _EMBEDDING_SERVER_PID = None

@@ -12,6 +12,7 @@ from proptimize.stages.cluster.embedding_generator import EmbeddingGenerator
 from proptimize.stages.cluster.dimensionality_reducer import DimensionalityReducer
 from proptimize.stages.cluster.clusterer import HDBSCANClusterer
 from proptimize.stages.cluster.config import ClusterConfig
+from proptimize.run_vllm import shutdown_embedding_server
 
 
 class ClusterStage:
@@ -32,6 +33,7 @@ class ClusterStage:
 
         # ====== EMBEDDING ======
         if self.config.skip_embedding:
+            # TODO: Maybe just remove this functionality? (embeddings are not time-consuming)
             logging.info("Loading existing embeddings...")
             embedded_dataset = self.data_manager.load_embedded_dataset()
         else:
@@ -42,6 +44,9 @@ class ClusterStage:
                 input_dataset, self.config.batch_size
             )
             self.data_manager.save_embedded_dataset(embedded_dataset)
+
+        shutdown_embedding_server()
+        logging.info("Embedding server shut down...")
 
         # Embeddings to numpy array
         embeddings = np.array(
