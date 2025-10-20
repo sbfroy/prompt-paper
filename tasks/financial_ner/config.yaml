@@ -52,14 +52,17 @@ evaluation:
     max_tokens: 32
 
   prompt_template: |-
-    Extract the named entities in this text using 139 XBRL tags in the IOB2 format.
+    Extract the named entities in the following text using 139 XBRL tags as labels in the IOB2 format.
     
+    The XBRL tags represent financial and accounting terms such as revenue, income, liabilities, expenses, assets, and equity items found in company reports.
+
     Here are some examples:
 
     {examples}
 
-    Return the results in JSON format. 
-    Each key must be an XBRL tag. Each value must be a list of string values.
-    If there are no entities in the text, return an empty JSON object.
+    Return the results in JSON format:
+      - Each key must be an XBRL tag.
+      - Each value must be a list of string values (the entities found).
+      - If there are no entities in the text, return an empty JSON object.
 
-    User: '{input_text}'
+    Text to analyze: '{input_text}'
