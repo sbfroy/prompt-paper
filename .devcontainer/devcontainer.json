@@ -1,6 +1,6 @@
 {
   "name": "Prompt-paper",
-  "dockerFile": "../Dockerfile",
+  "dockerFile": "Dockerfile",
   "workspaceFolder": "/workspace",
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind"
@@ -9,5 +9,5 @@
       "--gpus", "all",
       "--shm-size", "6G"
   ],
-  "postStartCommand": "python -m pip install --upgrade pip; pip install black" //; pip install -e .
+  "postStartCommand": "python -m pip install --upgrade pip; pip install black; pip install -e ." //; pip install -e .
 }
