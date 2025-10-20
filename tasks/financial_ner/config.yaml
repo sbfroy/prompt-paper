@@ -54,7 +54,7 @@ evaluation:
   prompt_template: |-
     Extract the named entities in the following text using 139 XBRL tags as labels in the IOB2 format.
     
-    The XBRL tags represent financial and accounting terms such as revenue, income, liabilities, expenses, assets, and equity items found in company reports.
+    The XBRL tags include, for example: EquityMethodInvestments, IncomeLossFromEquityMethodInvestments, and UnrecognizedTaxBenefits.
 
     Here are some examples:
 
