@@ -53,8 +53,9 @@ def get_llm_response(
             {
                 "role": "system",
                 "content": """
-                    You are a helpful assistant that finds named entities (NER) in text.  
-                    Only respond with the requested JSON object and nothing else.                       
+                    You are a helpful assistant that performs Named Entity Recognition (NER) on financial text.
+                    Your goal is to identify financial concepts and accounting terms related to company performance, assets, liabilities, equity, revenue, and expenses.
+                    Only respond with the requested JSON object and nothing else.                      
                     """.strip(),
             },
             {"role": "user", "content": user_prompt},
