@@ -1,27 +1,14 @@
 import sys
 import logging
-from pathlib import Path
-from openai import OpenAI
-import yaml
-import os
 import json
-from pydantic import RootModel
-import logging
+import os
 import random
+from pathlib import Path
 
+import yaml
 from dotenv import load_dotenv
-
-load_dotenv()  # take environment variables from .env file
-
-logging.basicConfig(level=logging.INFO)
-
-# suppress the batch logging
-logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
-logging.basicConfig(level=logging.INFO)
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))  # step out to 'prompt-paper'
+from openai import OpenAI
+from pydantic import RootModel
 
 from proptimize.wandb_utils import init_wandb, finish_wandb
 from proptimize.stages.cluster import run_cluster_stage
@@ -29,6 +16,16 @@ from proptimize.stages.evolve import run_evolve_stage
 from proptimize.stages.evolve import get_llm_response
 from proptimize.run_vllm import start_vllm_servers
 
+load_dotenv()  
+
+logging.basicConfig(level=logging.INFO)
+
+# Some logging suppression
+logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))  # step out to 'prompt-paper'
 
 random.seed(42)
 
@@ -61,15 +58,15 @@ class Evaluator:
             len(self.validation_data) * self.config["validation_sample_ratio"]
         )
         self.validation_data = random.sample(self.validation_data, sample_size)
-        
+
         # Shuffled data for current generation (shuffled once per generation)
         self.shuffled_validation_data = self.validation_data.copy()
-        
+
         # Generation statistics for early stopping of individuals
         self.prev_gen_avg = None
         self.prev_gen_std = None
         self.early_stopped_count = 0
-    
+
     def update_generation_stats(self, avg, std):
         """
         Update statistics from the previous generation.
@@ -83,10 +80,10 @@ class Evaluator:
         self.prev_gen_std = std
         if self.early_stopped_count > 0:
             logging.info(f"{self.early_stopped_count} individuals were early-stopped.")
-        else: 
+        else:
             logging.info("No individuals were early-stopped.")
         self.early_stopped_count = 0
-        
+
         # Shuffle validation data for the new generation
         self.shuffled_validation_data = random.sample(self.validation_data, len(self.validation_data))
 
@@ -129,14 +126,14 @@ class Evaluator:
                 logging.info(f"Response is None, using score 0.0, but something is probably wrong.")
                 scores.append(0.0)
             else:
-                payload = response.root if hasattr(response, "root") else response # .root to access the actual data
+                payload = response.root if hasattr(response, "root") else response  # .root to access the actual data
                 score = self.compare_json_objects(gold_labels, payload)
                 scores.append(score)
-            
+
             # Check for early stopping after reaching the checkpoint
-            if (self.prev_gen_avg is not None and  
-                idx + 1 == early_stop_checkpoint):
-                
+            if (self.prev_gen_avg is not None and
+                    idx + 1 == early_stop_checkpoint):
+
                 current_avg = sum(scores) / len(scores)
                 threshold = self.prev_gen_avg - (std_multiplier * self.prev_gen_std)
 
@@ -200,7 +197,7 @@ class Evaluator:
         return f1
 
 
-def load_config():  # Loading the config file
+def load_config():
     config_path = Path(__file__).parent / "config.yaml"
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
@@ -214,29 +211,15 @@ def create_evaluator(base_dir, eval_config, client):
     return evaluator.evaluate_individual
 
 
-def run_pipeline():
+def main():
     config = load_config()
 
     # Set up paths
     task_dir = Path(__file__).parent
     base_dir = task_dir.parent
 
-    # Initialize DataManager
-    # data_manager = DataManager(config["task"], str(base_dir))
-
     # Initialize wandb
     run = init_wandb(task_name=config["task"], config=config)
-
-    # ====== Run CLUSTERING STAGE ======
-
-    run_cluster_stage(
-        task=config["task"], base_dir=str(base_dir), config_dict=config["clustering"]
-    )
-
-    # Load cluster dataset from wandb
-    # cluster_dataset = data_manager.load_cluster_dataset()
-
-    # ====== RUN EVOLUTION STAGE ======
 
     # Initialize OpenAI-compatible client for evaluation
     logging.info("Creating OpenAI client for evaluation...")
@@ -245,7 +228,7 @@ def run_pipeline():
         base_url=f'http://localhost:{os.getenv("LLM_PORT", "8000")}/v1',
         api_key=os.getenv("LLM_API_KEY", "prompt-paper"),
     )
-
+    
     eval_fn = create_evaluator(
         base_dir=str(base_dir), eval_config=config["evaluation"], client=client
     )
@@ -259,9 +242,9 @@ def run_pipeline():
 
     finish_wandb()
 
-    logging.info(f"Pipeline completed successfully!")
+    logging.info("Evolution stage completed successfully!")
 
 
 if __name__ == "__main__":
     start_vllm_servers()
-    run_pipeline()
+    main()
