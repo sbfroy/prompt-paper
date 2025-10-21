@@ -3,7 +3,6 @@ task: "ner"
 # Clustering stage config
 clustering:
   random_seed: 42
-  skip_embedding: false
   input_filename: "regplans-train.jsonl"
   embedding_model: "NbAiLab/nb-sbert-base"
   batch_size: 64
