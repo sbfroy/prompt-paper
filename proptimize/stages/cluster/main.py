@@ -1,10 +1,9 @@
-import numpy as np
-import warnings
 import logging
-from pathlib import Path
+import warnings
 from collections import defaultdict
+from pathlib import Path
 
-logging.basicConfig(level=logging.INFO)
+import numpy as np
 
 from proptimize.data_manager import DataManager
 from proptimize.schemas import Cluster, ClusterDataset, ClusterExample
@@ -13,6 +12,8 @@ from proptimize.stages.cluster.dimensionality_reducer import DimensionalityReduc
 from proptimize.stages.cluster.clusterer import HDBSCANClusterer
 from proptimize.stages.cluster.config import ClusterConfig
 from proptimize.run_vllm import shutdown_embedding_server
+
+logging.basicConfig(level=logging.INFO)
 
 
 class ClusterStage:
@@ -72,8 +73,6 @@ class ClusterStage:
             embedded_dataset, labels, probabilities
         )
         artifact = self.data_manager.save_cluster_dataset(cluster_dataset)
-
-        # TODO: Implement some details logging (stats about clusters)
 
         logging.info(
             f"Clustering stage completed! Output saved as artifact: {artifact.name}"
