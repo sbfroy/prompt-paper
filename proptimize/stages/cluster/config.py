@@ -5,7 +5,6 @@ class ClusterConfig:
     random_seed: int = 42
     
     # Embedding generation params
-    skip_embedding: bool = False
     embedding_model: str = "NbAiLab/nb-sbert-base"
     batch_size: int = 64
 

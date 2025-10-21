@@ -3,7 +3,6 @@ task: "financial_ner"
 # Clustering stage config
 clustering:
   random_seed: 42
-  skip_embedding: false
   input_filename: "Financial-NER-NLP_train.jsonl" # 7202 samples
   # embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
   # batch_size: 64
