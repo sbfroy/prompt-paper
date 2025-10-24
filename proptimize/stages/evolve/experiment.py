@@ -10,7 +10,6 @@ logging.basicConfig(level=logging.INFO)
 
 from proptimize.wandb_utils import log_metrics
 from proptimize.schemas import ClusterDataset
-from proptimize.stages.evolve.config import EvolveConfig
 
 
 class EarlyStoppingException(Exception):
@@ -27,7 +26,7 @@ class GA:
         mate_fn: callable,
         mutate_fn: callable,
         select_fn: callable,
-        config: EvolveConfig,
+        config: dict,
     ):
         self.cluster_dataset = cluster_dataset
         self.evaluate_fn = evaluate_fn
@@ -39,8 +38,8 @@ class GA:
         self._eval_lock = threading.Lock()
         self.evolution_trace_callback = None  # Callback to log evolution trace
 
-        random.seed(self.config.random_seed)
-        np.random.seed(self.config.random_seed)
+        random.seed(self.config['random_seed'])
+        np.random.seed(self.config['random_seed'])
 
         creator.create(
             "FitnessMax", base.Fitness, weights=(1.0,)
@@ -76,7 +75,7 @@ class GA:
         self.toolbox.register(
             "mutate", self.mutate_fn, cluster_dataset=self.cluster_dataset
         )
-        self.toolbox.register("select", self.select_fn, tournsize=self.config.tournsize)
+        self.toolbox.register("select", self.select_fn, tournsize=self.config['tournsize'])
 
         # Early stopping state
         self.early_stopping_counter = 0
@@ -90,7 +89,7 @@ class GA:
             List of (cluster_id, example) pairs
         """
         random_clusters = random.sample(
-            self.cluster_dataset.clusters, self.config.subset_size
+            self.cluster_dataset.clusters, self.config['subset_size']
         )
 
         examples = []
@@ -106,7 +105,7 @@ class GA:
         Parallel mapping function for population evaluation.
         Uses ThreadPoolExecutor to evaluate multiple individuals at the same time.
         """
-        with ThreadPoolExecutor(max_workers=self.config.workers) as executor:
+        with ThreadPoolExecutor(max_workers=self.config['workers']) as executor:
             results = list(executor.map(func, iterable))
         return results
 
@@ -122,14 +121,14 @@ class GA:
         # Check if there's improvement
         improvement = current_max_value - self.best_max_value
 
-        if improvement > self.config.early_stopping_min_delta:
+        if improvement > self.config['early_stopping_min_delta']:
             self.early_stopping_counter = 0
             self.best_max_value = current_max_value
             return False
         else:
             self.early_stopping_counter += 1
             # return True if patience reached
-            return self.early_stopping_counter >= self.config.early_stopping_patience
+            return self.early_stopping_counter >= self.config['early_stopping_patience']
 
     def run(self):
         # set up the statistics
@@ -183,7 +182,7 @@ class GA:
                 )
 
             # early stopping check
-            if self.config.early_stopping:
+            if self.config['early_stopping']:
                 current_max = rec.get("max")
                 if self._should_early_stop(current_max):
                     logging.info("Early stopping!")
@@ -193,12 +192,12 @@ class GA:
 
         stats.compile = compile_with_logging
 
-        mu = self.config.mu  # parents
-        lambda_ = self.config.lambda_  # offspring
+        mu = self.config['mu']  # parents
+        lambda_ = self.config['lambda_']  # offspring
 
         pop = self.toolbox.population(n=mu)  # creates the init population
         current_population[0] = pop[:]
-        hof = tools.HallOfFame(self.config.hof_size)  # Keep the best individuals
+        hof = tools.HallOfFame(self.config['hof_size'])  # Keep the best individuals
 
         # TODO: Maybe implement some sort of cooling (lower lambda and increase tournsize over time?)
         # or increase the intra_prob over time to focus more on finding the best examples rather than best clusters.
@@ -213,9 +212,9 @@ class GA:
                 self.toolbox,
                 mu=mu,
                 lambda_=lambda_,
-                cxpb=self.config.cxpb,
-                mutpb=self.config.mutpb,
-                ngen=self.config.generations,
+                cxpb=self.config['cxpb'],
+                mutpb=self.config['mutpb'],
+                ngen=self.config['generations'],
                 stats=stats,
                 halloffame=hof,
             )
