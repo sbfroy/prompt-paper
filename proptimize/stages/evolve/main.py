@@ -5,7 +5,6 @@ logging.basicConfig(level=logging.INFO)
 
 from .experiment import GA
 from .operators import mate, composite_mutate
-from .config import EvolveConfig
 from ...data_manager import DataManager
 
 class EvolveStage:
@@ -131,7 +130,6 @@ def run_evolve_stage(
 ):
     # Setup
     data_manager = DataManager(task, base_dir)
-    config = EvolveConfig.from_dict(config)
 
     # Run evolution
     stage = EvolveStage(data_manager, config, eval_fn)
