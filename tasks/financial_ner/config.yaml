@@ -4,13 +4,19 @@ task: "financial_ner"
 clustering:
   random_seed: 42
   input_filename: "Financial-NER-NLP_train.jsonl" # 7202 samples
-  # embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
-  # batch_size: 64
+
+  # Embedding generation parameters
   batch_size: 512
+
+  # UMAP parameters
   umap_n_components: 30
-  min_cluster_size: 15
-  min_samples: 10
-  cluster_selection_epsilon: 0.30
+  
+  # HDBSCAN parameters
+  hdbscan:
+    min_cluster_size: 30
+    min_samples: 1
+    cluster_selection_epsilon: 0.16
+    max_cluster_size: 250
 
 # Evolution stage config
 evolution:
