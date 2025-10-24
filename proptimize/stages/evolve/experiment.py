@@ -80,6 +80,42 @@ class GA:
         # Early stopping state
         self.early_stopping_counter = 0
         self.best_max_value = None
+        
+        # Store total number of clusters for diversity calculation
+        self.total_clusters = len(cluster_dataset.clusters)
+
+    def calculate_adaptive_inter_prob(self, population):
+        """
+        Calculate an adaptive inter_prob based on cluster diversity in the population.
+        
+        The idea is to encourage exploration (inter-cluster mutation) when diversity
+        is high, and shift to exploitation (intra-cluster mutation) as diversity 
+        decreases and the GA converges to the best clusters.
+        
+        Args:
+            population: Current population of individuals.
+        
+        Returns:
+            Float between 0 and 1 representing the probability of inter-cluster mutation.
+        """
+        from .operators import calculate_cluster_diversity
+        
+        # Calculate current diversity (0 to 1)
+        diversity = calculate_cluster_diversity(population, self.total_clusters)
+        
+        # Get the initial inter_prob from config (this is the max value)
+        initial_inter_prob = self.config['max_inter_prob']
+        
+        # Define minimum inter_prob (we don't want it to go to 0)
+        # This ensures some exploration always happens
+        min_inter_prob = self.config['min_inter_prob']
+        
+        # Scale inter_prob based on diversity
+        # High diversity (close to 1) -> inter_prob close to initial value (explore)
+        # Low diversity (close to 0) -> inter_prob close to min value (exploit)
+        adaptive_inter_prob = min_inter_prob + (initial_inter_prob - min_inter_prob) * diversity
+        
+        return adaptive_inter_prob, diversity
 
     def _create_individual(self):
         """
@@ -162,6 +198,15 @@ class GA:
             if self.evolution_trace_callback:
                 self.evolution_trace_callback(generation, population)
 
+            # Calculate adaptive inter_prob and update mutation function
+            adaptive_inter_prob, diversity = self.calculate_adaptive_inter_prob(population)
+            self.toolbox.register(
+                "mutate", 
+                self.mutate_fn, 
+                cluster_dataset=self.cluster_dataset,
+                inter_prob=adaptive_inter_prob
+            )
+
             # Log numeric metrics to wandb
             log_metrics(
                 step=generation,
@@ -170,6 +215,8 @@ class GA:
                 min=rec.get("min"),
                 std=rec.get("std"),
                 nevals=nevals,
+                inter_prob=adaptive_inter_prob,
+                cluster_diversity=diversity,
             )
             
             # Update evaluator with stats for individual early stopping
@@ -196,9 +243,6 @@ class GA:
         pop = self.toolbox.population(n=mu)  # creates the init population
         current_population[0] = pop[:]
         hof = tools.HallOfFame(self.config['hof_size'])  # Keep the best individuals
-
-        # TODO: Maybe implement some sort of cooling (lower lambda and increase tournsize over time?)
-        # or increase the intra_prob over time to focus more on finding the best examples rather than best clusters.
 
         width = shutil.get_terminal_size().columns
         logging.info("-" * width)
