@@ -21,7 +21,7 @@ class EmbeddingGenerator:
         )
 
     def generate_embeddings(
-        self, input_dataset: InputDataset, batch_size: int = 32
+        self, input_dataset: InputDataset, batch_size: int 
     ) -> EmbeddedDataset:
         embedded_examples = []
 
