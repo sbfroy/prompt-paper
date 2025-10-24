@@ -33,12 +33,16 @@ class EvolveStage:
                 "Should probably check if clustering stage is okay."
             )
 
-        def _mutate(individual, cluster_dataset):
+        def _mutate(individual, cluster_dataset, inter_prob=None):
+            # If inter_prob is not provided, use the config value
+            # This allows for adaptive inter_prob to be passed in
+            if inter_prob is None:
+                inter_prob = self.config.inter_prob
             return composite_mutate(
                 individual, 
                 cluster_dataset, 
                 indpb=self.config.indpb,
-                inter_prob=self.config.inter_prob
+                inter_prob=inter_prob
             )
 
         # Initialize the GA
