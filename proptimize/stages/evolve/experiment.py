@@ -83,20 +83,18 @@ class GA:
 
     def _create_individual(self):
         """
-        Creates an individual by selecting one random example from different clusters.
+        Creates an individual by selecting random examples from any clusters (with replacement).
 
         Returns:
             List of (cluster_id, example) pairs
         """
-        random_clusters = random.sample(
-            self.cluster_dataset.clusters, self.config['subset_size']
-        )
-
         examples = []
-        for cluster in random_clusters:
-            # Select one random example from each randomly selected cluster
-            random_example = random.choice(cluster.examples)
-            examples.append((cluster.cluster_id, random_example))
+        for _ in range(self.config['subset_size']):
+            # Select a random cluster (with replacement)
+            random_cluster = random.choice(self.cluster_dataset.clusters)
+            # Select one random example from the selected cluster
+            random_example = random.choice(random_cluster.examples)
+            examples.append((random_cluster.cluster_id, random_example))
 
         return examples
 
