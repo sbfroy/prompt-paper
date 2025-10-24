@@ -29,7 +29,8 @@ evolution:
   mutpb: 0.50 # exploration heavy, but still keep some reproduction
   tournsize: 2 # weak pressures aka more diversity
   indpb: 0.40
-  inter_prob: 0.70 # bias mutations to other clusters
+  max_inter_prob: 0.70 # bias mutations to other clusters (initial/max value)
+  min_inter_prob: 0.10  # Minimum inter_prob when diversity is low (exploit mode)
   hof_size: 5
   workers: 8     
 
@@ -41,7 +42,7 @@ evolution:
 # Evaluation config
 evaluation:
   validation_file: "Financial-NER-NLP_dev.jsonl" # 900 samples
-  validation_sample_ratio: 0.4 # = 360 
+  validation_sample_ratio: 0.5 # = 450
 
   # Individual early stopping params
   early_stop_checkpoint_fraction: 0.25  # Check after evaluating this fraction of validation set (0.0 to 1.0)
