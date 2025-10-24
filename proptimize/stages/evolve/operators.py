@@ -20,30 +20,18 @@ def composite_mutate(individual, cluster_dataset, indpb, inter_prob):
         if cluster.examples: # skip empty clusters
             cluster_map[cluster.cluster_id] = cluster
 
-    used_cluster_ids = {cluster_id for cluster_id, _ in individual}
-
     for i in range(len(individual)):
         if random.random() >= indpb:
             continue  # Skip mutation for this example
         
         did_mutate = False
         if random.random() < inter_prob:
-            # Inter-cluster mutation that replaces examples with examples from different clusters
+            # Inter-cluster mutation that replaces examples with examples from any cluster
             # inter means between
-            available_clusters = [
-                cluster for cluster in cluster_dataset.clusters 
-                if cluster.cluster_id not in used_cluster_ids
-            ]
-            if available_clusters:
-                new_cluster = random.choice(available_clusters)
-                new_example = random.choice(new_cluster.examples)
-
-                # Get the old cluster id
-                old_cluster_id, _ = individual[i]
-                used_cluster_ids.discard(old_cluster_id)
-                used_cluster_ids.add(new_cluster.cluster_id)
-                individual[i] = (new_cluster.cluster_id, new_example)
-                did_mutate = True
+            new_cluster = random.choice(cluster_dataset.clusters)
+            new_example = random.choice(new_cluster.examples)
+            individual[i] = (new_cluster.cluster_id, new_example)
+            did_mutate = True
 
         if not did_mutate:
             # Intra-cluster mutation that replaces examples with other examples from the same cluster
