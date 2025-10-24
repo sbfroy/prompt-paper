@@ -1,7 +1,6 @@
 import logging
 import warnings
 from collections import defaultdict
-from pathlib import Path
 
 import numpy as np
 
@@ -33,9 +32,15 @@ class ClusterStage:
         logging.info("Starting clustering stage...")
 
         # ====== EMBEDDING ======
-        logging.info("Loading existing embeddings...")
-        embedded_dataset = self.data_manager.load_embedded_dataset()
+        logging.info("Generating embeddings...")
+        input_dataset = self.data_manager.load_input_dataset(self.config.input_filename)
+        embedded_dataset = self.embedding_generator.generate_embeddings(
+            input_dataset, batch_size=self.config.batch_size
+        )
 
+        # Save the embedded dataset
+        self.data_manager.save_embedded_dataset(embedded_dataset)
+       
         shutdown_embedding_server()
         logging.info("Embedding server shut down...")
 
