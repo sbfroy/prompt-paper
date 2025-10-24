@@ -135,9 +135,13 @@ class Evaluator:
                 threshold = self.prev_gen_avg - (std_multiplier * self.prev_gen_std)
 
                 if current_avg < threshold:
-                    # Individual is performing poorly, stop evaluation
-                    self.early_stopped_count += 1
-                    return current_avg
+                    # Individual is performing poorly, but only stop if probability
+                    # to maintain exploration
+                    early_stop_prob = self.config["early_stop_probability"]
+                    if random.random() < early_stop_prob:
+                        self.early_stopped_count += 1
+                        return current_avg
+                    # Otherwise, continue evaluating this individual
 
         return sum(scores) / len(scores) if scores else 0.0
 

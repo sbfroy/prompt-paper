@@ -47,6 +47,7 @@ evaluation:
   # Individual early stopping params
   early_stop_checkpoint_fraction: 0.25  # Check after evaluating this fraction of validation set (0.0 to 1.0)
   early_stop_std_multiplier: 1.0  # Removes roughly 16% if normal distribution
+  early_stop_probability: 0.7  # Probability of actually stopping an individual that meets early stop criteria (0.0 to 1.0)
 
   # LLM config for evaluation
   llm:
