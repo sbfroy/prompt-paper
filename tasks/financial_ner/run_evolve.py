@@ -59,9 +59,6 @@ class Evaluator:
         )
         self.validation_data = random.sample(self.validation_data, sample_size)
 
-        # Shuffled data for current generation (shuffled once per generation)
-        self.shuffled_validation_data = self.validation_data.copy()
-
         # Generation statistics for early stopping of individuals
         self.prev_gen_avg = None
         self.prev_gen_std = None
@@ -70,7 +67,6 @@ class Evaluator:
     def update_generation_stats(self, avg, std):
         """
         Update statistics from the previous generation.
-        Shuffle the validation data for the new generation.
 
         Args:
             avg (float): average fitness of previous generation
@@ -84,25 +80,26 @@ class Evaluator:
             logging.info("No individuals were early-stopped.")
         self.early_stopped_count = 0
 
-        # Shuffle validation data for the new generation
-        self.shuffled_validation_data = random.sample(self.validation_data, len(self.validation_data))
-
     def evaluate_individual(self, individual):
         """
         Evaluate an individual on the validation set.
+        Data is shuffled independently for each individual to avoid bias.
 
         Returns:
             float: average f1 score across validation set
         """
+        # Shuffle validation data for this individual
+        shuffled_validation_data = random.sample(self.validation_data, len(self.validation_data))
+        
         # Calculate early stopping checkpoint based on fraction of val set
         early_stop_fraction = self.config["early_stop_checkpoint_fraction"]
-        early_stop_checkpoint = int(len(self.shuffled_validation_data) * early_stop_fraction)
+        early_stop_checkpoint = int(len(shuffled_validation_data) * early_stop_fraction)
 
         std_multiplier = self.config["early_stop_std_multiplier"]
 
         scores = []
 
-        for idx, example in enumerate(self.shuffled_validation_data):
+        for idx, example in enumerate(shuffled_validation_data):
             text = example["text"]
             parts = text.split("Assistant Prediction:")
             user_part = parts[0][6:].strip()  # Also removes "User: " prefix
