@@ -9,33 +9,31 @@ from proptimize.schemas import Cluster, ClusterDataset, ClusterExample
 from proptimize.stages.cluster.embedding_generator import EmbeddingGenerator
 from proptimize.stages.cluster.dimensionality_reducer import DimensionalityReducer
 from proptimize.stages.cluster.clusterer import HDBSCANClusterer
-from proptimize.stages.cluster.config import ClusterConfig
 from proptimize.run_vllm import shutdown_embedding_server
 
 logging.basicConfig(level=logging.INFO)
 
 
 class ClusterStage:
-    def __init__(self, data_manager: DataManager, config: ClusterConfig):
+    def __init__(self, data_manager: DataManager, config: dict):
         self.data_manager = data_manager
         self.config = config
 
         self.embedding_generator = EmbeddingGenerator()
-        self.reducer = DimensionalityReducer(random_state=config.random_seed)
-        self.clusterer = HDBSCANClusterer(
-            min_cluster_size=config.min_cluster_size,
-            min_samples=config.min_samples,
-            cluster_selection_epsilon=config.cluster_selection_epsilon,
-        )
+        self.reducer = DimensionalityReducer(random_state=config['random_seed'])
+        
+        # Gather all HDBSCAN params and pass directly
+        hdbscan_params = config['hdbscan']
+        self.clusterer = HDBSCANClusterer(**hdbscan_params)
 
     def run(self):
         logging.info("Starting clustering stage...")
 
         # ====== EMBEDDING ======
         logging.info("Generating embeddings...")
-        input_dataset = self.data_manager.load_input_dataset(self.config.input_filename)
+        input_dataset = self.data_manager.load_input_dataset(self.config['input_filename'])
         embedded_dataset = self.embedding_generator.generate_embeddings(
-            input_dataset, batch_size=self.config.batch_size
+            input_dataset, batch_size=self.config['batch_size']
         )
 
         # Save the embedded dataset
@@ -54,7 +52,7 @@ class ClusterStage:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning, module="umap")
             reduced_embeddings = self.reducer.reduce(
-                embeddings, n_components=self.config.umap_n_components
+                embeddings, n_components=self.config['umap_n_components']
             )
 
         # ====== HDBSCAN ======
@@ -110,8 +108,7 @@ def run_cluster_stage(
 ):
     # Setup
     data_manager = DataManager(task, base_dir)
-    config = ClusterConfig.from_dict(config_dict or {})
 
-    # Run clustering
-    stage = ClusterStage(data_manager, config)
+    # Run clustering 
+    stage = ClusterStage(data_manager, config_dict)
     return stage.run()
