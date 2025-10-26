@@ -58,7 +58,13 @@ evaluation:
     temperature: 0.0
     max_tokens: 32
 
-  prompt_template: |-
+  # Prompt templates
+  system_prompt: |-
+    You are a helpful assistant that performs Named Entity Recognition (NER) on financial text.
+    Your goal is to identify financial concepts and accounting terms related to company performance, assets, liabilities, equity, revenue, and expenses.
+    Only respond with the requested JSON object and nothing else.
+
+  user_prompt: |-
     Extract the named entities in the following text using 139 XBRL tags as labels in the IOB2 format.
     
     The XBRL tags include, for example: EquityMethodInvestments, IncomeLossFromEquityMethodInvestments, and UnrecognizedTaxBenefits.
