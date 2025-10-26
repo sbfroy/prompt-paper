@@ -49,16 +49,9 @@ evaluation:
   early_stop_std_multiplier: 1.0  # Removes roughly 16% if normal distribution
   early_stop_probability: 0.7  # Probability of actually stopping an individual that meets early stop criteria (0.0 to 1.0)
 
-  # LLM config for evaluation
-  llm:
-    # model: "meta-llama/Meta-Llama-3-8B-Instruct"
-    max_model_len: 4096
-    gpu_memory_utilization: 0.90
-    disable_log_stats: true
-    temperature: 0.0
-    max_tokens: 32
-
-  # Prompt templates
+  # LLM params + prompt templates for evaluation
+  temperature: 0.0
+  #max_tokens: 32
   system_prompt: |-
     You are a helpful assistant that performs Named Entity Recognition (NER) on financial text.
     Your goal is to identify financial concepts and accounting terms related to company performance, assets, liabilities, equity, revenue, and expenses.
@@ -79,3 +72,9 @@ evaluation:
       - If there are no entities in the text, return an empty JSON object.
 
     Text to analyze: '{input_text}'
+
+generation:
+  scope_directory: "/workspace/tasks/financial_ner/data/scope"
+  target_num_examples: 2000
+  batch_size_examples: 250
+

@@ -57,8 +57,8 @@ def get_llm_response(
         response_format=response_schema,
         extra_body=dict(guided_decoding_backend="outlines"),
         # extra_body={"guided_json": response_schema.model_json_schema()},
-        temperature=config["llm"]["temperature"],
-        # max_tokens=config["llm"]["max_tokens"],
+        temperature=config["temperature"],
+        # max_tokens=config["max_tokens"],
     )
 
     out = completion.choices[0].message.content
