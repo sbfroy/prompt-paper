@@ -36,7 +36,13 @@ def get_llm_response(
         isinstance(individual, list) and len(individual) > 0
     ), "Individual must be a non-empty list"
 
-    examples_text = "\n\n".join(example.text for _, example in individual)
+    # Format examples as "Input: <input>\nOutput: <output>"
+    formatted_examples = []
+    for _, example in individual:
+        formatted_example = f"Input: {example.input}\nOutput: {example.output}"
+        formatted_examples.append(formatted_example)
+    
+    examples_text = "\n\n".join(formatted_examples)
 
     # Insert examples and test sentence into template
     user_prompt = config["user_prompt"].format(
@@ -111,7 +117,7 @@ if __name__ == "__main__":
             "llm": {"temperature": 0.0, "max_tokens": 512},
         },
         client=client,
-        individual=[("id", InputExample(text="text", example_id="id"))],
+        individual=[("id", InputExample(id="1", input="example input", output="example output"))],
         input_text="Here is a sentence about Apple Inc. based in Cupertino, California.",
         response_schema=XBRLResponse,
     )

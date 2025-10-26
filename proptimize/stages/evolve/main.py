@@ -78,7 +78,7 @@ class EvolveStage:
             for cluster_id, example in individual:
                 individual_examples.append({
                     "cluster_id": cluster_id,
-                    "example_id": example.example_id
+                    "id": example.id
                 })
             generation_examples.append(individual_examples)
         
@@ -105,8 +105,9 @@ class EvolveStage:
             for cluster_id, example in individual:
                 hof_examples.append({
                     "cluster_id": cluster_id,
-                    "example_id": example.example_id,
-                    "text": example.text
+                    "id": example.id,
+                    "input": example.input,
+                    "output": example.output
                 })
             hall_of_fame.append({
                 "rank": i + 1,

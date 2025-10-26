@@ -20,10 +20,10 @@ class ClusterStage:
         self.config = config
 
         self.embedding_generator = EmbeddingGenerator()
-        self.reducer = DimensionalityReducer(random_state=config['random_seed'])
-        
+        self.reducer = DimensionalityReducer(random_state=config["random_seed"])
+
         # Gather all HDBSCAN params and pass directly
-        hdbscan_params = config['hdbscan']
+        hdbscan_params = config["hdbscan"]
         self.clusterer = HDBSCANClusterer(**hdbscan_params)
 
     def run(self):
@@ -31,14 +31,16 @@ class ClusterStage:
 
         # ====== EMBEDDING ======
         logging.info("Generating embeddings...")
-        input_dataset = self.data_manager.load_input_dataset(self.config['input_filename'])
+        input_dataset = self.data_manager.load_input_dataset(
+            self.config["input_filename"]
+        )
         embedded_dataset = self.embedding_generator.generate_embeddings(
-            input_dataset, batch_size=self.config['batch_size']
+            input_dataset, batch_size=self.config["batch_size"]
         )
 
         # Save the embedded dataset
         self.data_manager.save_embedded_dataset(embedded_dataset)
-       
+
         shutdown_embedding_server()
         logging.info("Embedding server shut down...")
 
@@ -52,7 +54,7 @@ class ClusterStage:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning, module="umap")
             reduced_embeddings = self.reducer.reduce(
-                embeddings, n_components=self.config['umap_n_components']
+                embeddings, n_components=self.config["umap_n_components"]
             )
 
         # ====== HDBSCAN ======
@@ -75,6 +77,16 @@ class ClusterStage:
     def _create_cluster_dataset(
         self, embedded_dataset, labels: np.ndarray, probabilities: np.ndarray
     ):
+        """Create a ClusterDataset from embeddings and clustering results.
+
+        Args:
+            embedded_dataset: The dataset with embeddings.
+            labels: Cluster labels for each example.
+            probabilities: Membership probabilities for each example.
+
+        Returns:
+            A ClusterDataset containing all clusters and their examples.
+        """
         # Group examples by cluster
         cluster_groups = defaultdict(list)
 
@@ -82,8 +94,9 @@ class ClusterStage:
             example = embedded_dataset.examples[idx]
 
             cluster_example = ClusterExample(
-                example_id=example.example_id,
-                text=example.text,
+                id=example.id,
+                input=example.input,
+                output=example.output,
                 membership_probability=float(prob),
             )
 
