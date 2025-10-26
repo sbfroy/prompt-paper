@@ -39,27 +39,21 @@ def get_llm_response(
     examples_text = "\n\n".join(example.text for _, example in individual)
 
     # Insert examples and test sentence into template
-    user_prompt = config["prompt_template"].format(
+    user_prompt = config["user_prompt"].format(
         examples=examples_text, input_text=input_text
     )
 
-    # print("=====" * 10)
-    # print("Examples:", examples_text)
+    # Build messages list
+    messages = []
+
+    # Add system and user messages
+    messages.append({"role": "system", "content": config["system_prompt"]})
+    messages.append({"role": "user", "content": user_prompt})
 
     # try:
     completion = client.chat.completions.parse(
         model="openai/gpt-oss-120b",
-        messages=[
-            {
-                "role": "system",
-                "content": """
-                    You are a helpful assistant that performs Named Entity Recognition (NER) on financial text.
-                    Your goal is to identify financial concepts and accounting terms related to company performance, assets, liabilities, equity, revenue, and expenses.
-                    Only respond with the requested JSON object and nothing else.                      
-                    """.strip(),
-            },
-            {"role": "user", "content": user_prompt},
-        ],
+        messages=messages,
         response_format=response_schema,
         extra_body=dict(guided_decoding_backend="outlines"),
         # extra_body={"guided_json": response_schema.model_json_schema()},
@@ -72,23 +66,14 @@ def get_llm_response(
     if out is None:
         return ""
 
-    # print("=====" * 10)
-    # print("LLM output:", out)
-    # print("Text to evaluate:", input_text)
-    # print("User prompt:", user_prompt)
-
-    # input("Press Enter to continue...")
-
     try:
         return response_schema.model_validate_json(out).model_dump()
     except Exception as e:
         logging.info(f"OpenAI client generation failed: {e}")
         print("Warning:", e)
-    #     return ""
 
 
 if __name__ == "__main__":
-
     from openai import OpenAI
     from pydantic import BaseModel, Field
 
