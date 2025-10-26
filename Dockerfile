@@ -1,15 +1,20 @@
-# What base image to use
-FROM python:3.10-slim 
+FROM vllm/vllm-openai:latest
 
-# Set the working directory in the container
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
+
 WORKDIR /workspace
+COPY . .
 
-# Install and updates necessary dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git curl && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y python3-tk
+RUN python3 -m pip install --upgrade pip \
+ && python3 -m pip install -e .
 
-# Install the dependencies listed in requirements.txt
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-ENV PYTHONPATH=/workspace
+ENV WANDB_PROJECT="icl-research-team"
+
+
+# Run the script with unbuffered output; if it exits, keep the container alive for debugging.
+ENTRYPOINT ["/bin/bash", "-lc"]
+CMD ["python3 -u /workspace/tasks/financial_ner/main.py || tail -f /dev/null"]
