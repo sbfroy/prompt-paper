@@ -1,6 +1,38 @@
 from deap import tools
 import random
 
+
+def calculate_cluster_diversity(population, total_clusters):
+    """
+    Calculate the diversity of clusters present in the population.
+    
+    This measures how many unique clusters are represented across all individuals
+    in the population, normalized by the total number of available clusters.
+    
+    Args:
+        population: List of individuals, where each individual is a list of 
+                   (cluster_id, ClusterExample) pairs.
+        total_clusters: Total number of clusters available in the dataset.
+    
+    Returns:
+        Float between 0 and 1, where:
+        - 1.0 = maximum diversity (all clusters represented)
+        - 0.0 = minimum diversity (only one cluster represented)
+    """
+    if total_clusters == 0:
+        return 0.0
+    
+    # Collect all unique cluster IDs from the population
+    unique_clusters = set()
+    for individual in population:
+        for cluster_id, example in individual:
+            unique_clusters.add(cluster_id)
+    
+    # Normalize by total available clusters
+    diversity = len(unique_clusters) / total_clusters
+    return diversity
+
+
 def composite_mutate(individual, cluster_dataset, indpb, inter_prob):
     """
     Per-gene mutation that applies inter-cluster and intra-cluster mutations
@@ -20,30 +52,18 @@ def composite_mutate(individual, cluster_dataset, indpb, inter_prob):
         if cluster.examples: # skip empty clusters
             cluster_map[cluster.cluster_id] = cluster
 
-    used_cluster_ids = {cluster_id for cluster_id, _ in individual}
-
     for i in range(len(individual)):
         if random.random() >= indpb:
             continue  # Skip mutation for this example
         
         did_mutate = False
         if random.random() < inter_prob:
-            # Inter-cluster mutation that replaces examples with examples from different clusters
+            # Inter-cluster mutation that replaces examples with examples from any cluster
             # inter means between
-            available_clusters = [
-                cluster for cluster in cluster_dataset.clusters 
-                if cluster.cluster_id not in used_cluster_ids
-            ]
-            if available_clusters:
-                new_cluster = random.choice(available_clusters)
-                new_example = random.choice(new_cluster.examples)
-
-                # Get the old cluster id
-                old_cluster_id, _ = individual[i]
-                used_cluster_ids.discard(old_cluster_id)
-                used_cluster_ids.add(new_cluster.cluster_id)
-                individual[i] = (new_cluster.cluster_id, new_example)
-                did_mutate = True
+            new_cluster = random.choice(cluster_dataset.clusters)
+            new_example = random.choice(new_cluster.examples)
+            individual[i] = (new_cluster.cluster_id, new_example)
+            did_mutate = True
 
         if not did_mutate:
             # Intra-cluster mutation that replaces examples with other examples from the same cluster
