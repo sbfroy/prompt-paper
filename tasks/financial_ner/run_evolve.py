@@ -100,24 +100,22 @@ class Evaluator:
         scores = []
 
         for idx, example in enumerate(shuffled_validation_data):
-            text = example["text"]
-            parts = text.split("Assistant Prediction:")
-            user_part = parts[0][6:].strip()  # Also removes "User: " prefix
-            prediction_part = parts[1].strip()
+            user_input = example["input"]
+            gold_output = example["output"]
 
             response = get_llm_response(
                 config=self.config,
                 client=self.client,
                 individual=individual,
-                input_text=user_part,
+                input_text=user_input,
                 response_schema=XBRLResponse,
             )
 
-            # Convert prediction_part to comparable dict
-            if prediction_part == "No XBRL associated data.":
+            # Convert gold_output to comparable dict
+            if gold_output == "No XBRL associated data.":
                 gold_labels = {}
             else:
-                gold_labels = json.loads(prediction_part.replace("'", '"'))
+                gold_labels = json.loads(gold_output.replace("'", '"'))
 
             if response is None:
                 logging.info(f"Response is None, using score 0.0, but something is probably wrong.")
