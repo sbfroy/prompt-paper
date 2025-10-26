@@ -13,7 +13,7 @@ from pydantic import RootModel
 from proptimize.wandb_utils import init_wandb, finish_wandb
 from proptimize.stages.cluster import run_cluster_stage
 from proptimize.stages.evolve import run_evolve_stage
-from proptimize.stages.evolve import get_llm_response
+from proptimize.stages.client import get_llm_response
 from proptimize.run_vllm import start_vllm_servers
 
 load_dotenv()  

@@ -3,9 +3,9 @@ from deap import tools
 
 logging.basicConfig(level=logging.INFO)
 
-from .experiment import GA
-from .operators import mate, composite_mutate
-from ...data_manager import DataManager
+from proptimize.data_manager import DataManager
+from proptimize.stages.evolve.experiment import GA
+from proptimize.stages.evolve.operators import mate, composite_mutate
 
 class EvolveStage:
     def __init__(self, data_manager, config, eval_fn):
