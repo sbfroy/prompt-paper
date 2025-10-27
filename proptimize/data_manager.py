@@ -30,7 +30,7 @@ class DataManager:
         Save InputDataset as JSONL in the dataset directory.
         This is the standardized format that enters the pipeline.
         """
-        filepath = self.get_scope_dir() / file_name
+        filepath = self.get_dataset_dir() / file_name
 
         with filepath.open("w", encoding="utf-8") as f:
             for example in dataset.examples:
