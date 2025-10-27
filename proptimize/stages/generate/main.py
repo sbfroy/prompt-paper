@@ -7,17 +7,13 @@ from typing import Union
 from openai import OpenAI
 from pydantic import RootModel
 from pypdf import PdfReader
+from tqdm import tqdm
 
 from proptimize.data_manager import DataManager
 from proptimize.schemas import InputExample, InputDataset
 from proptimize.stages.client import get_llm_response
 
 logging.basicConfig(level=logging.INFO)
-
-
-class GeneratedExample(RootModel):
-    """Schema for a single generated example."""
-    root: dict[str, Union[str, dict[str, list[str]]]]
 
 
 class GeneratedExamples(RootModel):
@@ -100,7 +96,7 @@ class GenerateStage:
     def run(self):
         logging.info("Starting generation stage...")
 
-        scope_dir = self.config["scope_directory"]
+        scope_dir = self.data_manager.get_scope_dir()
         logging.info(f"Reading PDFs from scope directory: {scope_dir}")
         all_text = read_pdfs_from_directory(scope_dir)
 
@@ -111,29 +107,35 @@ class GenerateStage:
         logging.info(f"Created {len(text_batches)} text batches")
 
         all_examples = []
-        base_temperature = self.config.get("temperature", 0.7)
+        base_temperature = self.config["base_temperature"]
 
-        for i, text_batch in enumerate(text_batches):
-            logging.info(f"Generating examples from batch {i+1}/{len(text_batches)}...")
-
-            # Vary temperature slightly for diversity
+        for i, text_batch in tqdm(
+            enumerate(text_batches), total=len(text_batches), 
+            desc="Generating examples", 
+            ncols=75
+        ):
+            # Vary temperature a little for diversity
             temperature = base_temperature + random.uniform(-0.1, 0.1)
-            temperature = max(0.0, min(1.0, temperature))  # Clamp to [0, 1]
 
-            batch_config = {
-                "system_prompt": self.config["system_prompt"],
-                "user_prompt": self.config["user_prompt"],
-                "temperature": temperature,
-            }
+            # Construct messages for generation
+            user_prompt = self.config["user_prompt"].format(
+                text_batch=text_batch,
+                batch_size_examples=self.config["batch_size_examples"]
+            )
+
+            # TODO: If examples are a little bad, consider adding some seed examples
+            
+            messages = [
+                {"role": "system", "content": self.config["system_prompt"]},
+                {"role": "user", "content": user_prompt}
+            ]
 
             try:
                 response = get_llm_response(
-                    config=batch_config,
                     client=self.client,
+                    messages=messages,
                     response_schema=GeneratedExamples,
-                    is_generation=True,
-                    text_batch=text_batch,
-                    batch_size_examples=self.config["batch_size_examples"],
+                    temperature=temperature,
                 )
 
                 # Extract examples from response
@@ -181,8 +183,8 @@ class GenerateStage:
         train_dataset = InputDataset(examples=train_examples, task_type=self.data_manager.task)
         val_dataset = InputDataset(examples=val_examples, task_type=self.data_manager.task)
 
-        train_path = self.data_manager.save_input_dataset(train_dataset, "generated_train.jsonl")
-        val_path = self.data_manager.save_input_dataset(val_dataset, "generated_val.jsonl")
+        train_path = self.data_manager.save_input_dataset(train_dataset, f"{self.data_manager.task}_generated_train.jsonl")
+        val_path = self.data_manager.save_input_dataset(val_dataset, f"{self.data_manager.task}_generated_val.jsonl")
 
         logging.info(f"Saved {len(train_examples)} training examples to {train_path}")
         logging.info(f"Saved {len(val_examples)} validation examples to {val_path}")
@@ -190,13 +192,11 @@ class GenerateStage:
         return train_path, val_path
 
 
-def run_generate_stage(task, base_dir, config):
+def run_generate_stage(task, base_dir, config, client):
     # Setup
     data_manager = DataManager(task, base_dir)
 
-    # TODO: Where should the client be initialized?
-
     # Run generation
-    stage = GenerateStage(data_manager, config)
+    stage = GenerateStage(data_manager, config, client)
     return stage.run()
 
