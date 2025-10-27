@@ -74,10 +74,9 @@ evaluation:
     Input: '{input_text}'
 
 generation:
-  scope_directory: "/workspace/tasks/financial_ner/data/scope"
   target_num_examples: 2000
   batch_size_examples: 50
-  temperature: 0.7  
+  base_temperature: 0.7
   
   system_prompt: |- 
     You are an expert at Named Entity Recognition (NER) for financial documents.
@@ -85,35 +84,24 @@ generation:
     You must create realistic, diverse examples based on the provided financial text.
 
   user_prompt: |-
-    Based on the following financial text excerpt, generate exactly {batch_size_examples} NER training examples.
+    Using the following real financial text as reference, generate exactly {batch_size_examples} NER training examples.
     
     Financial Text:
     {text_batch}
     
     For each example:
-    1. Extract a sentence or short passage from the text above
-    2. Identify all relevant XBRL tags and their corresponding entities
+    1. Create realistic financial sentences - you may extract directly from the text above, adapt passages for clarity, or create similar ones inspired by the content and style
+    2. For each sentence, identify relevant XBRL tags and extract only the specific numeric values, dates, or entity names
     
     Use XBRL tags such as:
     - EquityMethodInvestments, IncomeLossFromEquityMethodInvestments, UnrecognizedTaxBenefits
     - Assets, Liabilities, StockholdersEquity, Revenues, OperatingExpenses
     - CashAndCashEquivalents, AccountsReceivable, PropertyPlantAndEquipment
+    - Depreciation, NumberOfOperatingSegments, LineOfCreditFacilityMaximumBorrowingCapacity
     - And any of the other 139 available XBRL financial tags
     
     Return a JSON array with exactly {batch_size_examples} objects, each containing:
-    - "input": the extracted sentence/passage
-    - "output": a dictionary mapping XBRL tags to lists of identified entities (or "No XBRL associated data." if none found)
+    - "input": a realistic financial sentence (extracted, adapted, or inspired by the reference text)
+    - "output": a dictionary mapping XBRL tags to lists of extracted values (e.g., ["5.2 billion"], ["4.5", "35.8"]) OR "No XBRL associated data." if no entities are present
     
-    Example format:
-    [
-      {{
-        "input": "The company reported total assets of $5.2 billion as of December 31, 2023.",
-        "output": {{"Assets": ["5.2 billion"]}}
-      }},
-      {{
-        "input": "Net income for the quarter was affected by various factors.",
-        "output": "No XBRL associated data."
-      }}
-    ]
-    
-    Ensure diversity in the examples - vary sentence length, complexity, and types of financial information extracted.
+    Ensure diversity: include both simple (1 tag) and complex (multiple tags) examples, vary sentence length, and balance examples with and without XBRL entities.
