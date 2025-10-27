@@ -11,7 +11,6 @@ from openai import OpenAI
 from pydantic import RootModel
 
 from proptimize.wandb_utils import init_wandb, finish_wandb
-from proptimize.stages.cluster import run_cluster_stage
 from proptimize.stages.evolve import run_evolve_stage
 from proptimize.stages.client import get_llm_response
 from proptimize.run_vllm import start_vllm_servers
@@ -103,12 +102,30 @@ class Evaluator:
             user_input = example["input"]
             gold_output = example["output"]
 
+            # Format ICL examples from individual
+            formatted_examples = []
+            for _, icl_example in individual:
+                formatted_example = f"Input: {icl_example.input}\nOutput: {icl_example.output}"
+                formatted_examples.append(formatted_example)
+
+            examples_text = "\n\n".join(formatted_examples)
+
+            # Construct messages for evaluation
+            user_prompt = self.config["user_prompt"].format(
+                examples=examples_text, 
+                input_text=user_input
+            )
+            
+            messages = [
+                {"role": "system", "content": self.config["system_prompt"]},
+                {"role": "user", "content": user_prompt}
+            ]
+
             response = get_llm_response(
-                config=self.config,
                 client=self.client,
-                individual=individual,
-                input_text=user_input,
+                messages=messages,
                 response_schema=XBRLResponse,
+                temperature=self.config["temperature"]
             )
 
             # Convert gold_output to comparable dict
