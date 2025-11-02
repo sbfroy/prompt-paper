@@ -27,7 +27,7 @@ class EvolveStage:
             if cluster.cluster_id != -1
         ]
 
-        if len(cluster_dataset.clusters) < self.config.subset_size:
+        if len(cluster_dataset.clusters) < self.config['subset_size']:
             raise ValueError(
                 "subset_size is larger than the number of clusters. "
                 "Should probably check if clustering stage is okay."
@@ -36,12 +36,13 @@ class EvolveStage:
         def _mutate(individual, cluster_dataset, inter_prob=None):
             # If inter_prob is not provided, use the config value
             # This allows for adaptive inter_prob to be passed in
+            # aka defaults to max_inter_prob if inter_prob=None
             if inter_prob is None:
-                inter_prob = self.config.inter_prob
+                inter_prob = self.config['max_inter_prob'] 
             return composite_mutate(
                 individual, 
                 cluster_dataset, 
-                indpb=self.config.indpb,
+                indpb=self.config['indpb'],
                 inter_prob=inter_prob
             )
 
