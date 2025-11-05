@@ -79,6 +79,8 @@ def composite_mutate(individual, cluster_dataset, inter_prob):
 def mate(ind1, ind2):
     """Cross two individuals by swapping the middle segment between two points.
 
+    # TODO: Implement some sort of cluster-aware crossover, so all the operators benefit from the cluster structure.
+
     Args:
         ind1: First parent individual.
         ind2: Second parent individual.
