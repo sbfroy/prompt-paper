@@ -22,13 +22,13 @@ clustering:
 evolution:
   random_seed: 42
   subset_size: 5
-  mu: 25
-  lambda_: 75 # more offspring for broader search
+  mu: 40
+  lambda_: 120 # more offspring for broader search
   generations: 40
-  cxpb: 0.45
-  mutpb: 0.50 # exploration heavy, but still keep some reproduction
+  cxpb: 0.30
+  mutpb: 0.55 # exploration heavy, but still keep some reproduction
   tournsize: 2 # weak pressures aka more diversity
-  max_inter_prob: 0.70 # bias mutations to other clusters (initial/max value)
+  max_inter_prob: 0.80 # bias mutations to other clusters (initial/max value)
   min_inter_prob: 0.10  # Minimum inter_prob when diversity is low (exploit mode)
   hof_size: 5
   workers: 8     
