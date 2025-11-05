@@ -28,7 +28,6 @@ evolution:
   cxpb: 0.45
   mutpb: 0.50 # exploration heavy, but still keep some reproduction
   tournsize: 2 # weak pressures aka more diversity
-  indpb: 0.40
   max_inter_prob: 0.70 # bias mutations to other clusters (initial/max value)
   min_inter_prob: 0.10  # Minimum inter_prob when diversity is low (exploit mode)
   hof_size: 5

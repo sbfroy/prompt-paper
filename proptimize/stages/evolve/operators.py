@@ -33,13 +33,21 @@ def calculate_cluster_diversity(population, total_clusters):
     return diversity
 
 
-def composite_mutate(individual, cluster_dataset, indpb, inter_prob):
-    """Apply per-gene mutation with inter-cluster and intra-cluster mutations.
+def composite_mutate(individual, cluster_dataset, inter_prob):
+    """
+    Mutate exactly one gene in the individual.
+
+    Behavior:
+    - When this operator is called it will always perform exactly one gene
+      mutation (selecting a gene uniformly at random).
+    - For that mutation event the operator chooses the mutation mode once:
+      inter-cluster mutation with probability ``inter_prob`` (replace the
+      example with one from any cluster), otherwise intra-cluster mutation
+      (replace the example with another example from the same cluster).
 
     Args:
         individual: The individual to mutate, a list of (cluster_id, ClusterExample) pairs.
         cluster_dataset: The dataset containing clusters and their examples.
-        indpb: Independent probability for each example to be mutated.
         inter_prob: Probability of applying inter-cluster mutation.
 
     Returns:
@@ -50,26 +58,21 @@ def composite_mutate(individual, cluster_dataset, indpb, inter_prob):
         if cluster.examples:  # Skip empty clusters
             cluster_map[cluster.cluster_id] = cluster
 
-    for i in range(len(individual)):
-        if random.random() >= indpb:
-            continue  # Skip mutation for this example
+    i = random.randrange(len(individual))
 
-        did_mutate = False
-        if random.random() < inter_prob:
-            # Inter-cluster mutation: replaces examples with examples from any cluster
-            new_cluster = random.choice(cluster_dataset.clusters)
-            new_example = random.choice(new_cluster.examples)
-            individual[i] = (new_cluster.cluster_id, new_example)
-            did_mutate = True
-
-        if not did_mutate:
-            # Intra-cluster mutation: replaces examples with other examples from same cluster
-            cluster_id, current_example = individual[i]
-            current_cluster = cluster_map.get(cluster_id)
-            if current_cluster and len(current_cluster.examples) > 1:
-                other_examples = [ex for ex in current_cluster.examples if ex.id != current_example.id]
-                if other_examples:
-                    individual[i] = (cluster_id, random.choice(other_examples))
+    if random.random() < inter_prob:
+        # Inter-cluster mutation: replace example with an example from any cluster
+        new_cluster = random.choice(cluster_dataset.clusters)
+        new_example = random.choice(new_cluster.examples)
+        individual[i] = (new_cluster.cluster_id, new_example)
+    else:
+        # Intra-cluster mutation: replace example with another example from same cluster
+        cluster_id, current_example = individual[i]
+        current_cluster = cluster_map.get(cluster_id)
+        if current_cluster and len(current_cluster.examples) > 1:
+            other_examples = [ex for ex in current_cluster.examples if ex.id != current_example.id]
+            if other_examples:
+                individual[i] = (cluster_id, random.choice(other_examples))
 
     return individual,
 

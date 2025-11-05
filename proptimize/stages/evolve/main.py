@@ -42,7 +42,6 @@ class EvolveStage:
             return composite_mutate(
                 individual, 
                 cluster_dataset, 
-                indpb=self.config['indpb'],
                 inter_prob=inter_prob
             )
 
