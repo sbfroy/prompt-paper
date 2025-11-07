@@ -1,17 +1,15 @@
 import logging
-import os
 import random
 from pathlib import Path
 from typing import Union
 
-from openai import OpenAI
 from pydantic import RootModel
 from pypdf import PdfReader
 from tqdm import tqdm
 
-from proptimize.data_manager import DataManager
-from proptimize.schemas import InputExample, InputDataset
-from proptimize.stages.client import get_llm_response
+from grasp.data_manager import DataManager
+from grasp.schemas import InputExample, InputDataset
+from grasp.stages.client import get_llm_response
 
 logging.basicConfig(level=logging.INFO)
 

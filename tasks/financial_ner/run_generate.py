@@ -8,9 +8,9 @@ import yaml
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from proptimize.wandb_utils import init_wandb, finish_wandb
-from proptimize.stages.generate import run_generate_stage
-from proptimize.run_vllm import start_vllm_servers
+from grasp.wandb_utils import init_wandb, finish_wandb
+from grasp.stages.generate import run_generate_stage
+from grasp.run_vllm import start_vllm_servers
 
 load_dotenv()  
 

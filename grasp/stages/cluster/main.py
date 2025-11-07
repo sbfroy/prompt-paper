@@ -4,12 +4,12 @@ from collections import defaultdict
 
 import numpy as np
 
-from proptimize.data_manager import DataManager
-from proptimize.schemas import Cluster, ClusterDataset, ClusterExample
-from proptimize.stages.cluster.embedding_generator import EmbeddingGenerator
-from proptimize.stages.cluster.dimensionality_reducer import DimensionalityReducer
-from proptimize.stages.cluster.clusterer import HDBSCANClusterer
-from proptimize.run_vllm import shutdown_embedding_server
+from grasp.data_manager import DataManager
+from grasp.schemas import Cluster, ClusterDataset, ClusterExample
+from grasp.stages.cluster.embedding_generator import EmbeddingGenerator
+from grasp.stages.cluster.dimensionality_reducer import DimensionalityReducer
+from grasp.stages.cluster.clusterer import HDBSCANClusterer
+from grasp.run_vllm import shutdown_embedding_server
 
 logging.basicConfig(level=logging.INFO)
 
