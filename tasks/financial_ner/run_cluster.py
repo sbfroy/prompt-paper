@@ -5,9 +5,9 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 
-from proptimize.wandb_utils import init_wandb, finish_wandb
-from proptimize.stages.cluster import run_cluster_stage
-from proptimize.run_vllm import start_vllm_servers
+from grasp.wandb_utils import init_wandb, finish_wandb
+from grasp.stages.cluster import run_cluster_stage
+from grasp.run_vllm import start_vllm_servers
 
 load_dotenv()
 

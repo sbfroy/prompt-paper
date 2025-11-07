@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 from .utils import create_df, get_label_mappings
-from proptimize.stages.evolve import get_llm_response
+from grasp.stages.evolve import get_llm_response
 import sys
 
 # Add project root to path for imports

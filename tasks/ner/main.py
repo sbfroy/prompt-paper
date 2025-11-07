@@ -14,10 +14,10 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from proptimize.data_manager import DataManager
-from proptimize.wandb_utils import init_wandb, finish_wandb
-from proptimize.stages.cluster import run_cluster_stage
-from proptimize.stages.evolve import run_evolve_stage
+from grasp.data_manager import DataManager
+from grasp.wandb_utils import init_wandb, finish_wandb
+from grasp.stages.cluster import run_cluster_stage
+from grasp.stages.evolve import run_evolve_stage
 from .evaluation import Evaluator
 
 

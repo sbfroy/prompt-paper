@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from langchain_openai.embeddings import OpenAIEmbeddings
 from tqdm import tqdm
 
-from proptimize.schemas import EmbeddedExample, EmbeddedDataset, InputDataset
+from grasp.schemas import EmbeddedExample, EmbeddedDataset, InputDataset
 
 load_dotenv()
 

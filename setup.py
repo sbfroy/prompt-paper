@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="Proptimize",
+    name="grasp",
     version="0.1.0",
     description="Optimize ICL examples using evolutionary algorithms",
     author="..",

@@ -1,15 +1,15 @@
 from deap import base, creator, tools, algorithms
 import numpy as np
 import random
-import sys, shutil
+import shutil
 import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
 logging.basicConfig(level=logging.INFO)
 
-from proptimize.wandb_utils import log_metrics
-from proptimize.schemas import ClusterDataset
+from grasp.wandb_utils import log_metrics
+from grasp.schemas import ClusterDataset
 
 
 class EarlyStoppingException(Exception):
