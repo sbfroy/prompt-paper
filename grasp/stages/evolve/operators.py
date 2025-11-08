@@ -4,7 +4,8 @@ from deap import tools
 
 
 def calculate_cluster_diversity(population, total_clusters):
-    """Calculate the diversity of clusters present in the population.
+    """
+    Calculate the diversity of clusters present in the population.
 
     This measures how many unique clusters are represented across all individuals
     in the population, normalized by the total number of available clusters.
@@ -77,10 +78,18 @@ def composite_mutate(individual, cluster_dataset, inter_prob):
     return individual,
 
 def mate(ind1, ind2):
-    """Cross two individuals by swapping the middle segment between two points.
-
-    # TODO: Implement some sort of cluster-aware crossover, so all the operators benefit from the cluster structure.
-
+    """
+    Two-point crossover for ordered individuals.
+    
+    Swaps the middle segment between two crossover points, preserving ordered
+    subsequences from both parents. Since example order matters for ICL prompts,
+    this maintains positional information while mixing genetic material.
+    
+    Duplicate clusters are allowed, if multiple examples from the same cluster
+    improve performance, the GA will naturally discover and exploit this pattern.
+    Clustering has already identified semantically important regions, and the
+    evolution process determines optimal cluster distributions through fitness.
+    
     Args:
         ind1: First parent individual.
         ind2: Second parent individual.
