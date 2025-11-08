@@ -73,34 +73,46 @@ evaluation:
     Input: '{input_text}'
 
 generation:
-  target_num_examples: 2000
-  batch_size_examples: 50
+  target_num_examples: 2000 # k (Both positive and negative)
+  batch_size_examples: 25  # How many examples to request per API call
   base_temperature: 0.7
+  chunk_size: 2000  # Characters per random sample
   
   system_prompt: |- 
     You are an expert at Named Entity Recognition (NER) for financial documents.
     Your task is to generate training examples that help models identify financial concepts and accounting terms.
-    You must create realistic, diverse examples based on the provided financial text.
+    Follow instructions carefully regarding whether to include or exclude XBRL entities.
 
-  user_prompt: |-
-    Using the following real financial text as reference, generate exactly {batch_size_examples} NER training examples.
-    
+  positive_user_prompt: |-
+    Using the following financial text as reference, generate exactly {batch_size_examples} NER training examples that CONTAIN XBRL entities.
+
     Financial Text:
-    {text_batch}
-    
+    {text_chunk}
+
     For each example:
-    1. Create realistic financial sentences - you may extract directly from the text above, adapt passages for clarity, or create similar ones inspired by the content and style
-    2. For each sentence, identify relevant XBRL tags and extract only the specific numeric values, dates, or entity names
-    
-    Use XBRL tags such as:
-    - EquityMethodInvestments, IncomeLossFromEquityMethodInvestments, UnrecognizedTaxBenefits
-    - Assets, Liabilities, StockholdersEquity, Revenues, OperatingExpenses
-    - CashAndCashEquivalents, AccountsReceivable, PropertyPlantAndEquipment
-    - Depreciation, NumberOfOperatingSegments, LineOfCreditFacilityMaximumBorrowingCapacity
-    - And any of the other 139 available XBRL financial tags
-    
-    Return a JSON array with exactly {batch_size_examples} objects, each containing:
-    - "input": a realistic financial sentence (extracted, adapted, or inspired by the reference text)
-    - "output": a dictionary mapping XBRL tags to lists of extracted values (e.g., ["5.2 billion"], ["4.5", "35.8"]) OR "No XBRL associated data." if no entities are present
-    
-    Ensure diversity: include both simple (1 tag) and complex (multiple tags) examples, vary sentence length, and balance examples with and without XBRL entities.
+    1. Create a realistic financial sentence (extract from above, adapt, or create similar)
+    2. Identify ALL relevant XBRL tags and extract the specific values (numbers, dates, entity names)
+
+    Use XBRL tags like: EquityMethodInvestments, IncomeLossFromEquityMethodInvestments, UnrecognizedTaxBenefits, NumberOfOperatingSegments, Assets, Liabilities, Revenues, etc.
+
+    Return a JSON array with exactly {batch_size_examples} objects:
+    - "input": financial sentence
+    - "output": dictionary mapping XBRL tags to lists of extracted values (e.g., {{"Assets": ["5.2 billion"], "Liabilities": ["3.1 billion"]}})
+
+    IMPORTANT: ALL examples MUST have at least one XBRL tag. Create diverse examples with 1-5 tags each, varying complexity and sentence length.
+
+  negative_user_prompt: |-
+    Using the following financial text as reference, generate exactly {batch_size_examples} NER training examples that DO NOT CONTAIN any XBRL entities.
+
+    Financial Text:
+    {text_chunk}
+
+    For each example:
+    1. Create realistic financial sentences that discuss general concepts, qualitative statements, or procedural information
+    2. These should be financial text that has NO extractable numeric values, dates, or specific entity names
+
+    Return a JSON array with exactly {batch_size_examples} objects:
+    - "input": financial sentence with NO extractable XBRL data
+    - "output": "No XBRL associated data."
+
+    IMPORTANT: ALL examples MUST have output set to the string "No XBRL associated data." These should be realistic financial sentences that simply don't contain extractable entities.
