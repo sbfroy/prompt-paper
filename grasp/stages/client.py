@@ -1,4 +1,10 @@
-# %%
+"""
+Client module for LLM interactions.
+
+Provides utilities for generating responses from LLM APIs with support for
+both structured (Pydantic schema) and unstructured (plain text) outputs.
+"""
+
 import logging
 from typing import Optional, Union
 
@@ -16,7 +22,8 @@ def get_llm_response(
     temperature: float = 0.0,
     model: str = "openai/gpt-oss-120b",
 ) -> Optional[Union[dict, str]]:
-    """Generate a response from the LLM using the provided messages.
+    """
+    Generate a response from the LLM using the provided messages.
 
     Args:
         client: OpenAI-compatible client (vLLM OpenAI server).
@@ -33,7 +40,7 @@ def get_llm_response(
     """
     try:
         if response_schema is not None:
-            # Structured output mode
+            # Structured output mode - uses Pydantic schema for validation
             completion = client.chat.completions.parse(
                 model=model,
                 messages=messages,
@@ -41,23 +48,23 @@ def get_llm_response(
                 extra_body=dict(guided_decoding_backend="outlines"),
                 temperature=temperature,
             )
-            
+
             out = completion.choices[0].message.content
-            
+
             if out is None:
                 return None
-            
+
             return response_schema.model_validate_json(out).model_dump()
         else:
-            # Plain text mode
+            # Plain text mode - returns unstructured response
             completion = client.chat.completions.create(
                 model=model,
                 messages=messages,
                 temperature=temperature,
             )
-            
+
             return completion.choices[0].message.content
-            
+
     except Exception as e:
         logging.error(f"LLM client generation failed: {e}")
         return None
