@@ -134,10 +134,10 @@ class GenerateStage:
         logging.info(f"Reading PDFs from scope directory: {scope_dir}")
         all_text = read_pdfs_from_directory(scope_dir)
 
-        # Calculate batches - split 50/50 between positive and negative examples
-        target_examples = self.config["target_num_examples"]
+        # Get target dataset size from config
+        target_examples = self.config["dataset_size"]
         batch_size = self.config["batch_size_examples"]
-        chunk_size = self.config.get("chunk_size", 2000)
+        chunk_size = self.config["chunk_size"]
 
         target_positive = target_examples // 2
         target_negative = target_examples - target_positive
@@ -184,12 +184,13 @@ class GenerateStage:
         train_examples = input_examples[:split_idx]
         val_examples = input_examples[split_idx:]
 
-        # Save datasets to WandB
+        # Save datasets to WandB with size in artifact name
         train_dataset = InputDataset(examples=train_examples, task_type=self.data_manager.task)
         val_dataset = InputDataset(examples=val_examples, task_type=self.data_manager.task)
 
-        train_artifact = self.data_manager.save_input_dataset(train_dataset, "train")
-        val_artifact = self.data_manager.save_input_dataset(val_dataset, "val")
+        dataset_size = target_examples
+        train_artifact = self.data_manager.save_input_dataset(train_dataset, "train", dataset_size=dataset_size)
+        val_artifact = self.data_manager.save_input_dataset(val_dataset, "val", dataset_size=dataset_size)
 
         logging.info(f"Saved {len(train_examples)} training examples to WandB artifact: {train_artifact.name}")
         logging.info(f"Saved {len(val_examples)} validation examples to WandB artifact: {val_artifact.name}")

@@ -35,12 +35,13 @@ class DataManager:
         # Create dataset directory (outputs go to wandb)
         self.get_dataset_dir().mkdir(parents=True, exist_ok=True)
 
-    def save_input_dataset(self, dataset, artifact_name_suffix):
+    def save_input_dataset(self, dataset, artifact_name_suffix, dataset_size):
         """Save InputDataset as wandb artifact.
         
         Args:
             dataset: InputDataset object to save
             artifact_name_suffix: Suffix for artifact name (e.g., 'train', 'val')
+            dataset_size: Size to include in artifact name (e.g., 3000)
             
         Returns:
             Wandb artifact
@@ -52,21 +53,23 @@ class DataManager:
                 for example in dataset.examples:
                     f.write(example.model_dump_json(by_alias=True) + "\n")
 
-            artifact_name = f"{self.task}_input_dataset_{artifact_name_suffix}"
+            artifact_name = f"{self.task}_input_dataset_{dataset_size}_{artifact_name_suffix}"
             return save_file_artifact(temp_path, artifact_name, "input_dataset")
 
-    def load_input_dataset(self, artifact_name_suffix):
+    def load_input_dataset(self, artifact_name_suffix, dataset_size):
         """Load InputDataset from wandb artifact.
         
         Args:
             artifact_name_suffix: Suffix for artifact name (e.g., 'train', 'val')
+            dataset_size: Size included in artifact name (e.g., 3000)
             
         Returns:
             InputDataset object
         """
         # Remove .jsonl extension if present to get the suffix
         artifact_suffix = artifact_name_suffix.replace('.jsonl', '')
-        artifact_name = f"{self.task}_input_dataset_{artifact_suffix}"
+        
+        artifact_name = f"{self.task}_input_dataset_{dataset_size}_{artifact_suffix}"
         artifact_path = load_artifact(artifact_name)
         
         examples: list[InputExample] = []
@@ -81,11 +84,12 @@ class DataManager:
 
         return InputDataset(examples=examples, task_type=self.task)
 
-    def save_embedded_dataset(self, dataset):
+    def save_embedded_dataset(self, dataset, dataset_size):
         """Save embedded dataset as wandb artifact.
         
         Args:
             dataset: EmbeddedDataset object to save
+            dataset_size: Size to include in artifact name (e.g., 3000)
             
         Returns:
             Wandb artifact
@@ -98,16 +102,19 @@ class DataManager:
             df = pd.DataFrame(records)
             df.to_parquet(temp_path, compression='snappy', index=False)
 
-            artifact_name = f"{self.task}_embedded_dataset"
+            artifact_name = f"{self.task}_embedded_dataset_{dataset_size}"
             return save_file_artifact(temp_path, artifact_name, "embedded_dataset")
 
-    def load_embedded_dataset(self):
+    def load_embedded_dataset(self, dataset_size):
         """Load embedded dataset from wandb artifact.
+        
+        Args:
+            dataset_size: Size included in artifact name (e.g., 3000)
         
         Returns:
             EmbeddedDataset object
         """
-        artifact_name = f"{self.task}_embedded_dataset"
+        artifact_name = f"{self.task}_embedded_dataset_{dataset_size}"
         file_path = load_artifact(artifact_name)
 
         # Read parquet and convert to pydantic models
@@ -116,11 +123,12 @@ class DataManager:
 
         return EmbeddedDataset(examples=examples, task_type=self.task)
 
-    def save_cluster_dataset(self, dataset):
+    def save_cluster_dataset(self, dataset, dataset_size):
         """Save cluster dataset as wandb artifact.
         
         Args:
             dataset: ClusterDataset object to save
+            dataset_size: Size to include in artifact name (e.g., 3000)
             
         Returns:
             Wandb artifact
@@ -128,16 +136,19 @@ class DataManager:
         # Convert cluster objects to JSON-serializable format
         cluster_data = [cluster.model_dump(by_alias=True) for cluster in dataset.clusters]
 
-        artifact_name = f"{self.task}_cluster_dataset"
+        artifact_name = f"{self.task}_cluster_dataset_{dataset_size}"
         return save_artifact(cluster_data, artifact_name, "cluster_dataset")
 
-    def load_cluster_dataset(self):
+    def load_cluster_dataset(self, dataset_size):
         """Load cluster dataset from wandb artifact.
+        
+        Args:
+            dataset_size: Size included in artifact name (e.g., 3000)
         
         Returns:
             ClusterDataset object
         """
-        artifact_name = f"{self.task}_cluster_dataset"
+        artifact_name = f"{self.task}_cluster_dataset_{dataset_size}"
         file_path = load_artifact(artifact_name)
 
         # Load JSON data and reconstruct cluster objects
