@@ -107,7 +107,7 @@ def main():
     base_dir = task_dir.parent
 
     # Initialize wandb for experiment tracking
-    run = init_wandb(task_name=config["task"], config=config)
+    init_wandb(task_name=config["task"], config=config)
 
     # Initialize OpenAI-compatible client
     logging.info("Creating OpenAI client for generation...")

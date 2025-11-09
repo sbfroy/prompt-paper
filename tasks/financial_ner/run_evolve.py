@@ -23,6 +23,7 @@ from grasp.wandb_utils import init_wandb, finish_wandb
 from grasp.stages.evolve import run_evolve_stage
 from grasp.stages.client import get_llm_response
 from grasp.run_vllm import start_vllm_servers
+from grasp.data_manager import DataManager
 
 load_dotenv()
 
@@ -47,31 +48,27 @@ class XBRLResponse(RootModel[dict[str, list[str]]]):
 class Evaluator:
     """Evaluates ICL examples on the financial NER validation set."""
 
-    def __init__(self, base_dir, config, client):
+    def __init__(self, data_manager, config, client):
         """
         Initialize the evaluator.
 
         Args:
-            base_dir: Base directory containing task data
+            data_manager: DataManager instance for loading validation data
             config: Evaluation configuration dictionary
             client: OpenAI-compatible client for LLM calls
         """
-        self.base_dir = base_dir
+        self.data_manager = data_manager
         self.config = config
         self.client = client
 
-        # Load validation dataset
-        self.validation_data = []
-        path_to_val_file = (
-            Path(self.base_dir)
-            / "financial_ner/data/dataset"
-            / self.config["validation_file"]
-        )
-
-        with open(path_to_val_file, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip():
-                    self.validation_data.append(json.loads(line))
+        # Load validation dataset from wandb artifact
+        validation_dataset = self.data_manager.load_input_dataset("val")
+        
+        # Convert to dictionary format for compatibility
+        self.validation_data = [
+            {"input": example.input, "output": example.output}
+            for example in validation_dataset.examples
+        ]
 
         # Sample validation data based on ratio
         sample_size = int(
@@ -258,7 +255,7 @@ def load_config():
         return yaml.safe_load(f)
 
 
-def create_evaluator(base_dir, eval_config, client):
+def create_evaluator(data_manager, eval_config, client):
     """
     Create an evaluation function for the genetic algorithm.
     
@@ -266,14 +263,14 @@ def create_evaluator(base_dir, eval_config, client):
     wraps the evaluator with the necessary configuration.
 
     Args:
-        base_dir: Base directory containing task data
+        data_manager: DataManager instance for loading validation data
         eval_config: Evaluation configuration dictionary
         client: OpenAI-compatible client for LLM calls
 
     Returns:
         Function that evaluates individuals
     """
-    evaluator = Evaluator(base_dir, eval_config, client)
+    evaluator = Evaluator(data_manager, eval_config, client)
     return evaluator.evaluate_individual
 
 
@@ -286,7 +283,7 @@ def main():
     base_dir = task_dir.parent
 
     # Initialize wandb for experiment tracking
-    run = init_wandb(task_name=config["task"], config=config)
+    init_wandb(task_name=config["task"], config=config)
 
     # Initialize OpenAI-compatible client for evaluation
     logging.info("Creating OpenAI client for evaluation...")
@@ -296,8 +293,10 @@ def main():
         api_key=os.getenv("LLM_API_KEY", "prompt-paper"),
     )
 
+    data_manager = DataManager(config["task"], str(base_dir))
+
     eval_fn = create_evaluator(
-        base_dir=str(base_dir),
+        data_manager=data_manager,
         eval_config=config["evaluation"],
         client=client
     )
