@@ -1,3 +1,5 @@
+"""VLLM server management utilities for starting and managing LLM and embedding servers."""
+
 import shlex
 from pathlib import Path
 import subprocess
@@ -10,9 +12,10 @@ from openai import OpenAI
 from langchain_openai.embeddings import OpenAIEmbeddings
 from dotenv import load_dotenv
 
-load_dotenv()  # take environment variables from .env file
+load_dotenv()  # Load environment variables from .env file
 
-_EMBEDDING_SERVER_PID = None  # Stores the process ID of the embedding server
+# Global variable to track embedding server process
+_EMBEDDING_SERVER_PID = None
 
 
 def start_daemon(
@@ -21,9 +24,16 @@ def start_daemon(
     logfile: Optional[str] = None,
     cwd: Optional[str] = None,
 ) -> int:
-    """
-    Start a command as a detached daemon, optionally writing a pidfile and redirecting output to logfile.
-    Returns the PID of the started process.
+    """Start a command as a detached daemon process.
+    
+    Args:
+        cmd: Shell command to execute
+        pidfile: Optional path to write process ID
+        logfile: Optional path for stdout/stderr output
+        cwd: Optional working directory
+        
+    Returns:
+        Process ID of the started daemon
     """
     # Open logfile or /dev/null for child stdout/stderr
     if logfile:
@@ -46,13 +56,12 @@ def start_daemon(
 
     pid = proc.pid
 
-    # Write pidfile if requested (best-effort)
+    # Write pidfile if requested
     if pidfile:
         try:
             Path(pidfile).write_text(str(pid))
         except Exception:
-            # Intentionally ignore filesystem errors here; caller can handle if needed
-            pass
+            pass  # Ignore filesystem errors
 
     return pid
 
@@ -63,11 +72,19 @@ def run_script_daemon(
     pidfile: str | None = None,
     logfile: str | None = None,
 ) -> int:
-    """
-    Run a bash script as a detached daemon using start_daemon().
-    Ensures the script exists and is executable. If cwd is not provided,
-    the script's parent directory is used.
-    Returns the PID of the started daemon.
+    """Run a bash script as a detached daemon.
+    
+    Args:
+        script_path: Path to the bash script
+        cwd: Working directory (defaults to script's parent directory)
+        pidfile: Optional path to write process ID
+        logfile: Optional path for stdout/stderr output
+        
+    Returns:
+        Process ID of the started daemon
+        
+    Raises:
+        FileNotFoundError: If script doesn't exist
     """
     script = Path(script_path)
     if not script.exists():
@@ -84,37 +101,44 @@ def run_script_daemon(
     if cwd is None:
         cwd = str(script.parent)
 
-    # Quote the script path to be safe when using shell=True in start_daemon
+    # Quote the script path for safe shell execution
     cmd = f"bash {shlex.quote(str(script))}"
 
     return start_daemon(cmd, pidfile=pidfile, logfile=logfile, cwd=cwd)
 
 
 def start_vllm_servers() -> int:
-    global _EMBEDDING_SERVER_PID
+    """Start both LLM and embedding VLLM servers as daemons.
     
+    Launches server scripts and waits for them to be ready by testing
+    connectivity with sample requests.
+    
+    Returns:
+        0 on success
+        
+    Raises:
+        AssertionError: If server scripts are not found
+    """
+    global _EMBEDDING_SERVER_PID
+
     LLM_server_script = Path("/workspace/scripts/run_vllm_oss120.sh")
     EMBEDD_server_script = Path("/workspace/scripts/run_vllm_qwen3_embedd.sh")
 
-    assert (
-        LLM_server_script.exists()
-    ), f"LLM server script not found: {LLM_server_script}"
-    assert (
-        EMBEDD_server_script.exists()
-    ), f"Embedding server script not found: {EMBEDD_server_script}"
+    assert LLM_server_script.exists(), \
+        f"LLM server script not found: {LLM_server_script}"
+    assert EMBEDD_server_script.exists(), \
+        f"Embedding server script not found: {EMBEDD_server_script}"
 
-    run_script_daemon(
-        script_path=str(LLM_server_script),
-    )
+    # Start LLM server
+    run_script_daemon(script_path=str(LLM_server_script))
 
-    _EMBEDDING_SERVER_PID = run_script_daemon(
-        script_path=str(EMBEDD_server_script),
-    )
+    # Start embedding server and store PID
+    _EMBEDDING_SERVER_PID = run_script_daemon(script_path=str(EMBEDD_server_script))
 
     print("#### Waiting for VLLM servers to start... ####")
 
+    # Wait for LLM server to be ready
     while True:
-
         base_url = f"http://localhost:{os.getenv('LLM_PORT')}/v1"
         api_key = os.getenv("LLM_API_KEY")
         model_name = os.getenv("LLM_MODEL")
@@ -139,6 +163,7 @@ def start_vllm_servers() -> int:
 
     print("#### Waiting for Embedding server to start... ####")
 
+    # Wait for embedding server to be ready
     while True:
         base_url = f"http://localhost:{os.getenv('EMBEDD_PORT')}/v1"
         api_key = os.getenv("EMBEDD_API_KEY")
@@ -156,7 +181,7 @@ def start_vllm_servers() -> int:
             if response and isinstance(response[0], list):
                 print(f"#### {model_name} server is up and running! ####")
                 break
-        except Exception:
+        except Exception as e:
             print(f"Waiting for {model_name} server to be ready... {e}")
 
         sleep(10)
@@ -171,14 +196,16 @@ def start_vllm_servers() -> int:
 
 
 def shutdown_embedding_server():
-    """
-    Function to shutdown the embedding server to free GPU resources.
+    """Shutdown the embedding server to free GPU resources.
+    
     Should be called after embeddings are generated and cached.
+    Sends SIGTERM to the embedding server process group.
     """
     global _EMBEDDING_SERVER_PID
-    
-    os.killpg(
-        _EMBEDDING_SERVER_PID, # Process group ID
-        signal.SIGTERM # Termination signal
-    )
-    _EMBEDDING_SERVER_PID = None
+
+    if _EMBEDDING_SERVER_PID is not None:
+        os.killpg(
+            _EMBEDDING_SERVER_PID,  # Process group ID
+            signal.SIGTERM          # Termination signal
+        )
+        _EMBEDDING_SERVER_PID = None
