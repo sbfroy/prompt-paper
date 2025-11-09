@@ -1,5 +1,6 @@
-import random
+"""Genetic operators for evolution: diversity calculation, mutation, and crossover."""
 
+import random
 from deap import tools
 
 
@@ -54,42 +55,49 @@ def composite_mutate(individual, cluster_dataset, inter_prob):
     Returns:
         A tuple containing the mutated individual.
     """
-    cluster_map = {}  # Lookup table
+    # Build lookup table for cluster access
+    cluster_map = {}
     for cluster in cluster_dataset.clusters:
         if cluster.examples:  # Skip empty clusters
             cluster_map[cluster.cluster_id] = cluster
 
+    # Select random gene position
     i = random.randrange(len(individual))
 
     if random.random() < inter_prob:
-        # Inter-cluster mutation: replace example with an example from any cluster
+        # Inter-cluster mutation: replace with example from any cluster
         new_cluster = random.choice(cluster_dataset.clusters)
         new_example = random.choice(new_cluster.examples)
         individual[i] = (new_cluster.cluster_id, new_example)
     else:
-        # Intra-cluster mutation: replace example with another example from same cluster
+        # Intra-cluster mutation: replace with another example from same cluster
         cluster_id, current_example = individual[i]
         current_cluster = cluster_map.get(cluster_id)
+
         if current_cluster and len(current_cluster.examples) > 1:
-            other_examples = [ex for ex in current_cluster.examples if ex.id != current_example.id]
+            # Get all examples except the current one
+            other_examples = [
+                ex for ex in current_cluster.examples if ex.id != current_example.id
+            ]
             if other_examples:
                 individual[i] = (cluster_id, random.choice(other_examples))
 
-    return individual,
+    return (individual,)
+
 
 def mate(ind1, ind2):
     """
     Two-point crossover for ordered individuals.
-    
+
     Swaps the middle segment between two crossover points, preserving ordered
     subsequences from both parents. Since example order matters for ICL prompts,
     this maintains positional information while mixing genetic material.
-    
+
     Duplicate clusters are allowed, if multiple examples from the same cluster
     improve performance, the GA will naturally discover and exploit this pattern.
     Clustering has already identified semantically important regions, and the
     evolution process determines optimal cluster distributions through fitness.
-    
+
     Args:
         ind1: First parent individual.
         ind2: Second parent individual.
