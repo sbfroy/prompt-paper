@@ -1,56 +1,64 @@
 task: "financial_ner"
 
-# Clustering stage config
+# ============================================================================
+# Clustering Stage Configuration
+# ============================================================================
 clustering:
   random_seed: 42
-  input_filename: "Financial-NER-NLP_train.jsonl" # 7202 samples
+  input_filename: "Financial-NER-NLP_train.jsonl"  # 7202 samples
 
-  # Embedding generation parameters
+  # Embedding generation
   batch_size: 512
 
-  # UMAP parameters
+  # UMAP dimensionality reduction
   umap_n_components: 30
-  
-  # HDBSCAN parameters
+
+  # HDBSCAN clustering parameters
   hdbscan:
     min_cluster_size: 30
     min_samples: 1
     cluster_selection_epsilon: 0.16
     max_cluster_size: 250
 
-# Evolution stage config
+# ============================================================================
+# Evolution Stage Configuration
+# ============================================================================
 evolution:
   random_seed: 42
   subset_size: 5
   mu: 40
-  lambda_: 120 # more offspring for broader search
+  lambda_: 120  # Offspring count for broader search
   generations: 40
-  cxpb: 0.30
-  mutpb: 0.55 # exploration heavy, but still keep some reproduction
-  tournsize: 2 # weak pressures aka more diversity
-  max_inter_prob: 0.80 # bias mutations to other clusters (initial/max value)
-  min_inter_prob: 0.10  # Minimum inter_prob when diversity is low (exploit mode)
+  cxpb: 0.30  # Crossover probability
+  mutpb: 0.55  # Mutation probability (exploration-heavy)
+  tournsize: 2  # Tournament size (weak pressure for diversity)
+  max_inter_prob: 0.80  # Initial inter-cluster mutation probability
+  min_inter_prob: 0.10  # Minimum inter-cluster probability (exploit mode)
   hof_size: 5
-  workers: 8     
+  workers: 8
 
-  # Early stopping
+  # Early stopping configuration
   early_stopping: true
-  early_stopping_patience: 5  
+  early_stopping_patience: 5
   early_stopping_min_delta: 0.005  
 
-# Evaluation config
+# ============================================================================
+# Evaluation Configuration
+# ============================================================================
 evaluation:
-  validation_file: "Financial-NER-NLP_dev.jsonl" # 900 samples
-  validation_sample_ratio: 1.0 # = 900
+  validation_file: "Financial-NER-NLP_dev.jsonl"  # 900 samples
+  validation_sample_ratio: 1.0  # Use 100% of validation data
 
-  # Individual early stopping params
-  early_stop_checkpoint_fraction: 0.25  # Check after evaluating this fraction of validation set (0.0 to 1.0)
-  early_stop_std_multiplier: 1.0  # Removes roughly 16% if normal distribution
-  early_stop_probability: 0.7  # Probability of actually stopping an individual that meets early stop criteria (0.0 to 1.0)
+  # Individual early stopping parameters
+  early_stop_checkpoint_fraction: 0.25  # Check after 25% of validation set
+  early_stop_std_multiplier: 1.0  # Removes ~16% if normal distribution
+  early_stop_probability: 0.7  # Probability of stopping underperforming individuals
 
-  # LLM params + prompt templates for evaluation
+  # LLM evaluation parameters
   temperature: 0.0
-  #max_tokens: 32
+  # max_tokens: 32
+
+  # Prompt templates for NER evaluation
   system_prompt: |-
     You are a helpful assistant that performs Named Entity Recognition (NER) on financial text.
     Your goal is to identify financial concepts and accounting terms related to company performance, assets, liabilities, equity, revenue, and expenses.
@@ -58,7 +66,7 @@ evaluation:
 
   user_prompt: |-
     Extract the named entities in the following text using 139 XBRL tags as labels in the IOB2 format.
-    
+
     The XBRL tags include, for example: EquityMethodInvestments, IncomeLossFromEquityMethodInvestments, and UnrecognizedTaxBenefits.
 
     Here are some examples:
@@ -72,17 +80,21 @@ evaluation:
 
     Input: '{input_text}'
 
+# ============================================================================
+# Generation Configuration
+# ============================================================================
 generation:
-  target_num_examples: 2000 # k (Both positive and negative)
-  batch_size_examples: 25  # How many examples to request per API call
+  target_num_examples: 2000  # Target number of examples (positive + negative)
+  batch_size_examples: 25  # Examples to request per API call
   base_temperature: 0.7
-  chunk_size: 2000  # Characters per random sample
-  
-  system_prompt: |- 
+  chunk_size: 2000  # Characters per random text sample
+
+  system_prompt: |-
     You are an expert at Named Entity Recognition (NER) for financial documents.
     Your task is to generate training examples that help models identify financial concepts and accounting terms.
     Follow instructions carefully regarding whether to include or exclude XBRL entities.
 
+  # Prompt for generating examples WITH XBRL entities
   positive_user_prompt: |-
     Using the following financial text as reference, generate exactly {batch_size_examples} NER training examples that CONTAIN XBRL entities.
 
@@ -101,6 +113,7 @@ generation:
 
     IMPORTANT: ALL examples MUST have at least one XBRL tag. Create diverse examples with 1-5 tags each, varying complexity and sentence length.
 
+  # Prompt for generating examples WITHOUT XBRL entities
   negative_user_prompt: |-
     Using the following financial text as reference, generate exactly {batch_size_examples} NER training examples that DO NOT CONTAIN any XBRL entities.
 
