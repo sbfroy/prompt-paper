@@ -125,7 +125,7 @@ class GenerateStage:
         Execute the generation stage.
 
         Returns:
-            Tuple of (train_path, val_path) for generated datasets.
+            Tuple of (train_artifact, val_artifact) for generated datasets.
         """
         logging.info("Starting generation stage...")
 
@@ -184,23 +184,17 @@ class GenerateStage:
         train_examples = input_examples[:split_idx]
         val_examples = input_examples[split_idx:]
 
-        # Save datasets
+        # Save datasets to WandB
         train_dataset = InputDataset(examples=train_examples, task_type=self.data_manager.task)
         val_dataset = InputDataset(examples=val_examples, task_type=self.data_manager.task)
 
-        train_path = self.data_manager.save_input_dataset(
-            train_dataset,
-            f"{self.data_manager.task}_generated_train.jsonl"
-        )
-        val_path = self.data_manager.save_input_dataset(
-            val_dataset,
-            f"{self.data_manager.task}_generated_val.jsonl"
-        )
+        train_artifact = self.data_manager.save_input_dataset(train_dataset, "train")
+        val_artifact = self.data_manager.save_input_dataset(val_dataset, "val")
 
-        logging.info(f"Saved {len(train_examples)} training examples to {train_path}")
-        logging.info(f"Saved {len(val_examples)} validation examples to {val_path}")
+        logging.info(f"Saved {len(train_examples)} training examples to WandB artifact: {train_artifact.name}")
+        logging.info(f"Saved {len(val_examples)} validation examples to WandB artifact: {val_artifact.name}")
 
-        return train_path, val_path
+        return train_artifact, val_artifact
 
     def _generate_examples(
         self,
@@ -342,7 +336,7 @@ def run_generate_stage(
         validation_fn: Optional function to validate examples by type.
 
     Returns:
-        Tuple of (train_path, val_path) for generated datasets.
+        Tuple of (train_artifact, val_artifact) for generated datasets.
     """
     data_manager = DataManager(task, base_dir)
     stage = GenerateStage(data_manager, config, client, response_schema, validation_fn)

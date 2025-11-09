@@ -52,9 +52,8 @@ class ClusterStage:
 
         # ====== EMBEDDING ======
         logging.info("Generating embeddings...")
-        input_dataset = self.data_manager.load_input_dataset(
-            self.config["input_filename"]
-        )
+        # Load training dataset from wandb artifact
+        input_dataset = self.data_manager.load_input_dataset("train")
         embedded_dataset = self.embedding_generator.generate_embeddings(
             input_dataset, batch_size=self.config["batch_size"]
         )

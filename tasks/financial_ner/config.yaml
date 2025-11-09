@@ -5,7 +5,6 @@ task: "financial_ner"
 # ============================================================================
 clustering:
   random_seed: 42
-  input_filename: "Financial-NER-NLP_train.jsonl"  # 7202 samples
 
   # Embedding generation
   batch_size: 512
@@ -46,7 +45,6 @@ evolution:
 # Evaluation Configuration
 # ============================================================================
 evaluation:
-  validation_file: "Financial-NER-NLP_dev.jsonl"  # 900 samples
   validation_sample_ratio: 1.0  # Use 100% of validation data
 
   # Individual early stopping parameters
@@ -91,10 +89,10 @@ evaluation:
 # Generation Configuration
 # ============================================================================
 generation:
-  target_num_examples: 2000  # Target number of examples (positive + negative)
+  target_num_examples: 2500  # Target number of examples (positive + negative)
   batch_size_examples: 25  # Examples to request per API call
   base_temperature: 0.7
-  chunk_size: 2000  # Characters per random text sample
+  chunk_size: 2500  # Characters per random text sample
 
   system_prompt: |-
     You are an expert at Named Entity Recognition (NER) for financial documents.

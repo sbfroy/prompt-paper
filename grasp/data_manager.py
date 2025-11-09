@@ -35,37 +35,43 @@ class DataManager:
         # Create dataset directory (outputs go to wandb)
         self.get_dataset_dir().mkdir(parents=True, exist_ok=True)
 
-    def save_input_dataset(self, dataset, file_name="input_dataset.jsonl"):
-        """Save InputDataset as JSONL in the dataset directory.
+    def save_input_dataset(self, dataset, artifact_name_suffix):
+        """Save InputDataset as wandb artifact.
         
         Args:
             dataset: InputDataset object to save
-            file_name: Output filename (default: input_dataset.jsonl)
+            artifact_name_suffix: Suffix for artifact name (e.g., 'train', 'val')
             
         Returns:
-            Path to saved file
+            Wandb artifact
         """
-        filepath = self.get_dataset_dir() / file_name
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir) / f"{artifact_name_suffix}.jsonl"
 
-        with filepath.open("w", encoding="utf-8") as f:
-            for example in dataset.examples:
-                f.write(example.model_dump_json(by_alias=True) + "\n")
+            with temp_path.open("w", encoding="utf-8") as f:
+                for example in dataset.examples:
+                    f.write(example.model_dump_json(by_alias=True) + "\n")
 
-        return filepath
+            artifact_name = f"{self.task}_input_dataset_{artifact_name_suffix}"
+            return save_file_artifact(temp_path, artifact_name, "input_dataset")
 
-    def load_input_dataset(self, file_name="input_dataset.jsonl"):
-        """Load InputDataset from dataset directory.
+    def load_input_dataset(self, artifact_name_suffix):
+        """Load InputDataset from wandb artifact.
         
         Args:
-            file_name: Input filename (default: input_dataset.jsonl)
+            artifact_name_suffix: Suffix for artifact name (e.g., 'train', 'val')
             
         Returns:
             InputDataset object
         """
-        filepath = self.get_dataset_dir() / file_name
+        # Remove .jsonl extension if present to get the suffix
+        artifact_suffix = artifact_name_suffix.replace('.jsonl', '')
+        artifact_name = f"{self.task}_input_dataset_{artifact_suffix}"
+        artifact_path = load_artifact(artifact_name)
+        
         examples: list[InputExample] = []
 
-        with filepath.open("r", encoding="utf-8") as f:
+        with open(artifact_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
