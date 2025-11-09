@@ -65,18 +65,25 @@ evaluation:
     Only respond with the requested JSON object and nothing else.
 
   user_prompt: |-
-    Extract the named entities in the following text using 139 XBRL tags as labels in the IOB2 format.
+    Extract named entities from the following financial text. Identify specific values (numbers, percentages, amounts) associated with 139 possible XBRL accounting tags.
 
-    The XBRL tags include, for example: EquityMethodInvestments, IncomeLossFromEquityMethodInvestments, and UnrecognizedTaxBenefits.
+    Common XBRL tags include:
+      - DebtInstrumentInterestRateStatedPercentage (interest rates)
+      - LineOfCreditFacilityMaximumBorrowingCapacity (credit limits)
+      - EquityMethodInvestmentOwnershipPercentage (ownership percentages)
+      - EffectiveIncomeTaxRateContinuingOperations (tax rates)
+      - OperatingLeaseRightOfUseAsset (lease assets)
+      - NumberOfOperatingSegments (segment counts)
+      - BusinessCombinationConsiderationTransferred1 (acquisition amounts)
 
     Here are some examples:
 
     {examples}
 
     Return the results in JSON format:
-      - Each key must be an XBRL tag.
-      - Each value must be a list of string values (the entities found).
-      - If there are no entities in the text, return an empty JSON object.
+      - Each key must be an XBRL tag
+      - Each value must be a list of string values (the extracted numbers/amounts from the text)
+      - If there are no extractable XBRL entities in the text, return an empty JSON object {{}}
 
     Input: '{input_text}'
 
@@ -103,13 +110,21 @@ generation:
 
     For each example:
     1. Create a realistic financial sentence (extract from above, adapt, or create similar)
-    2. Identify ALL relevant XBRL tags and extract the specific values (numbers, dates, entity names)
+    2. Identify ALL relevant XBRL tags and extract the specific values (numbers, percentages, amounts)
 
-    Use XBRL tags like: EquityMethodInvestments, IncomeLossFromEquityMethodInvestments, UnrecognizedTaxBenefits, NumberOfOperatingSegments, Assets, Liabilities, Revenues, etc.
+    Use XBRL tags like:
+      - DebtInstrumentInterestRateStatedPercentage
+      - LineOfCreditFacilityMaximumBorrowingCapacity
+      - EquityMethodInvestmentOwnershipPercentage
+      - EffectiveIncomeTaxRateContinuingOperations
+      - OperatingLeaseRightOfUseAsset
+      - NumberOfOperatingSegments
+      - BusinessCombinationConsiderationTransferred1
+      - AllocatedShareBasedCompensationExpense
 
     Return a JSON array with exactly {batch_size_examples} objects:
     - "input": financial sentence
-    - "output": dictionary mapping XBRL tags to lists of extracted values (e.g., {{"Assets": ["5.2 billion"], "Liabilities": ["3.1 billion"]}})
+    - "output": dictionary mapping XBRL tags to lists of extracted values (e.g., {{"DebtInstrumentInterestRateStatedPercentage": ["5.5"], "NumberOfOperatingSegments": ["four"]}})
 
     IMPORTANT: ALL examples MUST have at least one XBRL tag. Create diverse examples with 1-5 tags each, varying complexity and sentence length.
 
