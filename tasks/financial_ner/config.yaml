@@ -1,6 +1,12 @@
 task: "financial_ner"
 
 # ============================================================================
+# Dataset Configuration
+# ============================================================================
+dataset:
+  size: 3000  # Number of examples in the generated dataset (used in artifact names)
+
+# ============================================================================
 # Clustering Stage Configuration
 # ============================================================================
 clustering:
@@ -89,7 +95,6 @@ evaluation:
 # Generation Configuration
 # ============================================================================
 generation:
-  target_num_examples: 2500  # Target number of examples (positive + negative)
   batch_size_examples: 25  # Examples to request per API call
   base_temperature: 0.7
   chunk_size: 2500  # Characters per random text sample

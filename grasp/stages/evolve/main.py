@@ -23,13 +23,16 @@ class EvolveStage:
         self.config = config
         self.eval_fn = eval_fn
         self.evolution_trace = []  # Store example usage across generations
+        
+        # Get dataset size from config for artifact naming
+        self.dataset_size = config["dataset_size"]
 
     def run(self):
         """Execute the evolution stage and return results."""
         logging.info("Starting evolution stage...")
 
-        # Load the clustered dataset
-        cluster_dataset = self.data_manager.load_cluster_dataset()
+        # Load the clustered dataset with size
+        cluster_dataset = self.data_manager.load_cluster_dataset(dataset_size=self.dataset_size)
 
         # Filter out noise cluster (outliers don't generalize well)
         cluster_dataset.clusters = [

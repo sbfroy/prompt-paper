@@ -53,7 +53,7 @@ def main():
     run_cluster_stage(
         task=config["task"],
         base_dir=str(base_dir),
-        config_dict=config["clustering"]
+        config_dict={**config["clustering"], "dataset_size": config["dataset"]["size"]}
     )
 
     finish_wandb()

@@ -121,7 +121,7 @@ def main():
     run_generate_stage(
         task=config["task"],
         base_dir=str(base_dir),
-        config=config["generation"],
+        config={**config["generation"], "dataset_size": config["dataset"]["size"]},
         client=client,
         response_schema=GeneratedExamples,
         validation_fn=validate_financial_ner_examples
