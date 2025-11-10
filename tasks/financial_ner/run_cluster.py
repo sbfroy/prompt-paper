@@ -1,3 +1,13 @@
+"""
+Financial NER - Clustering Stage
+
+This script runs the clustering stage for the financial NER task, which:
+1. Loads financial text data
+2. Generates embeddings
+3. Performs dimensionality reduction with UMAP
+4. Clusters examples using HDBSCAN
+"""
+
 import sys
 import logging
 from pathlib import Path
@@ -5,20 +15,21 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 
-from proptimize.wandb_utils import init_wandb, finish_wandb
-from proptimize.stages.cluster import run_cluster_stage
-from proptimize.run_vllm import start_vllm_servers
+from grasp.wandb_utils import init_wandb, finish_wandb
+from grasp.stages.cluster import run_cluster_stage
+from grasp.run_vllm import start_vllm_servers
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 
-# Some logging suppression
+# Suppress verbose logging from external libraries
 logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
+# Add project root to path
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))  # step out to 'prompt-paper'
+sys.path.insert(0, str(project_root))  # step out to 'GRaSp'
 
 
 def load_config():
@@ -28,18 +39,21 @@ def load_config():
 
 
 def main():
+    """Run the clustering stage for financial NER."""
     config = load_config()
 
     # Set up paths
     task_dir = Path(__file__).parent
     base_dir = task_dir.parent
 
-    # Initialize wandb
-    run = init_wandb(task_name=config["task"], config=config)
+    # Initialize wandb for experiment tracking
+    init_wandb(task_name=config["task"], config=config)
 
     # Run clustering stage
     run_cluster_stage(
-        task=config["task"], base_dir=str(base_dir), config_dict=config["clustering"]
+        task=config["task"],
+        base_dir=str(base_dir),
+        config_dict={**config["clustering"], "dataset_size": config["dataset"]["size"]}
     )
 
     finish_wandb()
