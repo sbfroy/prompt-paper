@@ -90,7 +90,10 @@ def run_script_daemon(
     return start_daemon(cmd, pidfile=pidfile, logfile=logfile, cwd=cwd)
 
 
-def start_vllm_servers() -> int:
+def start_vllm_servers(start_LLM: bool = True, start_embedding: bool = True) -> int:
+    
+    assert start_LLM or start_embedding, "At least one server must be started."
+    
     global _EMBEDDING_SERVER_PID
     
     LLM_server_script = Path("/workspace/scripts/run_vllm_oss120.sh")
@@ -103,63 +106,70 @@ def start_vllm_servers() -> int:
         EMBEDD_server_script.exists()
     ), f"Embedding server script not found: {EMBEDD_server_script}"
 
-    run_script_daemon(
-        script_path=str(LLM_server_script),
-    )
+    if start_LLM:
+        print("#### Starting LLM server... ####")
+        run_script_daemon(
+            script_path=str(LLM_server_script),
+        )
 
-    _EMBEDDING_SERVER_PID = run_script_daemon(
-        script_path=str(EMBEDD_server_script),
-    )
+    if start_embedding:
+        print("#### Starting Embedding server... ####")
+        _EMBEDDING_SERVER_PID = run_script_daemon(
+            script_path=str(EMBEDD_server_script),
+        )
 
-    print("#### Waiting for VLLM servers to start... ####")
+    
 
-    while True:
-
+    if start_LLM:
+        print("#### Waiting for VLLM servers to start... ####")
         base_url = f"http://localhost:{os.getenv('LLM_PORT')}/v1"
         api_key = os.getenv("LLM_API_KEY")
         model_name = os.getenv("LLM_MODEL")
+        
+        while True:
 
-        try:
-            client = OpenAI(
-                base_url=base_url,
-                api_key=api_key,
-            )
-            response = client.chat.completions.create(
-                messages=[{"role": "user", "content": "test"}],
-                model=model_name,
-            )
+            try:
+                client = OpenAI(
+                    base_url=base_url,
+                    api_key=api_key,
+                )
+                response = client.chat.completions.create(
+                    messages=[{"role": "user", "content": "test"}],
+                    model=model_name,
+                )
 
-            if response and isinstance(response.choices[0].message.content, str):
-                print(f"#### {model_name} servers are up and running! ####")
-                break
-        except Exception as e:
-            print(f"Waiting for {model_name} servers to be ready... {e}")
+                if response and isinstance(response.choices[0].message.content, str):
+                    print(f"#### {model_name} servers are up and running! ####")
+                    break
+            except Exception as e:
+                print(f"Waiting for {model_name} servers to be ready... {e}")
 
-        sleep(10)
+            sleep(10)
 
-    print("#### Waiting for Embedding server to start... ####")
 
-    while True:
-        base_url = f"http://localhost:{os.getenv('EMBEDD_PORT')}/v1"
-        api_key = os.getenv("EMBEDD_API_KEY")
-        model_name = os.getenv("EMBEDD_MODEL")
+    if start_embedding:
+        while True:
+            print("#### Waiting for Embedding server to start... ####")
+            base_url = f"http://localhost:{os.getenv('EMBEDD_PORT')}/v1"
+            api_key = os.getenv("EMBEDD_API_KEY")
+            model_name = os.getenv("EMBEDD_MODEL")
 
-        try:
-            client = OpenAIEmbeddings(
-                model=model_name,
-                api_key=api_key,
-                base_url=base_url,
-                tiktoken_enabled=True,
-            )
-            response = client.embed_documents(["test embedding"])
+            try:
+                client = OpenAIEmbeddings(
+                    model=model_name,
+                    api_key=api_key,
+                    base_url=base_url,
+                    tiktoken_enabled=True,
+                )
+                response = client.embed_documents(["test embedding"])
 
-            if response and isinstance(response[0], list):
-                print(f"#### {model_name} server is up and running! ####")
-                break
-        except Exception:
-            print(f"Waiting for {model_name} server to be ready... {e}")
+                if response and isinstance(response[0], list):
+                    print(f"#### {model_name} server is up and running! ####")
+                    break
+            except Exception as e:
+                print(f"Waiting for {model_name} server to be ready... {e}")
 
-        sleep(10)
+            sleep(10)
 
     print()
     print("#######################################")
