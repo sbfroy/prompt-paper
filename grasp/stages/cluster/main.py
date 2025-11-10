@@ -1,50 +1,73 @@
+"""Main orchestration for the clustering stage pipeline."""
+
 import logging
 import warnings
 from collections import defaultdict
 
 import numpy as np
 
-from proptimize.data_manager import DataManager
-from proptimize.schemas import Cluster, ClusterDataset, ClusterExample
-from proptimize.stages.cluster.embedding_generator import EmbeddingGenerator
-from proptimize.stages.cluster.dimensionality_reducer import DimensionalityReducer
-from proptimize.stages.cluster.clusterer import HDBSCANClusterer
-from proptimize.run_vllm import shutdown_embedding_server
+from grasp.data_manager import DataManager
+from grasp.schemas import Cluster, ClusterDataset, ClusterExample
+from grasp.stages.cluster.embedding_generator import EmbeddingGenerator
+from grasp.stages.cluster.dimensionality_reducer import DimensionalityReducer
+from grasp.stages.cluster.clusterer import HDBSCANClusterer
+from grasp.run_vllm import shutdown_embedding_server
 
 logging.basicConfig(level=logging.INFO)
 
 
 class ClusterStage:
+    """Orchestrates embedding generation, dimensionality reduction, and clustering."""
+
     def __init__(self, data_manager: DataManager, config: dict):
+        """Initialize the clustering stage.
+        
+        Args:
+            data_manager: Handles dataset loading and saving
+            config: Configuration dictionary with parameters for all components
+        """
         self.data_manager = data_manager
         self.config = config
+        
+        # Get dataset size from config for artifact naming
+        self.dataset_size = config["dataset_size"]
 
         self.embedding_generator = EmbeddingGenerator()
         self.reducer = DimensionalityReducer(random_state=config["random_seed"])
 
-        # Gather all HDBSCAN params and pass directly
+        # Pass all HDBSCAN parameters directly from config
         hdbscan_params = config["hdbscan"]
         self.clusterer = HDBSCANClusterer(**hdbscan_params)
 
     def run(self):
+        """Execute the complete clustering pipeline.
+        
+        Steps:
+            1. Generate embeddings for input dataset
+            2. Reduce dimensionality with UMAP
+            3. Cluster with HDBSCAN
+            4. Save results as ClusterDataset
+        
+        Returns:
+            Artifact containing the clustered dataset
+        """
         logging.info("Starting clustering stage...")
 
         # ====== EMBEDDING ======
         logging.info("Generating embeddings...")
-        input_dataset = self.data_manager.load_input_dataset(
-            self.config["input_filename"]
-        )
+        # Load training dataset from wandb artifact
+        input_dataset = self.data_manager.load_input_dataset("train", dataset_size=self.dataset_size)
         embedded_dataset = self.embedding_generator.generate_embeddings(
             input_dataset, batch_size=self.config["batch_size"]
         )
 
-        # Save the embedded dataset
-        self.data_manager.save_embedded_dataset(embedded_dataset)
+        # Save the embedded dataset with size in artifact name
+        self.data_manager.save_embedded_dataset(embedded_dataset, dataset_size=self.dataset_size)
 
         shutdown_embedding_server()
         logging.info("Embedding server shut down...")
 
-        # Embeddings to numpy array
+        # Convert embeddings to numpy array
         embeddings = np.array(
             [example.embedding for example in embedded_dataset.examples]
         )
@@ -67,7 +90,7 @@ class ClusterStage:
         cluster_dataset = self._create_cluster_dataset(
             embedded_dataset, labels, probabilities
         )
-        artifact = self.data_manager.save_cluster_dataset(cluster_dataset)
+        artifact = self.data_manager.save_cluster_dataset(cluster_dataset, dataset_size=self.dataset_size)
 
         logging.info(
             f"Clustering stage completed! Output saved as artifact: {artifact.name}"
@@ -80,12 +103,12 @@ class ClusterStage:
         """Create a ClusterDataset from embeddings and clustering results.
 
         Args:
-            embedded_dataset: The dataset with embeddings.
-            labels: Cluster labels for each example.
-            probabilities: Membership probabilities for each example.
+            embedded_dataset: The dataset with embeddings
+            labels: Cluster labels for each example (-1 for noise)
+            probabilities: Membership probabilities for each example
 
         Returns:
-            A ClusterDataset containing all clusters and their examples.
+            ClusterDataset containing all clusters and their examples
         """
         # Group examples by cluster
         cluster_groups = defaultdict(list)
@@ -114,14 +137,21 @@ class ClusterStage:
         return ClusterDataset(clusters=clusters, task_type=embedded_dataset.task_type)
 
 
-def run_cluster_stage(
-    task,
-    base_dir,
-    config_dict,
-):
-    # Setup
+def run_cluster_stage(task, base_dir, config_dict):
+    """Run the clustering stage for a given task.
+    
+    Args:
+        task: Task name/identifier
+        base_dir: Base directory for data storage
+        config_dict: Configuration parameters for the clustering pipeline
+    
+    Returns:
+        Artifact containing the clustered dataset
+    """
+    # Setup data manager
     data_manager = DataManager(task, base_dir)
 
-    # Run clustering 
+    # Run clustering pipeline
     stage = ClusterStage(data_manager, config_dict)
     return stage.run()
+

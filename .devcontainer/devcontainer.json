@@ -1,5 +1,5 @@
 {
-  "name": "Prompt-paper",
+  "name": "GRaSp",
   "dockerFile": "Dockerfile",
   "workspaceFolder": "/workspace",
   "mounts": [

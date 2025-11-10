@@ -1,4 +1,4 @@
 set -euo pipefail
-IMAGE=prompt-paper:latest
+IMAGE=grasp:latest
 docker build -t "$IMAGE" .
 echo "Built $IMAGE"

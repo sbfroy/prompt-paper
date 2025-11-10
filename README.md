@@ -1,4 +1,4 @@
-# Proptimize
+# GRaSp
 
 
 
@@ -7,7 +7,7 @@
 
 Build:
 ```sh 
-docker build -t proptimize:1.0 .
+docker build -t grasp:1.0 .
 ```
 
 Run:
@@ -19,7 +19,7 @@ docker run \
     -e "WANDB_ENTITY=<WANDB_USER_NAME>" \ 
     -e "WANDB_API_KEY=<WANDB_API_KEY>" \ 
     -d \ 
-    proptimize:1.0
+    grasp:1.0
 ```
 
 View logs:
