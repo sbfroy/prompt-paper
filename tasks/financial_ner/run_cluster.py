@@ -48,5 +48,5 @@ def main():
 
 
 if __name__ == "__main__":
-    start_vllm_servers()
+    start_vllm_servers(start_embedding=True, start_LLM=False)
     main()

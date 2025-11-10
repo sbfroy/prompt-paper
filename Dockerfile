@@ -17,4 +17,4 @@ ENV WANDB_PROJECT="icl-research-team"
 
 # Run the script with unbuffered output; if it exits, keep the container alive for debugging.
 ENTRYPOINT ["/bin/bash", "-lc"]
-CMD ["python3 -u /workspace/tasks/financial_ner/main.py || tail -f /dev/null"]
+CMD ["python3 -u /workspace/tasks/financial_ner/run_evolve.py || tail -f /dev/null"]
