@@ -255,8 +255,10 @@ class GenerateStage:
                     temperature=temperature,
                 )
 
-                if response and isinstance(response, dict) and "root" in response:
-                    batch_examples = response["root"]
+                if response:
+                    # response is already unwrapped by model_dump() in get_llm_response
+                    # For RootModel[list[T]], it returns a list directly
+                    batch_examples = response
 
                     # Validate examples if validation function provided
                     if self.validation_fn:
