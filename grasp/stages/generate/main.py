@@ -207,10 +207,13 @@ class GenerateStage:
     ) -> list[dict]:
         """
         Generate examples of a specific type using the LLM.
+        
+        Continues generating batches until target number is reached.
+        Includes safety limit to prevent infinite loops if validation rate is too low.
 
         Args:
             text: Source text for generation.
-            n_batches: Number of batches to generate.
+            n_batches: Number of batches to generate initially (determines target count).
             batch_size: Examples per batch.
             chunk_size: Size of random text chunks.
             example_type: "positive" (with entities) or "negative" (without).
@@ -218,15 +221,29 @@ class GenerateStage:
         Returns:
             List of generated examples.
         """
+        target_count = n_batches * batch_size
         examples = []
         base_temperature = self.config["base_temperature"]
-
-        # Sample random chunks to maximize diversity and prevent topic clustering
-        text_chunks = sample_random_chunks(text, n_batches, chunk_size)
+        
+        # Track statistics
+        total_generated = 0
+        total_validated = 0
+        batches_attempted = 0
+        
+        # Safety limit: allow up to 3x the original batches before giving up
+        max_batches = n_batches * 3
+        
+        logging.info(f"Target: {target_count} {example_type} examples (will generate until reached)")
 
         desc = f"Generating {example_type} examples"
+        pbar = tqdm(total=target_count, desc=desc, ncols=75)
 
-        for i, text_chunk in tqdm(enumerate(text_chunks), total=len(text_chunks), desc=desc, ncols=75):
+        while len(examples) < target_count and batches_attempted < max_batches:
+            batches_attempted += 1
+            
+            # Sample a random chunk for each batch
+            text_chunk = sample_random_chunks(text, 1, chunk_size)[0]
+            
             # Vary temperature for diversity
             temperature = base_temperature + random.uniform(-0.2, 0.2)
 
@@ -259,6 +276,7 @@ class GenerateStage:
                     # response is already unwrapped by model_dump() in get_llm_response
                     # For RootModel[list[T]], it returns a list directly
                     batch_examples = response
+                    total_generated += len(batch_examples)
 
                     # Validate examples if validation function provided
                     if self.validation_fn:
@@ -266,24 +284,36 @@ class GenerateStage:
                     else:
                         validated = batch_examples
 
+                    total_validated += len(validated)
                     examples.extend(validated)
+                    
+                    # Update progress bar
+                    pbar.update(len(validated))
 
-                    if self.validation_fn:
-                        logging.info(
-                            f"Generated {len(validated)}/{len(batch_examples)} valid "
-                            f"{example_type} examples from batch {i+1}"
-                        )
-                    else:
-                        logging.info(
-                            f"Generated {len(batch_examples)} {example_type} examples from batch {i+1}"
-                        )
                 else:
-                    logging.warning(f"No valid examples from batch {i+1}")
+                    logging.warning(f"No valid response from batch {batches_attempted}")
 
             except Exception as e:
-                logging.error(f"Error generating batch {i+1}: {e}")
+                logging.error(f"Error generating batch {batches_attempted}: {e}")
                 continue
 
+        pbar.close()
+        
+        # Calculate statistics
+        validation_rate = (total_validated / total_generated * 100) if total_generated > 0 else 0
+        
+        logging.info(
+            f"Generated {len(examples)}/{target_count} {example_type} examples "
+            f"({batches_attempted} batches, {validation_rate:.1f}% validation rate)"
+        )
+        
+        # Check if we hit the safety limit
+        if batches_attempted >= max_batches and len(examples) < target_count:
+            logging.warning(
+                f"Hit safety limit ({max_batches} batches) with only {len(examples)}/{target_count} examples. "
+                f"Validation rate is too low ({validation_rate:.1f}%). Check your validation logic and prompts."
+            )
+        
         return examples
 
     def _convert_to_input_examples(self, examples: list[dict]) -> list[InputExample]:
