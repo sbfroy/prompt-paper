@@ -229,9 +229,9 @@ class GenerateStage:
         total_generated = 0
         total_validated = 0
         batches_attempted = 0
-        
-        # Safety limit: allow up to 3x the original batches before giving up
-        max_batches = n_batches * 3
+
+        # Safety limit: allow up to 2x the original batches before giving up
+        max_batches = n_batches * 2
         
         logging.info(f"Target: {target_count} {example_type} examples (will generate until reached)")
 
