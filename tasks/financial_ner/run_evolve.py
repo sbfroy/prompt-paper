@@ -170,9 +170,9 @@ class Evaluator:
                 )
                 scores.append(0.0)
             else:
-                # Extract the actual data from response
-                payload = response.root if hasattr(response, "root") else response
-                score = self.compare_json_objects(gold_labels, payload)
+                # response is already unwrapped by model_dump() in get_llm_response
+                # For RootModel[dict[str, list[str]]], it returns a dict directly
+                score = self.compare_json_objects(gold_labels, response)
                 scores.append(score)
 
             # Check for early stopping after reaching the checkpoint
