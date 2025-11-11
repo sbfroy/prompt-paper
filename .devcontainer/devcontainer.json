@@ -5,9 +5,7 @@
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind"
   ],
-  "runArgs": [
-   "--runtime=runc"
-  ],
+  "runArgs": ["--gpus=none"],
   // "runArgs": [
   //    "--gpus", "all",
   //    "--shm-size", "6G"
