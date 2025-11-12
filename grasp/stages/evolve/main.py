@@ -43,9 +43,9 @@ class EvolveStage:
 
         # Validate configuration
         if len(cluster_dataset.clusters) < self.config["subset_size"]:
-            raise ValueError(
-                "subset_size is larger than the number of clusters. "
-                "Should probably check if clustering stage is okay."
+            logging.warning(
+                f"subset_size ({self.config['subset_size']}) is larger than the number of clusters ({len(cluster_dataset.clusters)}). "
+                "The GA will sample clusters with replacement. Consider checking clustering stage parameters."
             )
 
         def _mutate(individual, cluster_dataset, inter_prob=None):
