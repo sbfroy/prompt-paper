@@ -51,7 +51,7 @@ evolution:
 # Evaluation Configuration
 # ============================================================================
 evaluation:
-  validation_sample_ratio: 1.0  # Use 100% of validation data
+  validation_sample_ratio: 0.5  # Use 50% of validation data
 
   # Individual early stopping parameters
   early_stop_checkpoint_fraction: 0.25  # Check after 25% of validation set
