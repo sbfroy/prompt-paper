@@ -34,8 +34,10 @@ sys.path.insert(0, str(project_root))  # step out to 'GRaSp'
 # Task-Specific Schema Definitions
 # ============================================================================
 
+
 class GeneratedExample(BaseModel):
     """Schema for a single generated financial NER example."""
+
     input: str = Field(..., description="Financial sentence")
     output: Union[dict[str, list[str]], Literal["No XBRL associated data."]] = Field(
         ..., description="XBRL tags mapping or 'No XBRL associated data.'"
@@ -44,6 +46,7 @@ class GeneratedExample(BaseModel):
 
 class GeneratedExamples(RootModel):
     """Schema for a batch of generated financial NER examples."""
+
     root: list[GeneratedExample]
 
 
@@ -51,9 +54,9 @@ class GeneratedExamples(RootModel):
 # Task-Specific Validation Function
 # ============================================================================
 
+
 def validate_financial_ner_examples(
-    examples: list[dict],
-    expected_type: Literal["positive", "negative"]
+    examples: list[dict], expected_type: Literal["positive", "negative"]
 ) -> list[dict]:
     """
     Validate financial NER examples match expected type and format.
@@ -124,7 +127,7 @@ def main():
         config={**config["generation"], "dataset_size": config["dataset"]["size"]},
         client=client,
         response_schema=GeneratedExamples,
-        validation_fn=validate_financial_ner_examples
+        validation_fn=validate_financial_ner_examples,
     )
 
     finish_wandb()
@@ -133,5 +136,5 @@ def main():
 
 
 if __name__ == "__main__":
-    start_vllm_servers()
+    start_vllm_servers(start_LLM=True, start_embedding=False)
     main()
