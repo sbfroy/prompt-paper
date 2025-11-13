@@ -297,7 +297,7 @@ def main():
 
     eval_fn = create_evaluator(
         data_manager=data_manager,
-        eval_config=config["evaluation"],
+        eval_config={**config["evaluation"], "dataset_size": config["dataset"]["size"]},
         client=client
     )
 
