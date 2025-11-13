@@ -89,6 +89,19 @@ evaluation:
       - Each value must be a list of string values (the extracted numbers/amounts from the text)
       - If there are no extractable XBRL entities in the text, return an empty JSON object {{}}
 
+    CRITICAL OUTPUT FORMAT RULES:
+    1. Extract the EXACT numeric value as it appears in the text
+    2. Remove ONLY currency symbols ($) and units (billion, million)
+    3. Keep the number format exactly as written: "2.8 billion" → "2.8", "750 million" → "750"
+    4. Remove ONLY the % symbol from percentages: "35%" → "35", "5.5%" → "5.5"
+    6. Keep decimal precision as it appears: "6.0" stays "6.0", "6" stays "6"
+    7. Examples:
+       - Input: "interest rate of 5.5%" → Output: {{"DebtInstrumentInterestRateStatedPercentage": ["5.5"]}}
+       - Input: "$2.8 billion" → Output: {{"OperatingLeaseRightOfUseAsset": ["2.8"]}}
+       - Input: "three operating segments" → Output: {{"NumberOfOperatingSegments": ["3"]}}
+       - Input: "35% ownership" → Output: {{"EquityMethodInvestmentOwnershipPercentage": ["35"]}}
+       - Input: "$750 million" → Output: {{"AllocatedShareBasedCompensationExpense": ["750"]}}
+
     Input: '{input_text}'
 
 # ============================================================================
@@ -127,7 +140,20 @@ generation:
 
     Return a JSON array with exactly {batch_size_examples} objects:
     - "input": financial sentence
-    - "output": dictionary mapping XBRL tags to lists of extracted values (e.g., {{"DebtInstrumentInterestRateStatedPercentage": ["5.5"], "NumberOfOperatingSegments": ["four"]}})
+    - "output": dictionary mapping XBRL tags to lists of extracted values
+
+    CRITICAL OUTPUT FORMAT RULES:
+    1. Extract the EXACT numeric value as it appears in the text
+    2. Remove ONLY currency symbols ($) and units (billion, million)
+    3. Keep the number format exactly as written: "2.8 billion" → "2.8", "750 million" → "750"
+    4. Remove ONLY the % symbol from percentages: "35%" → "35", "5.5%" → "5.5"
+    6. Keep decimal precision as it appears: "6.0" stays "6.0", "6" stays "6"
+    7. Examples:
+       - Input: "interest rate of 5.5%" → Output: ["5.5"]
+       - Input: "$2.8 billion" → Output: ["2.8"]
+       - Input: "three operating segments" → Output: ["3"]
+       - Input: "35% ownership" → Output: ["35"]
+       - Input: "$750 million" → Output: ["750"]
 
     IMPORTANT: ALL examples MUST have at least one XBRL tag. Create diverse examples with 1-5 tags each, varying complexity and sentence length.
 
