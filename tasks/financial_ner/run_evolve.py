@@ -62,7 +62,7 @@ class Evaluator:
         self.client = client
 
         # Load validation dataset from wandb artifact
-        validation_dataset = self.data_manager.load_input_dataset("val", dataset_size=config["dataset_size"])
+        validation_dataset = self.data_manager.load_input_dataset("val", dataset_size=10000) # config["dataset_size"]
         
         # Convert to dictionary format for compatibility
         self.validation_data = [
