@@ -4,7 +4,7 @@ task: "financial_ner"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 5000  # Number of examples in the generated dataset (used in artifact names)
+  size: 10000  # Number of examples in the generated dataset (used in artifact names)
 
 # ============================================================================
 # Clustering Stage Configuration
@@ -64,44 +64,34 @@ evaluation:
   # Prompt templates for NER evaluation
   system_prompt: |-
     You are a helpful assistant that performs Named Entity Recognition (NER) on financial text.
-    Your goal is to identify financial concepts and accounting terms related to company performance, assets, liabilities, equity, revenue, and expenses.
+    Your task is to identify financial concepts and extract their associated values using XBRL accounting tags.
     Only respond with the requested JSON object and nothing else.
 
+    The complete list of possible XBRL tags is:
+    AccrualForEnvironmentalLossContingencies, AcquiredFiniteLivedIntangibleAssetsWeightedAverageUsefulLife, AllocatedShareBasedCompensationExpense, AmortizationOfFinancingCosts, AmortizationOfIntangibleAssets, AntidilutiveSecuritiesExcludedFromComputationOfEarningsPerShareAmount, AreaOfRealEstateProperty, AssetImpairmentCharges, BusinessAcquisitionEquityInterestsIssuedOrIssuableNumberOfSharesIssued, BusinessAcquisitionPercentageOfVotingInterestsAcquired, BusinessCombinationAcquisitionRelatedCosts, BusinessCombinationConsiderationTransferred1, BusinessCombinationContingentConsiderationLiability, BusinessCombinationRecognizedIdentifiableAssetsAcquiredAndLiabilitiesAssumedIntangibleAssetsOtherThanGoodwill, BusinessCombinationRecognizedIdentifiableAssetsAcquiredAndLiabilitiesAssumedIntangibles, CapitalizedContractCostAmortization, CashAndCashEquivalentsFairValueDisclosure, ClassOfWarrantOrRightExercisePriceOfWarrantsOrRights1, CommonStockCapitalSharesReservedForFutureIssuance, CommonStockDividendsPerShareDeclared, CommonStockParOrStatedValuePerShare, CommonStockSharesAuthorized, CommonStockSharesOutstanding, ConcentrationRiskPercentage1, ContractWithCustomerLiability, ContractWithCustomerLiabilityRevenueRecognized, CumulativeEffectOfNewAccountingPrincipleInPeriodOfAdoption, DebtInstrumentBasisSpreadOnVariableRate1, DebtInstrumentCarryingAmount, DebtInstrumentConvertibleConversionPrice1, DebtInstrumentFaceAmount, DebtInstrumentFairValue, DebtInstrumentInterestRateEffectivePercentage, DebtInstrumentInterestRateStatedPercentage, DebtInstrumentMaturityDate, DebtInstrumentRedemptionPricePercentage, DebtInstrumentTerm, DebtInstrumentUnamortizedDiscount, DebtWeightedAverageInterestRate, DeferredFinanceCostsGross, DeferredFinanceCostsNet, DefinedBenefitPlanContributionsByEmployer, DefinedContributionPlanCostRecognized, Depreciation, DerivativeFixedInterestRate, DerivativeNotionalAmount, DisposalGroupIncludingDiscontinuedOperationConsideration, EffectiveIncomeTaxRateContinuingOperations, EffectiveIncomeTaxRateReconciliationAtFederalStatutoryIncomeTaxRate, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognized, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognizedPeriodForRecognition1, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognizedShareBasedAwardsOtherThanOptions, EmployeeServiceShareBasedCompensationTaxBenefitFromCompensationExpense, EquityMethodInvestmentOwnershipPercentage, EquityMethodInvestments, FiniteLivedIntangibleAssetUsefulLife, GainsLossesOnExtinguishmentOfDebt, Goodwill, GoodwillImpairmentLoss, GuaranteeObligationsMaximumExposure, IncomeLossFromEquityMethodInvestments, IncomeTaxExpenseBenefit, InterestExpense, InterestExpenseDebt, LeaseAndRentalExpense, LesseeOperatingLeaseRenewalTerm, LesseeOperatingLeaseTermOfContract, LettersOfCreditOutstandingAmount, LineOfCredit, LineOfCreditFacilityCommitmentFeePercentage, LineOfCreditFacilityCurrentBorrowingCapacity, LineOfCreditFacilityInterestRateAtPeriodEnd, LineOfCreditFacilityMaximumBorrowingCapacity, LineOfCreditFacilityRemainingBorrowingCapacity, LineOfCreditFacilityUnusedCapacityCommitmentFeePercentage, LongTermDebt, LongTermDebtFairValue, LossContingencyAccrualAtCarryingValue, LossContingencyDamagesSoughtValue, LossContingencyEstimateOfPossibleLoss, LossContingencyPendingClaimsNumber, MinorityInterestOwnershipPercentageByNoncontrollingOwners, MinorityInterestOwnershipPercentageByParent, NumberOfOperatingSegments, NumberOfRealEstateProperties, NumberOfReportableSegments, OperatingLeaseCost, OperatingLeaseExpense, OperatingLeaseLiability, OperatingLeasePayments, OperatingLeaseRightOfUseAsset, OperatingLeaseWeightedAverageDiscountRatePercent, OperatingLeaseWeightedAverageRemainingLeaseTerm1, OperatingLeasesRentExpenseNet, OperatingLossCarryforwards, PaymentsToAcquireBusinessesGross, PaymentsToAcquireBusinessesNetOfCashAcquired, PreferredStockDividendRatePercentage, PreferredStockSharesAuthorized, ProceedsFromIssuanceOfCommonStock, PropertyPlantAndEquipmentUsefulLife, PublicUtilitiesRequestedRateIncreaseDecreaseAmount, RelatedPartyTransactionAmountsOfTransaction, RelatedPartyTransactionExpensesFromTransactionsWithRelatedParty, RepaymentsOfDebt, RestructuringAndRelatedCostExpectedCost1, RestructuringCharges, RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, RevenueFromRelatedParties, RevenueRemainingPerformanceObligation, Revenues, SaleOfStockNumberOfSharesIssuedInTransaction, SaleOfStockPricePerShare, ShareBasedCompensation, ShareBasedCompensationArrangementByShareBasedPaymentAwardAwardVestingPeriod1, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriod, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriodWeightedAverageGrantDateFairValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsNonvestedNumber, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsVestedInPeriodTotalFairValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardNumberOfSharesAuthorized, ShareBasedCompensationArrangementByShareBasedPaymentAwardNumberOfSharesAvailableForGrant, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsExercisesInPeriodTotalIntrinsicValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsGrantsInPeriodGross, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsGrantsInPeriodWeightedAverageGrantDateFairValue, SharePrice, SharebasedCompensationArrangementBySharebasedPaymentAwardAwardVestingRightsPercentage, SharebasedCompensationArrangementBySharebasedPaymentAwardExpirationPeriod, StockIssuedDuringPeriodSharesNewIssues, StockRepurchaseProgramAuthorizedAmount1, StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1, StockRepurchasedAndRetiredDuringPeriodShares, StockRepurchasedDuringPeriodShares, SupplementalInformationForPropertyCasualtyInsuranceUnderwritersPriorYearClaimsAndClaimsAdjustmentExpense, TreasuryStockAcquiredAverageCostPerShare, TreasuryStockSharesAcquired, TreasuryStockValueAcquiredCostMethod, UnrecognizedTaxBenefits, UnrecognizedTaxBenefitsThatWouldImpactEffectiveTaxRate
+
   user_prompt: |-
-    Extract named entities from the following financial text. Identify specific values (numbers, percentages, amounts) associated with 139 possible XBRL accounting tags.
+    Perform Named Entity Recognition on the financial text provided below. Identify specific values and associate them with the appropriate XBRL accounting tags from the list provided in the system prompt.
 
-    Common XBRL tags include:
-      - DebtInstrumentInterestRateStatedPercentage (interest rates)
-      - LineOfCreditFacilityMaximumBorrowingCapacity (credit limits)
-      - EquityMethodInvestmentOwnershipPercentage (ownership percentages)
-      - EffectiveIncomeTaxRateContinuingOperations (tax rates)
-      - OperatingLeaseRightOfUseAsset (lease assets)
-      - NumberOfOperatingSegments (segment counts)
-      - BusinessCombinationConsiderationTransferred1 (acquisition amounts)
-
-    Here are some examples:
+    Here are some examples of how to perform this task:
 
     {examples}
 
-    Return the results in JSON format:
-      - Each key must be an XBRL tag
-      - Each value must be a list of string values (the extracted numbers/amounts from the text)
-      - If there are no extractable XBRL entities in the text, return an empty JSON object {{}}
+    CRITICAL RULES:
+    1. Extract values EXACTLY as they appear in the input text
+    2. If a number is written as digits (e.g., "5.5", "2.8", "750"), extract it as-is
+    3. If a number is written as words (e.g., "three", "four"), extract it as-is (do NOT convert to digits)
+    4. Remove ONLY currency symbols ($, €, £) and unit words (billion, million, thousand)
+    5. Remove ONLY the % symbol from percentages: "5.5%" → "5.5"
+    6. Preserve all decimal precision exactly as written
 
-    CRITICAL OUTPUT FORMAT RULES:
-    1. Extract the EXACT numeric value as it appears in the text
-    2. Remove ONLY currency symbols ($) and units (billion, million)
-    3. Keep the number format exactly as written: "2.8 billion" → "2.8", "750 million" → "750"
-    4. Remove ONLY the % symbol from percentages: "35%" → "35", "5.5%" → "5.5"
-    6. Keep decimal precision as it appears: "6.0" stays "6.0", "6" stays "6"
-    7. Examples:
-       - Input: "interest rate of 5.5%" → Output: {{"DebtInstrumentInterestRateStatedPercentage": ["5.5"]}}
-       - Input: "$2.8 billion" → Output: {{"OperatingLeaseRightOfUseAsset": ["2.8"]}}
-       - Input: "three operating segments" → Output: {{"NumberOfOperatingSegments": ["3"]}}
-       - Input: "35% ownership" → Output: {{"EquityMethodInvestmentOwnershipPercentage": ["35"]}}
-       - Input: "$750 million" → Output: {{"AllocatedShareBasedCompensationExpense": ["750"]}}
+    Return JSON format:
+    - Each key: an XBRL tag from the system prompt list
+    - Each value: a list of extracted string values
+    - If no XBRL entities found: return empty object {{}}
 
-    Input: '{input_text}'
+    Now extract named entities from this input:
+    '{input_text}'
 
 # ============================================================================
 # Generation Configuration
@@ -113,8 +103,11 @@ generation:
 
   system_prompt: |-
     You are an expert at Named Entity Recognition (NER) for financial documents.
-    Your task is to generate training examples that help models identify financial concepts and accounting terms.
+    Your task is to generate training examples that help models identify financial concepts and extract their associated values using XBRL accounting tags.
     Follow instructions carefully regarding whether to include or exclude XBRL entities.
+
+    The complete list of possible XBRL tags is:
+    AccrualForEnvironmentalLossContingencies, AcquiredFiniteLivedIntangibleAssetsWeightedAverageUsefulLife, AllocatedShareBasedCompensationExpense, AmortizationOfFinancingCosts, AmortizationOfIntangibleAssets, AntidilutiveSecuritiesExcludedFromComputationOfEarningsPerShareAmount, AreaOfRealEstateProperty, AssetImpairmentCharges, BusinessAcquisitionEquityInterestsIssuedOrIssuableNumberOfSharesIssued, BusinessAcquisitionPercentageOfVotingInterestsAcquired, BusinessCombinationAcquisitionRelatedCosts, BusinessCombinationConsiderationTransferred1, BusinessCombinationContingentConsiderationLiability, BusinessCombinationRecognizedIdentifiableAssetsAcquiredAndLiabilitiesAssumedIntangibleAssetsOtherThanGoodwill, BusinessCombinationRecognizedIdentifiableAssetsAcquiredAndLiabilitiesAssumedIntangibles, CapitalizedContractCostAmortization, CashAndCashEquivalentsFairValueDisclosure, ClassOfWarrantOrRightExercisePriceOfWarrantsOrRights1, CommonStockCapitalSharesReservedForFutureIssuance, CommonStockDividendsPerShareDeclared, CommonStockParOrStatedValuePerShare, CommonStockSharesAuthorized, CommonStockSharesOutstanding, ConcentrationRiskPercentage1, ContractWithCustomerLiability, ContractWithCustomerLiabilityRevenueRecognized, CumulativeEffectOfNewAccountingPrincipleInPeriodOfAdoption, DebtInstrumentBasisSpreadOnVariableRate1, DebtInstrumentCarryingAmount, DebtInstrumentConvertibleConversionPrice1, DebtInstrumentFaceAmount, DebtInstrumentFairValue, DebtInstrumentInterestRateEffectivePercentage, DebtInstrumentInterestRateStatedPercentage, DebtInstrumentMaturityDate, DebtInstrumentRedemptionPricePercentage, DebtInstrumentTerm, DebtInstrumentUnamortizedDiscount, DebtWeightedAverageInterestRate, DeferredFinanceCostsGross, DeferredFinanceCostsNet, DefinedBenefitPlanContributionsByEmployer, DefinedContributionPlanCostRecognized, Depreciation, DerivativeFixedInterestRate, DerivativeNotionalAmount, DisposalGroupIncludingDiscontinuedOperationConsideration, EffectiveIncomeTaxRateContinuingOperations, EffectiveIncomeTaxRateReconciliationAtFederalStatutoryIncomeTaxRate, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognized, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognizedPeriodForRecognition1, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognizedShareBasedAwardsOtherThanOptions, EmployeeServiceShareBasedCompensationTaxBenefitFromCompensationExpense, EquityMethodInvestmentOwnershipPercentage, EquityMethodInvestments, FiniteLivedIntangibleAssetUsefulLife, GainsLossesOnExtinguishmentOfDebt, Goodwill, GoodwillImpairmentLoss, GuaranteeObligationsMaximumExposure, IncomeLossFromEquityMethodInvestments, IncomeTaxExpenseBenefit, InterestExpense, InterestExpenseDebt, LeaseAndRentalExpense, LesseeOperatingLeaseRenewalTerm, LesseeOperatingLeaseTermOfContract, LettersOfCreditOutstandingAmount, LineOfCredit, LineOfCreditFacilityCommitmentFeePercentage, LineOfCreditFacilityCurrentBorrowingCapacity, LineOfCreditFacilityInterestRateAtPeriodEnd, LineOfCreditFacilityMaximumBorrowingCapacity, LineOfCreditFacilityRemainingBorrowingCapacity, LineOfCreditFacilityUnusedCapacityCommitmentFeePercentage, LongTermDebt, LongTermDebtFairValue, LossContingencyAccrualAtCarryingValue, LossContingencyDamagesSoughtValue, LossContingencyEstimateOfPossibleLoss, LossContingencyPendingClaimsNumber, MinorityInterestOwnershipPercentageByNoncontrollingOwners, MinorityInterestOwnershipPercentageByParent, NumberOfOperatingSegments, NumberOfRealEstateProperties, NumberOfReportableSegments, OperatingLeaseCost, OperatingLeaseExpense, OperatingLeaseLiability, OperatingLeasePayments, OperatingLeaseRightOfUseAsset, OperatingLeaseWeightedAverageDiscountRatePercent, OperatingLeaseWeightedAverageRemainingLeaseTerm1, OperatingLeasesRentExpenseNet, OperatingLossCarryforwards, PaymentsToAcquireBusinessesGross, PaymentsToAcquireBusinessesNetOfCashAcquired, PreferredStockDividendRatePercentage, PreferredStockSharesAuthorized, ProceedsFromIssuanceOfCommonStock, PropertyPlantAndEquipmentUsefulLife, PublicUtilitiesRequestedRateIncreaseDecreaseAmount, RelatedPartyTransactionAmountsOfTransaction, RelatedPartyTransactionExpensesFromTransactionsWithRelatedParty, RepaymentsOfDebt, RestructuringAndRelatedCostExpectedCost1, RestructuringCharges, RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, RevenueFromRelatedParties, RevenueRemainingPerformanceObligation, Revenues, SaleOfStockNumberOfSharesIssuedInTransaction, SaleOfStockPricePerShare, ShareBasedCompensation, ShareBasedCompensationArrangementByShareBasedPaymentAwardAwardVestingPeriod1, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriod, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriodWeightedAverageGrantDateFairValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsNonvestedNumber, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsVestedInPeriodTotalFairValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardNumberOfSharesAuthorized, ShareBasedCompensationArrangementByShareBasedPaymentAwardNumberOfSharesAvailableForGrant, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsExercisesInPeriodTotalIntrinsicValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsGrantsInPeriodGross, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsGrantsInPeriodWeightedAverageGrantDateFairValue, SharePrice, SharebasedCompensationArrangementBySharebasedPaymentAwardAwardVestingRightsPercentage, SharebasedCompensationArrangementBySharebasedPaymentAwardExpirationPeriod, StockIssuedDuringPeriodSharesNewIssues, StockRepurchaseProgramAuthorizedAmount1, StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1, StockRepurchasedAndRetiredDuringPeriodShares, StockRepurchasedDuringPeriodShares, SupplementalInformationForPropertyCasualtyInsuranceUnderwritersPriorYearClaimsAndClaimsAdjustmentExpense, TreasuryStockAcquiredAverageCostPerShare, TreasuryStockSharesAcquired, TreasuryStockValueAcquiredCostMethod, UnrecognizedTaxBenefits, UnrecognizedTaxBenefitsThatWouldImpactEffectiveTaxRate
 
   # Prompt for generating examples WITH XBRL entities
   positive_user_prompt: |-
@@ -125,34 +118,19 @@ generation:
 
     For each example:
     1. Create a realistic financial sentence (extract from above, adapt, or create similar)
-    2. Identify ALL relevant XBRL tags and extract the specific values (numbers, percentages, amounts)
-
-    Use XBRL tags like:
-      - DebtInstrumentInterestRateStatedPercentage
-      - LineOfCreditFacilityMaximumBorrowingCapacity
-      - EquityMethodInvestmentOwnershipPercentage
-      - EffectiveIncomeTaxRateContinuingOperations
-      - OperatingLeaseRightOfUseAsset
-      - NumberOfOperatingSegments
-      - BusinessCombinationConsiderationTransferred1
-      - AllocatedShareBasedCompensationExpense
+    2. Identify ALL relevant XBRL tags (from the system prompt list) and extract the specific values
 
     Return a JSON array with exactly {batch_size_examples} objects:
     - "input": financial sentence
     - "output": dictionary mapping XBRL tags to lists of extracted values
 
-    CRITICAL OUTPUT FORMAT RULES:
-    1. Extract the EXACT numeric value as it appears in the text
-    2. Remove ONLY currency symbols ($) and units (billion, million)
-    3. Keep the number format exactly as written: "2.8 billion" → "2.8", "750 million" → "750"
-    4. Remove ONLY the % symbol from percentages: "35%" → "35", "5.5%" → "5.5"
-    6. Keep decimal precision as it appears: "6.0" stays "6.0", "6" stays "6"
-    7. Examples:
-       - Input: "interest rate of 5.5%" → Output: ["5.5"]
-       - Input: "$2.8 billion" → Output: ["2.8"]
-       - Input: "three operating segments" → Output: ["3"]
-       - Input: "35% ownership" → Output: ["35"]
-       - Input: "$750 million" → Output: ["750"]
+    CRITICAL EXTRACTION RULES:
+    1. Extract values EXACTLY as they appear in the input text
+    2. If a number is written as digits (e.g., "5.5", "2.8", "750"), extract it as-is
+    3. If a number is written as words (e.g., "three", "four"), extract it as-is (do NOT convert to digits)
+    4. Remove ONLY currency symbols ($, €, £) and unit words (billion, million, thousand)
+    5. Remove ONLY the % symbol from percentages: "5.5%" → "5.5"
+    6. Preserve all decimal precision exactly as written
 
     IMPORTANT: ALL examples MUST have at least one XBRL tag. Create diverse examples with 1-5 tags each, varying complexity and sentence length.
 
