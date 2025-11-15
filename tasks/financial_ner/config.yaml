@@ -4,7 +4,7 @@ task: "financial_ner"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 10000  # Number of examples in the generated dataset (used in artifact names)
+  size: 5000  # Number of examples in the generated dataset (used in artifact names)
 
 # ============================================================================
 # Clustering Stage Configuration
@@ -20,9 +20,9 @@ clustering:
 
   # HDBSCAN clustering parameters
   hdbscan:
-    min_cluster_size: 30
-    min_samples: 1
-    cluster_selection_epsilon: 0.17
+    min_cluster_size: 17
+    min_samples: 4
+    cluster_selection_epsilon: 0.20
 
 # ============================================================================
 # Evolution Stage Configuration
