@@ -62,6 +62,7 @@ class Evaluator:
         self.client = client
 
         # Load validation dataset from wandb artifact
+        # Simple fix: val set will always use the orignal 10000 set even on smaller test datasets
         validation_dataset = self.data_manager.load_input_dataset("val", dataset_size=10000) # config["dataset_size"]
         
         # Convert to dictionary format for compatibility
