@@ -4,7 +4,7 @@ task: "financial_ner"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 10000  # Number of examples in the generated dataset (used in artifact names)
+  size: 5000  # Number of examples in the generated dataset (used in artifact names)
 
 # ============================================================================
 # Clustering Stage Configuration
