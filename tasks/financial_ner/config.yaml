@@ -30,11 +30,11 @@ clustering:
 evolution:
   random_seed: 42
   subset_size: 5
-  mu: 40
-  lambda_: 120  # Offspring count for broader search
+  mu: 80
+  lambda_: 240  # Offspring count for broader search
   generations: 40
   cxpb: 0.30  # Crossover probability
-  mutpb: 0.55  # Mutation probability (exploration-heavy)
+  mutpb: 0.60  # Mutation probability (exploration-heavy)
   tournsize: 2  # Tournament size (weak pressure for diversity)
   max_inter_prob: 0.80  # Initial inter-cluster mutation probability
   min_inter_prob: 0.10  # Minimum inter-cluster probability (exploit mode)
@@ -43,6 +43,7 @@ evolution:
 
   # Early stopping configuration
   early_stopping: true
+  early_stopping_min_generations: 5
   early_stopping_patience: 5
   early_stopping_min_delta: 0.005  
 
