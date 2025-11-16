@@ -155,7 +155,7 @@ class GA:
             results = list(executor.map(func, iterable))
         return results
 
-    def _should_early_stop(self, current_max_value):
+    def _should_early_stop(self, current_max_value, generation):
         """
         Check if early stopping should be triggered.
 
@@ -164,10 +164,16 @@ class GA:
 
         Args:
             current_max_value: Best fitness in current generation.
+            generation: Current generation number.
 
         Returns:
             True if early stopping should be triggered, False otherwise.
         """
+        # Dont early stop until minimum generations reached
+        min_gens = self.config["early_stopping_min_generations"]
+        if generation < min_gens:
+            return False
+
         if self.best_max_value is None:
             self.best_max_value = current_max_value
             return False
@@ -260,8 +266,8 @@ class GA:
             # Check early stopping condition
             if self.config["early_stopping"]:
                 current_max = rec.get("max")
-                if self._should_early_stop(current_max):
-                    logging.info("Early stopping triggered!")
+                if self._should_early_stop(current_max, generation):
+                    logging.info(f"Early stopping triggered!")
                     raise EarlyStoppingException()
 
             return rec
