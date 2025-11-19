@@ -237,7 +237,7 @@ class DataManager:
                     
                     # If this cluster is now exhausted, remove it from available clusters
                     if not cluster_example_pools[cluster_id]:
-                        logging.info(f"Cluster {cluster_id} exhausted after contributing {len(sampled_clusters_map[cluster_id])} examples")
+                        # logging.info(f"Cluster {cluster_id} exhausted after contributing {len(sampled_clusters_map[cluster_id])} examples")
                         available_cluster_indices.remove(actual_cluster_index)
                         # After removal, keep position at same index (which now points to next cluster)
                         # unless we're past the end of the list
@@ -268,8 +268,6 @@ class DataManager:
                     )
             
             logging.info(f"Sampled {examples_sampled} examples across {len(sampled_clusters)} clusters")
-            for cluster in sampled_clusters:
-                logging.info(f"  Cluster {cluster.cluster_id}: {len(cluster.examples)} examples")
             
             return ClusterDataset(clusters=sampled_clusters, task_type=self.task)
 
