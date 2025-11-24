@@ -48,11 +48,31 @@ def start_daemon(
         cmd,
         shell=True,
         stdout=out,
-        stderr=err,
+        stderr=subprocess.PIPE,  # Capture stderr
         cwd=cwd,
         preexec_fn=os.setsid,
         close_fds=True,
     )
+
+    # Log stderr output if any
+
+    def read_stderr():
+        while True:
+            if proc.stderr:
+                with proc.stderr:
+                    for line in iter(proc.stderr.readline, b""):
+                        print(f"STDERR: {line.decode().strip()}")
+
+    def read_stdout():
+        if proc.stdout:
+            with proc.stdout:
+                for line in iter(proc.stdout.readline, b""):
+                    print(f"STDOUT: {line.decode().strip()}")
+
+    import threading
+
+    threading.Thread(target=read_stderr, daemon=True).start()
+    threading.Thread(target=read_stdout, daemon=True).start()
 
     pid = proc.pid
 
@@ -134,8 +154,9 @@ def start_vllm_servers(start_LLM: bool = True, start_embedding: bool = True) -> 
         )
 
     if start_LLM:
-        print("#### Waiting for VLLM servers to start... ####")
-        base_url = f"http://localhost:{os.getenv('LLM_PORT')}/v1"
+        port = os.getenv("LLM_PORT")
+        print(f"#### Starting VLLM server on port {port} ####")
+        base_url = f"http://localhost:{port}/v1"
         api_key = os.getenv("LLM_API_KEY")
         model_name = os.getenv("LLM_MODEL")
 
@@ -155,14 +176,17 @@ def start_vllm_servers(start_LLM: bool = True, start_embedding: bool = True) -> 
                     print(f"#### {model_name} servers are up and running! ####")
                     break
             except Exception as e:
-                print(f"Waiting for {model_name} servers to be ready... {e}")
+                print(
+                    f"Waiting for {model_name} servers to be ready on port {port}... {e}"
+                )
 
             sleep(10)
 
     if start_embedding:
         while True:
-            print("#### Waiting for Embedding server to start... ####")
-            base_url = f"http://localhost:{os.getenv('EMBEDD_PORT')}/v1"
+            port = os.getenv("EMBEDD_PORT")
+            print(f"#### Starting Embedding server on port {port} ####")
+            base_url = f"http://localhost:{port}/v1"
             api_key = os.getenv("EMBEDD_API_KEY")
             model_name = os.getenv("EMBEDD_MODEL")
 
@@ -179,7 +203,9 @@ def start_vllm_servers(start_LLM: bool = True, start_embedding: bool = True) -> 
                     print(f"#### {model_name} server is up and running! ####")
                     break
             except Exception as e:
-                print(f"Waiting for {model_name} server to be ready... {e}")
+                print(
+                    f"Waiting for {model_name} server to be ready on port {port}... {e}"
+                )
 
             sleep(10)
 
