@@ -192,13 +192,6 @@ class DataManager:
             total_examples = sum(len(c.examples) for c in full_clusters)
             logging.info(f"Original cluster dataset has {len(full_clusters)} clusters with {total_examples} total examples")
             
-            # Validate that we have enough clusters and examples
-            if dataset_size < len(full_clusters):
-                raise ValueError(
-                    f"Requested dataset_size ({dataset_size}) must be >= number of clusters ({len(full_clusters)}). "
-                    "All clusters must be represented with at least one example each."
-                )
-            
             # Sort clusters by size (largest first)
             sorted_clusters = sorted(full_clusters, key=lambda c: len(c.examples), reverse=True)
             
