@@ -178,3 +178,5 @@ testing_clustering_pipeline.ipynb
 /wandb
 /artifacts
 /notebooks
+/tasks/financial_ner/wandb
+upload_real_dataset.py
