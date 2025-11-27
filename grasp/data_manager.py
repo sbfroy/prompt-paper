@@ -37,13 +37,14 @@ class DataManager:
         # Create dataset directory (outputs go to wandb)
         self.get_dataset_dir().mkdir(parents=True, exist_ok=True)
 
-    def save_input_dataset(self, dataset, artifact_name_suffix, dataset_size):
+    def save_input_dataset(self, dataset, artifact_name_suffix, dataset_size, use_real=False):
         """Save InputDataset as wandb artifact.
         
         Args:
             dataset: InputDataset object to save
             artifact_name_suffix: Suffix for artifact name (e.g., 'train', 'val')
             dataset_size: Size to include in artifact name (e.g., 3000)
+            use_real: If True, add 'real' to artifact name for real datasets
             
         Returns:
             Wandb artifact
@@ -55,15 +56,17 @@ class DataManager:
                 for example in dataset.examples:
                     f.write(example.model_dump_json(by_alias=True) + "\n")
 
-            artifact_name = f"{self.task}_input_dataset_{dataset_size}_{artifact_name_suffix}"
+            real_suffix = "_real" if use_real else ""
+            artifact_name = f"{self.task}_input_dataset_{dataset_size}{real_suffix}_{artifact_name_suffix}"
             return save_file_artifact(temp_path, artifact_name, "input_dataset")
 
-    def load_input_dataset(self, artifact_name_suffix, dataset_size):
+    def load_input_dataset(self, artifact_name_suffix, dataset_size, use_real=False):
         """Load InputDataset from wandb artifact.
         
         Args:
             artifact_name_suffix: Suffix for artifact name (e.g., 'train', 'val')
             dataset_size: Size included in artifact name (e.g., 3000)
+            use_real: If True, look for 'real' artifact names
             
         Returns:
             InputDataset object
@@ -71,7 +74,8 @@ class DataManager:
         # Remove .jsonl extension if present to get the suffix
         artifact_suffix = artifact_name_suffix.replace('.jsonl', '')
         
-        artifact_name = f"{self.task}_input_dataset_{dataset_size}_{artifact_suffix}"
+        real_suffix = "_real" if use_real else ""
+        artifact_name = f"{self.task}_input_dataset_{dataset_size}{real_suffix}_{artifact_suffix}"
         artifact_path = load_artifact(artifact_name)
         
         examples: list[InputExample] = []
@@ -86,12 +90,13 @@ class DataManager:
 
         return InputDataset(examples=examples, task_type=self.task)
 
-    def save_embedded_dataset(self, dataset, dataset_size):
+    def save_embedded_dataset(self, dataset, dataset_size, use_real=False):
         """Save embedded dataset as wandb artifact.
         
         Args:
             dataset: EmbeddedDataset object to save
             dataset_size: Size to include in artifact name (e.g., 3000)
+            use_real: If True, add 'real' to artifact name for real datasets
             
         Returns:
             Wandb artifact
@@ -104,19 +109,22 @@ class DataManager:
             df = pd.DataFrame(records)
             df.to_parquet(temp_path, compression='snappy', index=False)
 
-            artifact_name = f"{self.task}_embedded_dataset_{dataset_size}"
+            real_suffix = "_real" if use_real else ""
+            artifact_name = f"{self.task}_embedded_dataset_{dataset_size}{real_suffix}"
             return save_file_artifact(temp_path, artifact_name, "embedded_dataset")
 
-    def load_embedded_dataset(self, dataset_size):
+    def load_embedded_dataset(self, dataset_size, use_real=False):
         """Load embedded dataset from wandb artifact.
         
         Args:
             dataset_size: Size included in artifact name
+            use_real: If True, look for 'real' artifact names
         
         Returns:
             EmbeddedDataset object
         """
-        artifact_name = f"{self.task}_embedded_dataset_{dataset_size}"
+        real_suffix = "_real" if use_real else ""
+        artifact_name = f"{self.task}_embedded_dataset_{dataset_size}{real_suffix}"
         file_path = load_artifact(artifact_name)
 
         # Read parquet and convert to pydantic models
@@ -125,12 +133,13 @@ class DataManager:
 
         return EmbeddedDataset(examples=examples, task_type=self.task)
 
-    def save_cluster_dataset(self, dataset, dataset_size):
+    def save_cluster_dataset(self, dataset, dataset_size, use_real=False):
         """Save cluster dataset as wandb artifact.
         
         Args:
             dataset: ClusterDataset object to save
             dataset_size: Size to include in artifact name (e.g., 3000)
+            use_real: If True, add 'real' to artifact name for real datasets
             
         Returns:
             Wandb artifact
@@ -138,10 +147,11 @@ class DataManager:
         # Convert cluster objects to JSON-serializable format
         cluster_data = [cluster.model_dump(by_alias=True) for cluster in dataset.clusters]
 
-        artifact_name = f"{self.task}_cluster_dataset_{dataset_size}"
+        real_suffix = "_real" if use_real else ""
+        artifact_name = f"{self.task}_cluster_dataset_{dataset_size}{real_suffix}"
         return save_artifact(cluster_data, artifact_name, "cluster_dataset")
 
-    def load_cluster_dataset(self, dataset_size):
+    def load_cluster_dataset(self, dataset_size, use_real=False):
         """Load cluster dataset from wandb artifact.
         
         If dataset_size differs from the original clustered dataset size, this will
@@ -150,13 +160,15 @@ class DataManager:
         
         Args:
             dataset_size: Size included in artifact name (e.g., 3000)
+            use_real: If True, look for 'real' artifact names
         
         Returns:
             ClusterDataset object (sampled if dataset_size differs from original)
         """
         
+        real_suffix = "_real" if use_real else ""
         # Try to load the exact artifact first
-        artifact_name = f"{self.task}_cluster_dataset_{dataset_size}"
+        artifact_name = f"{self.task}_cluster_dataset_{dataset_size}{real_suffix}"
         try:
             file_path = load_artifact(artifact_name)
             
@@ -171,8 +183,8 @@ class DataManager:
             # If artifact doesn't exist, try to load the original (10000) and sample
             logging.info(f"Artifact '{artifact_name}' not found. Attempting to load original cluster dataset and sample...")
 
-            # Try loading the original dataset (assuming 10000 is the default size)
-            original_artifact_name = f"{self.task}_cluster_dataset_10000"
+            # Try loading the original dataset (assuming 7202 is the default size)
+            original_artifact_name = f"{self.task}_cluster_dataset_7202{real_suffix}"
             try:
                 file_path = load_artifact(original_artifact_name)
             except Exception as original_e:

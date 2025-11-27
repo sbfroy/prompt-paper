@@ -38,6 +38,7 @@ class GA:
         mutate_fn: callable,
         select_fn: callable,
         config: dict,
+        test_evaluate_fn: callable = None,
     ):
         self.cluster_dataset = cluster_dataset
         self.evaluate_fn = evaluate_fn
@@ -45,9 +46,11 @@ class GA:
         self.mutate_fn = mutate_fn
         self.select_fn = select_fn
         self.config = config
+        self.test_evaluate_fn = test_evaluate_fn
         self._eval_calls_total = 0
         self._eval_lock = threading.Lock()
         self.evolution_trace_callback = None  # Callback to log evolution trace
+        self.best_individuals_history = []  # Track best individual per generation
 
         # Set random seeds for reproducibility
         random.seed(self.config["random_seed"])
@@ -191,6 +194,35 @@ class GA:
             self.early_stopping_counter += 1
             return self.early_stopping_counter >= self.config["early_stopping_patience"]
 
+    def _track_best_individual(self, generation, individual, fitness, test_score=None):
+        """
+        Track the best individual from a generation in memory.
+
+        Args:
+            generation: Generation number
+            individual: The best individual to track
+            fitness: Validation fitness score
+            test_score: Optional test score if evaluation was performed
+        """
+        # Convert individual to serializable format
+        individual_data = []
+        for cluster_id, example in individual:
+            individual_data.append({
+                "cluster_id": cluster_id,
+                "id": example.id,
+                "input": example.input,
+                "output": example.output,
+            })
+
+        save_data = {
+            "generation": generation,
+            "validation_fitness": fitness,
+            "test_score": test_score,
+            "individual": individual_data,
+        }
+
+        self.best_individuals_history.append(save_data)
+
     def run(self):
         """
         Execute the genetic algorithm.
@@ -254,6 +286,21 @@ class GA:
                 inter_prob=adaptive_inter_prob,
                 cluster_diversity=diversity,
             )
+
+            # Find best individual in current population
+            best_individual = max(population, key=lambda ind: ind.fitness.values[0])
+            best_fitness = best_individual.fitness.values[0]
+
+            # Evaluate best individual on test set if test evaluator is provided
+            test_score = None
+            if self.test_evaluate_fn is not None:
+                logging.info(f"Evaluating best individual of generation {generation} on test set...")
+                test_score = self.test_evaluate_fn(best_individual)
+                # Log test score to wandb
+                log_metrics(step=generation, test_score=test_score)
+
+            # Track best individual in memory
+            self._track_best_individual(generation, best_individual, best_fitness, test_score)
 
             # Update evaluator with stats for individual early stopping
             if hasattr(self.evaluate_fn, "__self__") and hasattr(

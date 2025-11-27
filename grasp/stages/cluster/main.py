@@ -29,8 +29,9 @@ class ClusterStage:
         self.data_manager = data_manager
         self.config = config
         
-        # Get dataset size from config for artifact naming
+        # Get dataset size and use_real flag from config for artifact naming
         self.dataset_size = config["dataset_size"]
+        self.use_real = config["use_real"]
 
         self.embedding_generator = EmbeddingGenerator()
         self.reducer = DimensionalityReducer(random_state=config["random_seed"])
@@ -56,13 +57,21 @@ class ClusterStage:
         # ====== EMBEDDING ======
         logging.info("Generating embeddings...")
         # Load training dataset from wandb artifact
-        input_dataset = self.data_manager.load_input_dataset("train", dataset_size=self.dataset_size)
+        input_dataset = self.data_manager.load_input_dataset(
+            "train", 
+            dataset_size=self.dataset_size,
+            use_real=self.use_real
+        )
         embedded_dataset = self.embedding_generator.generate_embeddings(
             input_dataset, batch_size=self.config["batch_size"]
         )
 
         # Save the embedded dataset with size in artifact name
-        self.data_manager.save_embedded_dataset(embedded_dataset, dataset_size=self.dataset_size)
+        self.data_manager.save_embedded_dataset(
+            embedded_dataset, 
+            dataset_size=self.dataset_size,
+            use_real=self.use_real
+        )
 
         shutdown_embedding_server()
         logging.info("Embedding server shut down...")
@@ -90,7 +99,11 @@ class ClusterStage:
         cluster_dataset = self._create_cluster_dataset(
             embedded_dataset, labels, probabilities
         )
-        artifact = self.data_manager.save_cluster_dataset(cluster_dataset, dataset_size=self.dataset_size)
+        artifact = self.data_manager.save_cluster_dataset(
+            cluster_dataset, 
+            dataset_size=self.dataset_size,
+            use_real=self.use_real
+        )
 
         logging.info(
             f"Clustering stage completed! Output saved as artifact: {artifact.name}"

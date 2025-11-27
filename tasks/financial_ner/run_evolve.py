@@ -62,8 +62,11 @@ class Evaluator:
         self.client = client
 
         # Load validation dataset from wandb artifact
-        # Simple fix: val set will always use the orignal 10000 set even on smaller test datasets
-        validation_dataset = self.data_manager.load_input_dataset("val", dataset_size=10000) # config["dataset_size"]
+        validation_dataset = self.data_manager.load_input_dataset(
+            "val", 
+            dataset_size=7202,
+            use_real=config["use_real"]
+        )
         
         # Convert to dictionary format for compatibility
         self.validation_data = [
@@ -76,6 +79,21 @@ class Evaluator:
             len(self.validation_data) * self.config["validation_sample_ratio"]
         )
         self.validation_data = random.sample(self.validation_data, sample_size)
+
+        # Load test dataset from wandb artifact
+        test_dataset = self.data_manager.load_input_dataset(
+            "test",
+            dataset_size=7202,
+            use_real=config["use_real"]
+        )
+        
+        # Convert to dictionary format for compatibility
+        self.test_data = [
+            {"input": example.input, "output": example.output}
+            for example in test_dataset.examples
+        ]
+        
+        logging.info(f"Loaded {len(self.test_data)} test examples")
 
         # Statistics for early stopping of individuals
         self.prev_gen_avg = None
@@ -193,6 +211,70 @@ class Evaluator:
 
         return sum(scores) / len(scores) if scores else 0.0
 
+    def evaluate_on_test_set(self, individual):
+        """
+        Evaluate an individual on the test set without early stopping.
+        
+        Args:
+            individual: List of (cluster_id, example) tuples
+
+        Returns:
+            Average F1 score across test set
+        """
+        scores = []
+
+        for example in self.test_data:
+            user_input = example["input"]
+            gold_output = example["output"]
+
+            # Format ICL examples from individual
+            formatted_examples = []
+            for _, icl_example in individual:
+                formatted_example = (
+                    f"Input: {icl_example.input}\n"
+                    f"Output: {icl_example.output}"
+                )
+                formatted_examples.append(formatted_example)
+
+            examples_text = "\n\n".join(formatted_examples)
+
+            # Construct messages for evaluation
+            user_prompt = self.config["user_prompt"].format(
+                examples=examples_text,
+                input_text=user_input
+            )
+
+            messages = [
+                {"role": "system", "content": self.config["system_prompt"]},
+                {"role": "user", "content": user_prompt}
+            ]
+
+            response = get_llm_response(
+                client=self.client,
+                messages=messages,
+                response_schema=XBRLResponse,
+                temperature=self.config["temperature"]
+            )
+
+            # Convert gold_output to comparable dict
+            if gold_output == "No XBRL associated data.":
+                gold_labels = {}
+            else:
+                gold_labels = json.loads(gold_output.replace("'", '"'))
+
+            if response is None:
+                logging.warning(
+                    "Response is None during test evaluation, using score 0.0"
+                )
+                scores.append(0.0)
+            else:
+                score = self.compare_json_objects(gold_labels, response)
+                scores.append(score)
+
+        avg_score = sum(scores) / len(scores) if scores else 0.0
+        logging.info(f"Test set evaluation complete: F1 = {avg_score:.4f}")
+        return avg_score
+
     @staticmethod
     def compare_json_objects(
         gold: dict[str, list[str]], pred: dict[str, list[str]]
@@ -269,10 +351,10 @@ def create_evaluator(data_manager, eval_config, client):
         client: OpenAI-compatible client for LLM calls
 
     Returns:
-        Function that evaluates individuals
+        Tuple of (validation_eval_fn, test_eval_fn)
     """
     evaluator = Evaluator(data_manager, eval_config, client)
-    return evaluator.evaluate_individual
+    return evaluator.evaluate_individual, evaluator.evaluate_on_test_set
 
 
 def main():
@@ -296,17 +378,26 @@ def main():
 
     data_manager = DataManager(config["task"], str(base_dir))
 
-    eval_fn = create_evaluator(
+    eval_fn, test_eval_fn = create_evaluator(
         data_manager=data_manager,
-        eval_config={**config["evaluation"], "dataset_size": config["dataset"]["size"]},
+        eval_config={
+            **config["evaluation"], 
+            "dataset_size": config["dataset"]["size"],
+            "use_real": config["dataset"]["use_real"]
+        },
         client=client
     )
 
     run_evolve_stage(
         task=config["task"],
         base_dir=str(base_dir),
-        config={**config["evolution"], "dataset_size": config["dataset"]["size"]},
+        config={
+            **config["evolution"], 
+            "dataset_size": config["dataset"]["size"],
+            "use_real": config["dataset"]["use_real"]
+        },
         eval_fn=eval_fn,
+        test_eval_fn=test_eval_fn,
     )
 
     finish_wandb()

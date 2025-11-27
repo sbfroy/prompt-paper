@@ -18,21 +18,26 @@ class EvolveStage:
     and saves results including hall of fame and evolution traces.
     """
 
-    def __init__(self, data_manager, config, eval_fn):
+    def __init__(self, data_manager, config, eval_fn, test_eval_fn=None):
         self.data_manager = data_manager
         self.config = config
         self.eval_fn = eval_fn
+        self.test_eval_fn = test_eval_fn
         self.evolution_trace = []  # Store example usage across generations
         
-        # Get dataset size from config for artifact naming
+        # Get dataset size and use_real flag from config for artifact naming
         self.dataset_size = config["dataset_size"]
+        self.use_real = config["use_real"]
 
     def run(self):
         """Execute the evolution stage and return results."""
         logging.info("Starting evolution stage...")
 
         # Load the clustered dataset with size
-        cluster_dataset = self.data_manager.load_cluster_dataset(dataset_size=self.dataset_size)
+        cluster_dataset = self.data_manager.load_cluster_dataset(
+            dataset_size=self.dataset_size,
+            use_real=self.use_real
+        )
 
         # Filter out noise cluster (outliers don't generalize well)
         cluster_dataset.clusters = [
@@ -67,6 +72,7 @@ class EvolveStage:
             mutate_fn=_mutate,
             select_fn=tools.selTournament,
             config=self.config,
+            test_evaluate_fn=self.test_eval_fn,
         )
 
         # Set up evolution trace logging callback
@@ -78,6 +84,7 @@ class EvolveStage:
         # Save results to artifacts
         artifact = self._save_results(logbook, hof)
         self._save_evolution_trace_artifact()
+        self._save_best_individuals_artifact(ga.best_individuals_history)
 
         logging.info(
             f"Evolution stage completed! Results saved as artifact: {artifact.name}"
@@ -107,6 +114,19 @@ class EvolveStage:
             artifact_type="evolution_data",
         )
         logging.info(f"Evolution trace saved as wandb artifact: {artifact.name}")
+
+    def _save_best_individuals_artifact(self, best_individuals_history):
+        """Save best individuals history as wandb artifact."""
+        if not best_individuals_history:
+            logging.info("No best individuals to save")
+            return
+        
+        artifact = self.data_manager.save_artifact(
+            data=best_individuals_history,
+            artifact_name="best_individuals_history",
+            artifact_type="evolution_data",
+        )
+        logging.info(f"Best individuals history saved as wandb artifact: {artifact.name}")
 
     def _save_results(self, logbook, hof):
         """Save hall of fame and evolution statistics."""
@@ -146,7 +166,7 @@ class EvolveStage:
         return self.data_manager.save_results(results)
 
 
-def run_evolve_stage(task, base_dir, config, eval_fn):
+def run_evolve_stage(task, base_dir, config, eval_fn, test_eval_fn=None):
     """
     Entry point for running the evolution stage.
 
@@ -155,6 +175,7 @@ def run_evolve_stage(task, base_dir, config, eval_fn):
         base_dir: Base directory for artifacts.
         config: Configuration dictionary with GA parameters.
         eval_fn: Fitness evaluation function for individuals.
+        test_eval_fn: Optional test evaluation function for best individuals.
 
     Returns:
         Tuple of (artifact, logbook, hall_of_fame).
@@ -163,5 +184,5 @@ def run_evolve_stage(task, base_dir, config, eval_fn):
     data_manager = DataManager(task, base_dir)
 
     # Run evolution
-    stage = EvolveStage(data_manager, config, eval_fn)
+    stage = EvolveStage(data_manager, config, eval_fn, test_eval_fn)
     return stage.run()
