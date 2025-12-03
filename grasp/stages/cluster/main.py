@@ -34,9 +34,11 @@ class ClusterStage:
         self.use_real = config["use_real"]
 
         self.embedding_generator = EmbeddingGenerator()
-        self.reducer = DimensionalityReducer(random_state=config["random_seed"])
-
-        # Pass all HDBSCAN parameters directly from config
+        
+        # Pass all UMAP and HDBSCAN parameters directly from config
+        umap_params = config["umap"]
+        self.reducer = DimensionalityReducer(random_state=config["random_seed"], **umap_params)
+        
         hdbscan_params = config["hdbscan"]
         self.clusterer = HDBSCANClusterer(**hdbscan_params)
 
@@ -85,9 +87,7 @@ class ClusterStage:
         logging.info("Reducing dimensionality with UMAP...")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning, module="umap")
-            reduced_embeddings = self.reducer.reduce(
-                embeddings, n_components=self.config["umap_n_components"]
-            )
+            reduced_embeddings = self.reducer.reduce(embeddings)
 
         # ====== HDBSCAN ======
         logging.info("Clustering with HDBSCAN...")

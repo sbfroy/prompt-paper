@@ -4,7 +4,7 @@ task: "financial_ner"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 5000  # Number of examples in the generated dataset (used in artifact names)
+  size: 7202  # Number of examples in the generated dataset (used in artifact names)
   use_real: true  # Set to true to use real dataset instead of synthetic
 
 # ============================================================================
@@ -17,7 +17,10 @@ clustering:
   batch_size: 512
 
   # UMAP dimensionality reduction
-  umap_n_components: 30
+  umap:
+    n_components: 30
+    n_neighbors: 10         
+    min_dist: 0.01           
 
   # HDBSCAN clustering parameters
   hdbscan:
