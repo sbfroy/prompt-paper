@@ -5,7 +5,6 @@ import warnings
 from collections import defaultdict
 
 import numpy as np
-import random
 
 from grasp.data_manager import DataManager
 from grasp.schemas import Cluster, ClusterDataset, ClusterExample, InputDataset
@@ -43,49 +42,6 @@ class ClusterStage:
         hdbscan_params = config["hdbscan"]
         self.clusterer = HDBSCANClusterer(**hdbscan_params)
 
-    def _balance_dataset(self, input_dataset):
-        """Balance positive and negative examples to 50/50 split with target of 3000 examples.
-        
-        Args:
-            input_dataset: InputDataset to balance
-            
-        Returns:
-            Balanced InputDataset with 3000 examples
-        """
-        if not self.config["balance_dataset"]:
-            return input_dataset
-        
-        # Define negative label for financial NER task
-        negative_label = 'No XBRL associated data.'
-        target_size = 3000
-        
-        # Separate positive and negative examples
-        positive_examples = [ex for ex in input_dataset.examples if ex.output != negative_label]
-        negative_examples = [ex for ex in input_dataset.examples if ex.output == negative_label]
-        
-        original_size = len(input_dataset.examples)
-        pos_count = len(positive_examples)
-        neg_count = len(negative_examples)
-        
-        logging.info(f"Original dataset - Total: {original_size}, Positive: {pos_count}, Negative: {neg_count}")
-        
-        random.seed(self.config["random_seed"])
-        
-        # Start with all positive examples
-        balanced_examples = positive_examples[:]
-        
-        # Calculate how many negative examples needed to reach target_size
-        negative_needed = target_size - len(positive_examples)
-        
-        # Sample negative examples 
-        sampled_negative = random.sample(negative_examples, negative_needed)
-
-        balanced_examples.extend(sampled_negative)
-        
-        logging.info(f"Balanced dataset - Total: {len(balanced_examples)}, Positive: {len(positive_examples)}, Negative: {len(sampled_negative)}")
-        
-        return InputDataset(examples=balanced_examples, task_type=input_dataset.task_type)
-
     def run(self):
         """Execute the complete clustering pipeline.
         
@@ -108,9 +64,6 @@ class ClusterStage:
             dataset_size=self.dataset_size,
             use_real=self.use_real
         )
-        
-        # Balance dataset if configured
-        input_dataset = self._balance_dataset(input_dataset)
         
         embedded_dataset = self.embedding_generator.generate_embeddings(
             input_dataset, batch_size=self.config["batch_size"]

@@ -183,8 +183,8 @@ class DataManager:
             # If artifact doesn't exist, try to load the original (10000) and sample
             logging.info(f"Artifact '{artifact_name}' not found. Attempting to load original cluster dataset and sample...")
 
-            # Try loading the original dataset (assuming 7202 is the default size)
-            original_artifact_name = f"{self.task}_cluster_dataset_7202{real_suffix}"
+            # Try loading the original dataset (assuming 3000 is the default size)
+            original_artifact_name = f"{self.task}_cluster_dataset_3000{real_suffix}"
             try:
                 file_path = load_artifact(original_artifact_name)
             except Exception as original_e:

@@ -4,7 +4,7 @@ task: "financial_ner"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 7202  # Number of examples in the generated dataset (used in artifact names)
+  size: 3000  # Number of examples in the generated dataset (used in artifact names)
   use_real: true  # Set to true to use real dataset instead of synthetic
 
 # ============================================================================
@@ -12,9 +12,6 @@ dataset:
 # ============================================================================
 clustering:
   random_seed: 42
-
-  # Dataset balancing
-  balance_dataset: true  # Balance positive/negative examples before clustering
 
   # Embedding generation
   batch_size: 512
@@ -27,7 +24,7 @@ clustering:
 
   # HDBSCAN clustering parameters
   hdbscan:
-    min_cluster_size: 11
+    min_cluster_size: 9
     min_samples: 1
     cluster_selection_epsilon: 0.2
 
