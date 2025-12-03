@@ -13,6 +13,9 @@ dataset:
 clustering:
   random_seed: 42
 
+  # Dataset balancing
+  balance_dataset: true  # Balance positive/negative examples before clustering
+
   # Embedding generation
   batch_size: 512
 
@@ -24,9 +27,9 @@ clustering:
 
   # HDBSCAN clustering parameters
   hdbscan:
-    min_cluster_size: 6
+    min_cluster_size: 11
     min_samples: 1
-    cluster_selection_epsilon: 0.15
+    cluster_selection_epsilon: 0.2
 
 # ============================================================================
 # Evolution Stage Configuration
