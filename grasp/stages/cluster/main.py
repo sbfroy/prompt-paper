@@ -169,3 +169,78 @@ def run_cluster_stage(task, base_dir, config_dict):
     stage = ClusterStage(data_manager, config_dict)
     return stage.run()
 
+
+def run_cluster_from_embeddings_stage(task, base_dir, config_dict):
+    """Run the clustering stage using existing embeddings from wandb artifacts.
+    
+    This function skips the embedding generation step and directly loads
+    pre-computed embeddings from wandb artifacts, then performs clustering.
+    
+    Args:
+        task: Task name/identifier
+        base_dir: Base directory for data storage
+        config_dict: Configuration parameters for the clustering pipeline
+    
+    Returns:
+        Artifact containing the clustered dataset
+    """
+    logging.info("Starting clustering stage from existing embeddings...")
+    
+    # Setup data manager
+    data_manager = DataManager(task, base_dir)
+    
+    # Get configuration parameters
+    dataset_size = config_dict["dataset_size"]
+    use_real = config_dict["use_real"]
+    
+    # Initialize UMAP reducer and HDBSCAN clusterer
+    umap_params = config_dict["umap"]
+    reducer = DimensionalityReducer(random_state=config_dict["random_seed"], **umap_params)
+    
+    hdbscan_params = config_dict["hdbscan"]
+    clusterer = HDBSCANClusterer(**hdbscan_params)
+    
+    # ====== LOAD EXISTING EMBEDDINGS ======
+    logging.info(f"Loading embedded dataset from wandb artifact...")
+    embedded_dataset = data_manager.load_embedded_dataset(
+        dataset_size=dataset_size,
+        use_real=use_real
+    )
+    logging.info(f"Loaded {len(embedded_dataset.examples)} embedded examples")
+    
+    # Convert embeddings to numpy array
+    embeddings = np.array(
+        [example.embedding for example in embedded_dataset.examples]
+    )
+    
+    # ====== UMAP ======
+    logging.info("Reducing dimensionality with UMAP...")
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=UserWarning, module="umap")
+        reduced_embeddings = reducer.reduce(embeddings)
+    
+    # ====== HDBSCAN ======
+    logging.info("Clustering with HDBSCAN...")
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn")
+        labels, probabilities = clusterer.cluster(reduced_embeddings)
+    
+    # Convert to schema format using the helper method from ClusterStage
+    logging.info("Creating cluster dataset...")
+    stage = ClusterStage(data_manager, config_dict)
+    cluster_dataset = stage._create_cluster_dataset(
+        embedded_dataset, labels, probabilities
+    )
+    
+    # Save cluster dataset
+    artifact = data_manager.save_cluster_dataset(
+        cluster_dataset, 
+        dataset_size=dataset_size,
+        use_real=use_real
+    )
+    
+    logging.info(
+        f"Clustering from embeddings completed! Output saved as artifact: {artifact.name}"
+    )
+    return artifact
+
