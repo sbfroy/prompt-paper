@@ -4,7 +4,7 @@ task: "financial_ner"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 500  # Number of examples in the generated dataset (used in artifact names)
+  size: 50  # Number of examples in the generated dataset (used in artifact names)
   use_real: true  # Set to true to use real dataset instead of synthetic
 
 # ============================================================================
