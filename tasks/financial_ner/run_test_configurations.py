@@ -155,9 +155,9 @@ class ConfigurationTester:
         logging.info(f"\nEvaluating configuration: {config_name}")
         logging.info(f"Using {len(examples)} ICL examples")
         
-        all_tp = 0
-        all_fp = 0
-        all_fn = 0
+        f1_scores = []
+        precision_scores = []
+        recall_scores = []
         
         for idx, test_example in enumerate(self.test_data):
             if (idx + 1) % 100 == 0:
@@ -183,6 +183,11 @@ class ConfigurationTester:
                 input_text=user_input
             )
 
+            # Log prompt length for first test example to verify prompts differ
+            if idx == 0:
+                logging.info(f"  First test example prompt length: {len(user_prompt)} chars")
+                logging.info(f"  ICL examples text length: {len(examples_text)} chars")
+
             messages = [
                 {"role": "system", "content": self.config["system_prompt"]},
                 {"role": "user", "content": user_prompt}
@@ -203,51 +208,52 @@ class ConfigurationTester:
 
             if response is None:
                 logging.warning(
-                    f"Response is None for test example {idx}, treating as empty prediction"
+                    f"Response is None for test example {idx}, treating as score 0.0"
                 )
-                pred_labels = {}
+                f1_scores.append(0.0)
+                precision_scores.append(0.0)
+                recall_scores.append(0.0)
             else:
                 pred_labels = response
+                # Calculate F1, precision, and recall for this example
+                f1, precision, recall = self._compare_json_objects(gold_labels, pred_labels)
+                f1_scores.append(f1)
+                precision_scores.append(precision)
+                recall_scores.append(recall)
 
-            # Calculate TP, FP, FN for this example
-            tp, fp, fn = self._calculate_metrics_for_example(gold_labels, pred_labels)
-            all_tp += tp
-            all_fp += fp
-            all_fn += fn
-
-        # Calculate overall precision, recall, and F1
-        precision = all_tp / (all_tp + all_fp) if (all_tp + all_fp) > 0 else 0.0
-        recall = all_tp / (all_tp + all_fn) if (all_tp + all_fn) > 0 else 0.0
-        f1 = (
-            2 * (precision * recall) / (precision + recall)
-            if (precision + recall) > 0
-            else 0.0
-        )
-
+        # Calculate average metrics across all examples
+        avg_f1 = sum(f1_scores) / len(f1_scores) if f1_scores else 0.0
+        avg_precision = sum(precision_scores) / len(precision_scores) if precision_scores else 0.0
+        avg_recall = sum(recall_scores) / len(recall_scores) if recall_scores else 0.0
+        
         logging.info(f"Configuration {config_name} results:")
-        logging.info(f"  Precision: {precision:.4f}")
-        logging.info(f"  Recall: {recall:.4f}")
-        logging.info(f"  F1 Score: {f1:.4f}")
+        logging.info(f"  Average Precision: {avg_precision:.4f}")
+        logging.info(f"  Average Recall: {avg_recall:.4f}")
+        logging.info(f"  Average F1 Score: {avg_f1:.4f}")
 
-        return f1, precision, recall
+        return avg_f1, avg_precision, avg_recall
 
     @staticmethod
-    def _calculate_metrics_for_example(
+    def _compare_json_objects(
         gold: dict[str, list[str]], 
         pred: dict[str, list[str]]
-    ) -> Tuple[int, int, int]:
+    ) -> Tuple[float, float, float]:
         """
-        Calculate TP, FP, FN for a single example.
+        Compare two JSON objects and calculate F1, precision, and recall.
+        This matches the evaluation method used in run_evolve.py.
 
         Args:
             gold: Dictionary containing the gold labels
             pred: Dictionary containing the predicted labels
 
         Returns:
-            Tuple of (true_positives, false_positives, false_negatives)
+            Tuple of (f1_score, precision, recall)
         """
         if not gold and not pred:
-            return 0, 0, 0  # Both empty, perfect match but no counts
+            return 1.0, 1.0, 1.0  # Perfect match if both are empty
+
+        if not gold or not pred:
+            return 0.0, 0.0, 0.0
 
         tp = 0
         fp = 0
@@ -272,7 +278,16 @@ class ConfigurationTester:
             pred_values = pred[key]
             fp += len(pred_values)
 
-        return tp, fp, fn
+        # Calculate precision, recall, and F1
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = (
+            2 * (precision * recall) / (precision + recall)
+            if (precision + recall) > 0
+            else 0.0
+        )
+
+        return f1, precision, recall
 
 
 def load_config():
