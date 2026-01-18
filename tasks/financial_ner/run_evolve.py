@@ -90,8 +90,6 @@ class Evaluator:
             {"input": example.input, "output": example.output}
             for example in test_dataset.examples
         ]
-        
-        logging.info(f"Loaded {len(self.test_data)} test examples")
 
         # Statistics for early stopping of individuals
         self.prev_gen_avg = None
@@ -109,10 +107,10 @@ class Evaluator:
         self.prev_gen_avg = avg
         self.prev_gen_std = std
 
-        if self.early_stopped_count > 0:
+        """if self.early_stopped_count > 0:
             logging.info(f"{self.early_stopped_count} individuals were early-stopped.")
         else:
-            logging.info("No individuals were early-stopped.")
+            logging.info("No individuals were early-stopped.")"""
 
         self.early_stopped_count = 0
 
@@ -304,10 +302,6 @@ class Evaluator:
                 "macro_f1": full_metrics["macro_f1"],
             }
 
-        logging.info(
-            f"Test set evaluation complete: micro_f1={metrics['micro_f1']:.4f}, "
-            f"macro_f1={metrics['macro_f1']:.4f}"
-        )
         return metrics
 
     @staticmethod

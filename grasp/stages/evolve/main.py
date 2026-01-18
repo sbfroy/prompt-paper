@@ -87,7 +87,7 @@ class EvolveStage:
         self._save_best_individuals_artifact(ga.best_individuals_history)
 
         logging.info(
-            f"Evolution stage completed! Results saved as artifact: {artifact.name}"
+            f"Evolution stage completed!"
         )
         return artifact, logbook, hof
 
@@ -113,7 +113,7 @@ class EvolveStage:
             artifact_name="evolution_trace",
             artifact_type="evolution_data",
         )
-        logging.info(f"Evolution trace saved as wandb artifact: {artifact.name}")
+        # logging.info(f"Evolution trace saved as wandb artifact: {artifact.name}")
 
     def _save_best_individuals_artifact(self, best_individuals_history):
         """Save best individuals history as wandb artifact."""
@@ -126,7 +126,7 @@ class EvolveStage:
             artifact_name="best_individuals_history",
             artifact_type="evolution_data",
         )
-        logging.info(f"Best individuals history saved as wandb artifact: {artifact.name}")
+        # logging.info(f"Best individuals history saved as wandb artifact: {artifact.name}")
 
     def _save_results(self, logbook, hof):
         """Save hall of fame and evolution statistics."""

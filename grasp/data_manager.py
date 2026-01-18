@@ -189,8 +189,6 @@ class DataManager:
             logging.info(f"Requested sample_size ({sample_size}) >= total examples ({total_examples}), returning full dataset")
             return full_dataset
         
-        logging.info(f"Cluster dataset has {len(valid_clusters)} clusters with {total_examples} total examples")
-        
         # Perform round-robin sampling
         full_clusters = valid_clusters
             
@@ -259,8 +257,6 @@ class DataManager:
                         examples=sampled_clusters_map[cluster.cluster_id]
                     )
                 )
-        
-        logging.info(f"Sampled {examples_sampled} examples across {len(sampled_clusters)} clusters")
         
         return ClusterDataset(clusters=sampled_clusters, task_type=self.task)
 

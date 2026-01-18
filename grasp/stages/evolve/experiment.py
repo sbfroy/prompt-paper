@@ -2,7 +2,6 @@
 
 import logging
 import random
-import shutil
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
@@ -320,7 +319,6 @@ class GA:
             # Evaluate best individual on test set if test evaluator is provided
             test_metrics = None
             if self.test_evaluate_fn is not None:
-                logging.info(f"Evaluating best individual of generation {generation} on test set...")
                 test_result = self.test_evaluate_fn(best_individual)
                 # Handle both dict and float return types
                 if isinstance(test_result, dict):
@@ -366,10 +364,6 @@ class GA:
         current_population[0] = pop[:]
         hof = tools.HallOfFame(self.config["hof_size"])
 
-        # Log separator for clarity
-        width = shutil.get_terminal_size().columns
-        logging.info("-" * width)
-
         # Run evolutionary algorithm
         logbook = tools.Logbook()
         try:
@@ -392,7 +386,5 @@ class GA:
             pop = current_population[0]
             if hof is not None:
                 hof.update(pop)
-
-        logging.info("-" * width)
 
         return pop, logbook, hof
