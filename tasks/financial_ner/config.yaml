@@ -4,7 +4,7 @@ task: "financial_ner_v2"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 8000  # Number of examples to sample for evolution (round-robin sampling)
+  size: 42  # Number of examples to sample for evolution (round-robin sampling)
   use_real: true  # Set to true to use real dataset instead of synthetic
 
 # ============================================================================
@@ -55,7 +55,7 @@ evolution:
 # Evaluation Configuration
 # ============================================================================
 evaluation:
-  validation_sample_ratio: 1.0  # Use 100% o
+  validation_sample_ratio: 1.0  # The val set should be approx 1000 examples
 
   # Individual early stopping parameters
   early_stop_checkpoint_fraction: 0.25  # Check after 25% of validation set
