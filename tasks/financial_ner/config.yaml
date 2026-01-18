@@ -1,10 +1,10 @@
-task: "financial_ner"
+task: "financial_ner_v2"
 
 # ============================================================================
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 8000  # Number of examples in the generated dataset (used in artifact names)
+  size: 8000  # Number of examples to sample for evolution (round-robin sampling)
   use_real: true  # Set to true to use real dataset instead of synthetic
 
 # ============================================================================

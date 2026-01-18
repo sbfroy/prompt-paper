@@ -25,18 +25,18 @@ class EvolveStage:
         self.test_eval_fn = test_eval_fn
         self.evolution_trace = []  # Store example usage across generations
         
-        # Get dataset size and use_real flag from config for artifact naming
-        self.dataset_size = config["dataset_size"]
+        # Get sample size and use_real flag from config for round-robin sampling
+        self.sample_size = config["dataset_size"]
         self.use_real = config["use_real"]
 
     def run(self):
         """Execute the evolution stage and return results."""
         logging.info("Starting evolution stage...")
 
-        # Load the clustered dataset with size
+        # Load the clustered dataset with optional round-robin sampling
         cluster_dataset = self.data_manager.load_cluster_dataset(
-            dataset_size=self.dataset_size,
-            use_real=self.use_real
+            use_real=self.use_real,
+            sample_size=self.sample_size
         )
 
         # Filter out noise cluster (outliers don't generalize well)

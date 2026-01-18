@@ -29,8 +29,7 @@ class ClusterStage:
         self.data_manager = data_manager
         self.config = config
         
-        # Get dataset size and use_real flag from config for artifact naming
-        self.dataset_size = config["dataset_size"]
+        # Get use_real flag from config for artifact naming
         self.use_real = config["use_real"]
 
         self.embedding_generator = EmbeddingGenerator()
@@ -61,7 +60,6 @@ class ClusterStage:
         # Load training dataset from wandb artifact
         input_dataset = self.data_manager.load_input_dataset(
             "train", 
-            dataset_size=self.dataset_size,
             use_real=self.use_real
         )
         
@@ -69,10 +67,9 @@ class ClusterStage:
             input_dataset, batch_size=self.config["batch_size"]
         )
 
-        # Save the embedded dataset with size in artifact name
+        # Save the embedded dataset
         self.data_manager.save_embedded_dataset(
             embedded_dataset, 
-            dataset_size=self.dataset_size,
             use_real=self.use_real
         )
 
@@ -102,7 +99,6 @@ class ClusterStage:
         )
         artifact = self.data_manager.save_cluster_dataset(
             cluster_dataset, 
-            dataset_size=self.dataset_size,
             use_real=self.use_real
         )
 
@@ -190,7 +186,6 @@ def run_cluster_from_embeddings_stage(task, base_dir, config_dict):
     data_manager = DataManager(task, base_dir)
     
     # Get configuration parameters
-    dataset_size = config_dict["dataset_size"]
     use_real = config_dict["use_real"]
     
     # Initialize UMAP reducer and HDBSCAN clusterer
@@ -203,7 +198,6 @@ def run_cluster_from_embeddings_stage(task, base_dir, config_dict):
     # ====== LOAD EXISTING EMBEDDINGS ======
     logging.info(f"Loading embedded dataset from wandb artifact...")
     embedded_dataset = data_manager.load_embedded_dataset(
-        dataset_size=dataset_size,
         use_real=use_real
     )
     logging.info(f"Loaded {len(embedded_dataset.examples)} embedded examples")
@@ -235,7 +229,6 @@ def run_cluster_from_embeddings_stage(task, base_dir, config_dict):
     # Save cluster dataset
     artifact = data_manager.save_cluster_dataset(
         cluster_dataset, 
-        dataset_size=dataset_size,
         use_real=use_real
     )
     

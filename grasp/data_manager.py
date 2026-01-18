@@ -25,7 +25,7 @@ class DataManager:
         """Initialize data manager with task-specific directory structure.
         
         Args:
-            task: Name of the task (e.g., 'ner', 'financial_ner')
+            task: Name of the task (e.g., 'financial_ner_v2')
             base_dir: Base directory for data storage
         """
         self.task = task
@@ -37,13 +37,12 @@ class DataManager:
         # Create dataset directory (outputs go to wandb)
         self.get_dataset_dir().mkdir(parents=True, exist_ok=True)
 
-    def save_input_dataset(self, dataset, artifact_name_suffix, dataset_size, use_real=False):
+    def save_input_dataset(self, dataset, artifact_name_suffix, use_real=False):
         """Save InputDataset as wandb artifact.
         
         Args:
             dataset: InputDataset object to save
             artifact_name_suffix: Suffix for artifact name (e.g., 'train', 'val')
-            dataset_size: Size to include in artifact name (e.g., 3000)
             use_real: If True, add 'real' to artifact name for real datasets
             
         Returns:
@@ -57,15 +56,14 @@ class DataManager:
                     f.write(example.model_dump_json(by_alias=True) + "\n")
 
             real_suffix = "_real" if use_real else ""
-            artifact_name = f"{self.task}_input_dataset_{dataset_size}{real_suffix}_{artifact_name_suffix}"
+            artifact_name = f"{self.task}_input_dataset{real_suffix}_{artifact_name_suffix}"
             return save_file_artifact(temp_path, artifact_name, "input_dataset")
 
-    def load_input_dataset(self, artifact_name_suffix, dataset_size, use_real=False):
+    def load_input_dataset(self, artifact_name_suffix, use_real=False):
         """Load InputDataset from wandb artifact.
         
         Args:
             artifact_name_suffix: Suffix for artifact name (e.g., 'train', 'val')
-            dataset_size: Size included in artifact name (e.g., 3000)
             use_real: If True, look for 'real' artifact names
             
         Returns:
@@ -75,7 +73,7 @@ class DataManager:
         artifact_suffix = artifact_name_suffix.replace('.jsonl', '')
         
         real_suffix = "_real" if use_real else ""
-        artifact_name = f"{self.task}_input_dataset_{dataset_size}{real_suffix}_{artifact_suffix}"
+        artifact_name = f"{self.task}_input_dataset{real_suffix}_{artifact_suffix}"
         artifact_path = load_artifact(artifact_name)
         
         examples: list[InputExample] = []
@@ -90,12 +88,11 @@ class DataManager:
 
         return InputDataset(examples=examples, task_type=self.task)
 
-    def save_embedded_dataset(self, dataset, dataset_size, use_real=False):
+    def save_embedded_dataset(self, dataset, use_real=False):
         """Save embedded dataset as wandb artifact.
         
         Args:
             dataset: EmbeddedDataset object to save
-            dataset_size: Size to include in artifact name (e.g., 3000)
             use_real: If True, add 'real' to artifact name for real datasets
             
         Returns:
@@ -110,21 +107,20 @@ class DataManager:
             df.to_parquet(temp_path, compression='snappy', index=False)
 
             real_suffix = "_real" if use_real else ""
-            artifact_name = f"{self.task}_embedded_dataset_{dataset_size}{real_suffix}"
+            artifact_name = f"{self.task}_embedded_dataset{real_suffix}"
             return save_file_artifact(temp_path, artifact_name, "embedded_dataset")
 
-    def load_embedded_dataset(self, dataset_size, use_real=False):
+    def load_embedded_dataset(self, use_real=False):
         """Load embedded dataset from wandb artifact.
         
         Args:
-            dataset_size: Size included in artifact name
             use_real: If True, look for 'real' artifact names
         
         Returns:
             EmbeddedDataset object
         """
         real_suffix = "_real" if use_real else ""
-        artifact_name = f"{self.task}_embedded_dataset_{dataset_size}{real_suffix}"
+        artifact_name = f"{self.task}_embedded_dataset{real_suffix}"
         file_path = load_artifact(artifact_name)
 
         # Read parquet and convert to pydantic models
@@ -133,12 +129,11 @@ class DataManager:
 
         return EmbeddedDataset(examples=examples, task_type=self.task)
 
-    def save_cluster_dataset(self, dataset, dataset_size, use_real=False):
+    def save_cluster_dataset(self, dataset, use_real=False):
         """Save cluster dataset as wandb artifact.
         
         Args:
             dataset: ClusterDataset object to save
-            dataset_size: Size to include in artifact name (e.g., 3000)
             use_real: If True, add 'real' to artifact name for real datasets
             
         Returns:
@@ -148,133 +143,126 @@ class DataManager:
         cluster_data = [cluster.model_dump(by_alias=True) for cluster in dataset.clusters]
 
         real_suffix = "_real" if use_real else ""
-        artifact_name = f"{self.task}_cluster_dataset_{dataset_size}{real_suffix}"
+        artifact_name = f"{self.task}_cluster_dataset{real_suffix}"
         return save_artifact(cluster_data, artifact_name, "cluster_dataset")
 
-    def load_cluster_dataset(self, dataset_size, use_real=False):
+    def load_cluster_dataset(self, use_real=False, sample_size=None):
         """Load cluster dataset from wandb artifact.
         
-        If dataset_size differs from the original clustered dataset size, this will
-        load the original full cluster dataset and sample examples using a round-robin
-        strategy (starting from the largest cluster, moving to smallest).
+        If sample_size is provided and is smaller than the total examples in the
+        cluster dataset, this will sample examples using a round-robin strategy
+        (starting from the largest cluster, moving to smallest).
         
         Args:
-            dataset_size: Size included in artifact name (e.g., 3000)
             use_real: If True, look for 'real' artifact names
+            sample_size: Optional number of examples to sample using round-robin.
+                        If None or >= total examples, returns full dataset.
         
         Returns:
-            ClusterDataset object (sampled if dataset_size differs from original)
+            ClusterDataset object (sampled if sample_size is specified and smaller than total)
         """
         
         real_suffix = "_real" if use_real else ""
-        # Try to load the exact artifact first
-        artifact_name = f"{self.task}_cluster_dataset_{dataset_size}{real_suffix}"
-        try:
-            file_path = load_artifact(artifact_name)
-            
-            # Load JSON data and reconstruct cluster objects
-            with open(file_path, 'r') as f:
-                cluster_data = json.load(f)
+        artifact_name = f"{self.task}_cluster_dataset{real_suffix}"
+        
+        file_path = load_artifact(artifact_name)
+        
+        # Load JSON data and reconstruct cluster objects
+        with open(file_path, 'r') as f:
+            cluster_data = json.load(f)
 
-            clusters = [Cluster(**data) for data in cluster_data]
-            return ClusterDataset(clusters=clusters, task_type=self.task)
+        clusters = [Cluster(**data) for data in cluster_data]
+        full_dataset = ClusterDataset(clusters=clusters, task_type=self.task)
+        
+        # If no sampling requested, return full dataset
+        if sample_size is None:
+            return full_dataset
+        
+        # Filter out noise cluster (-1) for sampling
+        valid_clusters = [c for c in clusters if c.cluster_id != -1]
+        
+        # Calculate total examples
+        total_examples = sum(len(c.examples) for c in valid_clusters)
+        
+        # If sample_size >= total, return full dataset
+        if sample_size >= total_examples:
+            logging.info(f"Requested sample_size ({sample_size}) >= total examples ({total_examples}), returning full dataset")
+            return full_dataset
+        
+        logging.info(f"Cluster dataset has {len(valid_clusters)} clusters with {total_examples} total examples")
+        
+        # Perform round-robin sampling
+        full_clusters = valid_clusters
             
-        except Exception as e:
-            # If artifact doesn't exist, try to load the original (10000) and sample
-            logging.info(f"Artifact '{artifact_name}' not found. Attempting to load original cluster dataset and sample...")
-
-            # Try loading the original dataset (assuming 8000 is the default size)
-            original_artifact_name = f"{self.task}_cluster_dataset_8000{real_suffix}"
-            try:
-                file_path = load_artifact(original_artifact_name)
-            except Exception as original_e:
-                # If neither exists, raise the original error
-                raise Exception(f"Could not find artifact '{artifact_name}' or original '{original_artifact_name}': {e}")
+        # Sort clusters by size (largest first)
+        sorted_clusters = sorted(full_clusters, key=lambda c: len(c.examples), reverse=True)
+        
+        # Create sampled clusters using round-robin
+        logging.info(f"Sampling {sample_size} examples using round-robin strategy...")
             
-            # Load full dataset
-            with open(file_path, 'r') as f:
-                cluster_data = json.load(f)
+        sampled_clusters_map = {c.cluster_id: [] for c in sorted_clusters}
+        examples_sampled = 0
+        
+        # Keep track of which examples we've already sampled from each cluster
+        cluster_example_pools = {
+            c.cluster_id: list(c.examples) for c in sorted_clusters
+        }
+        
+        # Shuffle each cluster's examples for random selection
+        for cluster_id in cluster_example_pools:
+            random.shuffle(cluster_example_pools[cluster_id])
+        
+        # Track which clusters are still available
+        available_cluster_indices = list(range(len(sorted_clusters)))
+        current_position = 0  # Track position in the round-robin cycle
+        
+        # Round-robin sampling
+        while examples_sampled < sample_size and available_cluster_indices:
+            # Get the actual cluster index from available clusters
+            actual_cluster_index = available_cluster_indices[current_position]
             
-            full_clusters = [Cluster(**data) for data in cluster_data]
+            current_cluster = sorted_clusters[actual_cluster_index]
+            cluster_id = current_cluster.cluster_id
             
-            # Filter out noise cluster (-1)
-            full_clusters = [c for c in full_clusters if c.cluster_id != -1]
-            
-            # Calculate total examples in full dataset
-            total_examples = sum(len(c.examples) for c in full_clusters)
-            logging.info(f"Original cluster dataset has {len(full_clusters)} clusters with {total_examples} total examples")
-            
-            # Sort clusters by size (largest first)
-            sorted_clusters = sorted(full_clusters, key=lambda c: len(c.examples), reverse=True)
-            
-            # Create sampled clusters using round-robin
-            logging.info(f"Sampling {dataset_size} examples using round-robin strategy...")
-            
-            sampled_clusters_map = {c.cluster_id: [] for c in sorted_clusters}
-            examples_sampled = 0
-            
-            # Keep track of which examples we've already sampled from each cluster
-            cluster_example_pools = {
-                c.cluster_id: list(c.examples) for c in sorted_clusters
-            }
-            
-            # Shuffle each cluster's examples for random selection
-            for cluster_id in cluster_example_pools:
-                random.shuffle(cluster_example_pools[cluster_id])
-            
-            # Track which clusters are still available
-            available_cluster_indices = list(range(len(sorted_clusters)))
-            current_position = 0  # Track position in the round-robin cycle
-            
-            # Round-robin sampling
-            while examples_sampled < dataset_size and available_cluster_indices:
-                # Get the actual cluster index from available clusters
-                actual_cluster_index = available_cluster_indices[current_position]
+            # Get one example from this cluster's pool
+            if cluster_example_pools[cluster_id]:
+                example = cluster_example_pools[cluster_id].pop(0)
+                sampled_clusters_map[cluster_id].append(example)
+                examples_sampled += 1
                 
-                current_cluster = sorted_clusters[actual_cluster_index]
-                cluster_id = current_cluster.cluster_id
-                
-                # Get one example from this cluster's pool
-                if cluster_example_pools[cluster_id]:
-                    example = cluster_example_pools[cluster_id].pop(0)
-                    sampled_clusters_map[cluster_id].append(example)
-                    examples_sampled += 1
-                    
-                    # If this cluster is now exhausted, remove it from available clusters
-                    if not cluster_example_pools[cluster_id]:
-                        # logging.info(f"Cluster {cluster_id} exhausted after contributing {len(sampled_clusters_map[cluster_id])} examples")
-                        available_cluster_indices.remove(actual_cluster_index)
-                        # After removal, keep position at same index (which now points to next cluster)
-                        # unless we're past the end of the list
-                        if available_cluster_indices:
-                            if current_position >= len(available_cluster_indices):
-                                current_position = 0
-                            # else: keep current_position as is, it now points to the next cluster
-                    else:
-                        # Move to next cluster in round-robin
-                        current_position = (current_position + 1) % len(available_cluster_indices)
-                else:
-                    # This shouldn't happen, but handle it gracefully
-                    logging.warning(f"Cluster {cluster_id} pool empty but still in available list, removing...")
+                # If this cluster is now exhausted, remove it from available clusters
+                if not cluster_example_pools[cluster_id]:
                     available_cluster_indices.remove(actual_cluster_index)
+                    # After removal, keep position at same index (which now points to next cluster)
+                    # unless we're past the end of the list
                     if available_cluster_indices:
                         if current_position >= len(available_cluster_indices):
                             current_position = 0
-            
-            # Reconstruct clusters with sampled examples
-            sampled_clusters = []
-            for cluster in sorted_clusters:
-                if sampled_clusters_map[cluster.cluster_id]:
-                    sampled_clusters.append(
-                        Cluster(
-                            cluster_id=cluster.cluster_id,
-                            examples=sampled_clusters_map[cluster.cluster_id]
-                        )
+                else:
+                    # Move to next cluster in round-robin
+                    current_position = (current_position + 1) % len(available_cluster_indices)
+            else:
+                # This shouldn't happen, but handle it gracefully
+                logging.warning(f"Cluster {cluster_id} pool empty but still in available list, removing...")
+                available_cluster_indices.remove(actual_cluster_index)
+                if available_cluster_indices:
+                    if current_position >= len(available_cluster_indices):
+                        current_position = 0
+        
+        # Reconstruct clusters with sampled examples
+        sampled_clusters = []
+        for cluster in sorted_clusters:
+            if sampled_clusters_map[cluster.cluster_id]:
+                sampled_clusters.append(
+                    Cluster(
+                        cluster_id=cluster.cluster_id,
+                        examples=sampled_clusters_map[cluster.cluster_id]
                     )
-            
-            logging.info(f"Sampled {examples_sampled} examples across {len(sampled_clusters)} clusters")
-            
-            return ClusterDataset(clusters=sampled_clusters, task_type=self.task)
+                )
+        
+        logging.info(f"Sampled {examples_sampled} examples across {len(sampled_clusters)} clusters")
+        
+        return ClusterDataset(clusters=sampled_clusters, task_type=self.task)
 
     def save_results(self, data):
         """Save final pipeline results as wandb artifact.

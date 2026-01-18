@@ -184,13 +184,12 @@ class GenerateStage:
         train_examples = input_examples[:split_idx]
         val_examples = input_examples[split_idx:]
 
-        # Save datasets to WandB with size in artifact name
+        # Save datasets to WandB
         train_dataset = InputDataset(examples=train_examples, task_type=self.data_manager.task)
         val_dataset = InputDataset(examples=val_examples, task_type=self.data_manager.task)
 
-        dataset_size = target_examples
-        train_artifact = self.data_manager.save_input_dataset(train_dataset, "train", dataset_size=dataset_size)
-        val_artifact = self.data_manager.save_input_dataset(val_dataset, "val", dataset_size=dataset_size)
+        train_artifact = self.data_manager.save_input_dataset(train_dataset, "train")
+        val_artifact = self.data_manager.save_input_dataset(val_dataset, "val")
 
         logging.info(f"Saved {len(train_examples)} training examples to WandB artifact: {train_artifact.name}")
         logging.info(f"Saved {len(val_examples)} validation examples to WandB artifact: {val_artifact.name}")

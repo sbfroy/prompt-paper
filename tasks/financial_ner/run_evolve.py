@@ -64,7 +64,6 @@ class Evaluator:
         # Load validation dataset from wandb artifact
         validation_dataset = self.data_manager.load_input_dataset(
             "val", 
-            dataset_size=8000,
             use_real=config["use_real"]
         )
         
@@ -83,7 +82,6 @@ class Evaluator:
         # Load test dataset from wandb artifact
         test_dataset = self.data_manager.load_input_dataset(
             "test",
-            dataset_size=8000,
             use_real=config["use_real"]
         )
         

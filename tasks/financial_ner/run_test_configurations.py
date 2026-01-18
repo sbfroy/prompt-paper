@@ -2,13 +2,13 @@
 Financial NER - Test Multiple Prompt Configurations
 
 This script tests 5 different prompt configurations on the same test set:
-- not_syn_500: IDs from financial_ner_cluster_dataset_3000_real:v2
-- not_syn_2500: IDs from financial_ner_cluster_dataset_3000_real:v2
-- syn_5000: IDs from financial_ner_cluster_dataset_10000:v3
-- syn_500: IDs from financial_ner_cluster_dataset_10000:v3
-- syn_50: IDs from financial_ner_cluster_dataset_10000:v3
+- not_syn_500: IDs from financial_ner_v2_cluster_dataset_real
+- not_syn_2500: IDs from financial_ner_v2_cluster_dataset_real
+- syn_5000: IDs from financial_ner_v2_cluster_dataset
+- syn_500: IDs from financial_ner_v2_cluster_dataset
+- syn_50: IDs from financial_ner_v2_cluster_dataset
 
-All configurations are tested on financial_ner_input_dataset_7202_real_test:v0
+All configurations are tested on financial_ner_v2_input_dataset_real_test
 Results are stored as a single artifact with F1, precision, and recall metrics.
 """
 
@@ -88,7 +88,6 @@ class ConfigurationTester:
         # Load test dataset from wandb artifact
         test_dataset = self.data_manager.load_input_dataset(
             "test",
-            dataset_size=7202,
             use_real=True
         )
         
@@ -332,31 +331,26 @@ def main():
         {
             "name": "not_syn_500",
             "example_ids": ["570797", "726984", "487547", "431724", "832572"],
-            "dataset_size": 3000,
             "use_real": True
         },
         {
             "name": "not_syn_2500",
             "example_ids": ["83306", "767038", "573233", "230", "442564"],
-            "dataset_size": 3000,
             "use_real": True
         },
         {
             "name": "syn_5000",
             "example_ids": ["1505", "2074", "8801", "3370", "4143"],
-            "dataset_size": 10000,
             "use_real": False
         },
         {
             "name": "syn_500",
             "example_ids": ["3773", "599", "1206", "882", "5518"],
-            "dataset_size": 10000,
             "use_real": False
         },
         {
             "name": "syn_50",
             "example_ids": ["3754", "2952", "1940", "768", "133"],
-            "dataset_size": 10000,
             "use_real": False
         }
     ]
@@ -371,7 +365,6 @@ def main():
         
         # Load cluster dataset for this configuration
         cluster_dataset = data_manager.load_cluster_dataset(
-            dataset_size=conf["dataset_size"],
             use_real=conf["use_real"]
         )
         
@@ -388,7 +381,7 @@ def main():
         )
         
         # Store results
-        artifact_name = f"financial_ner_cluster_dataset_{conf['dataset_size']}"
+        artifact_name = f"financial_ner_v2_cluster_dataset"
         if conf["use_real"]:
             artifact_name += "_real"
         
@@ -407,7 +400,7 @@ def main():
     from datetime import datetime
     test_results = TestResults(
         configurations=results,
-        test_artifact="financial_ner_input_dataset_7202_real_test:v0",
+        test_artifact="financial_ner_v2_input_dataset_real_test",
         timestamp=datetime.now().isoformat()
     )
 
@@ -418,7 +411,7 @@ def main():
         "configurations": [asdict(r) for r in test_results.configurations]
     }
     
-    artifact_name = "financial_ner_prompt_config_test_results"
+    artifact_name = "financial_ner_v2_prompt_config_test_results"
     save_artifact(results_dict, artifact_name, "test_results")
     
     logging.info(f"\n{'='*80}")

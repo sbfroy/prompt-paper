@@ -24,7 +24,7 @@ class InputDataset(BaseModel):
     
     Attributes:
         examples: List of input examples
-        task_type: Task identifier (e.g., 'ner', 'financial_ner')
+        task_type: Task identifier (e.g., 'financial_ner_v2')
     """
 
     examples: list[InputExample]
