@@ -64,7 +64,7 @@ class Evaluator:
         # Load validation dataset from wandb artifact
         validation_dataset = self.data_manager.load_input_dataset(
             "val", 
-            dataset_size=7202,
+            dataset_size=8000,
             use_real=config["use_real"]
         )
         
@@ -83,7 +83,7 @@ class Evaluator:
         # Load test dataset from wandb artifact
         test_dataset = self.data_manager.load_input_dataset(
             "test",
-            dataset_size=7202,
+            dataset_size=8000,
             use_real=config["use_real"]
         )
         
@@ -127,7 +127,7 @@ class Evaluator:
             individual: List of (cluster_id, example) tuples
 
         Returns:
-            Average F1 score across validation set
+            Dictionary with micro_precision, micro_recall, micro_f1, macro_f1
         """
         # Shuffle validation data for this individual
         shuffled_validation_data = random.sample(
@@ -142,7 +142,9 @@ class Evaluator:
 
         std_multiplier = self.config["early_stop_std_multiplier"]
 
-        scores = []
+        # Aggregate TP/FP/FN across all labels and examples
+        all_label_stats = {}  # {label: {"tp": int, "fp": int, "fn": int}}
+        checkpoint_label_stats = {}  # For early stopping checkpoint
 
         for idx, example in enumerate(shuffled_validation_data):
             user_input = example["input"]
@@ -185,31 +187,46 @@ class Evaluator:
 
             if response is None:
                 logging.info(
-                    "Response is None, using score 0.0. Something may be wrong."
+                    "Response is None, treating as empty prediction. Something may be wrong."
                 )
-                scores.append(0.0)
-            else:
-                # response is already unwrapped by model_dump() in get_llm_response
-                # For RootModel[dict[str, list[str]]], it returns a dict directly
-                score = self.compare_json_objects(gold_labels, response)
-                scores.append(score)
+                response = {}
+
+            # Compute per-label stats for this example and aggregate
+            example_stats = self.compute_example_stats(gold_labels, response)
+            for label, stats in example_stats.items():
+                if label not in all_label_stats:
+                    all_label_stats[label] = {"tp": 0, "fp": 0, "fn": 0}
+                all_label_stats[label]["tp"] += stats["tp"]
+                all_label_stats[label]["fp"] += stats["fp"]
+                all_label_stats[label]["fn"] += stats["fn"]
 
             # Check for early stopping after reaching the checkpoint
             if (self.prev_gen_avg is not None and
                     idx + 1 == early_stop_checkpoint):
 
-                current_avg = sum(scores) / len(scores)
+                # Compute micro-F1 at checkpoint for early stopping decision
+                checkpoint_metrics = self.compute_metrics_from_stats(all_label_stats)
+                current_micro_f1 = checkpoint_metrics["micro_f1"]
                 threshold = self.prev_gen_avg - (std_multiplier * self.prev_gen_std)
 
-                if current_avg < threshold:
+                if current_micro_f1 < threshold:
                     # Individual is underperforming, stop probabilistically
                     early_stop_prob = self.config["early_stop_probability"]
                     if random.random() < early_stop_prob:
                         self.early_stopped_count += 1
-                        return current_avg
+                        return checkpoint_metrics
                     # Otherwise, continue evaluating this individual
 
-        return sum(scores) / len(scores) if scores else 0.0
+        # Compute final metrics
+        if not all_label_stats:
+            return {
+                "micro_precision": 0.0,
+                "micro_recall": 0.0,
+                "micro_f1": 0.0,
+                "macro_f1": 0.0,
+            }
+
+        return self.compute_metrics_from_stats(all_label_stats)
 
     def evaluate_on_test_set(self, individual):
         """
@@ -219,9 +236,10 @@ class Evaluator:
             individual: List of (cluster_id, example) tuples
 
         Returns:
-            Average F1 score across test set
+            Dictionary with micro_f1 and macro_f1
         """
-        scores = []
+        # Aggregate TP/FP/FN across all labels and examples
+        all_label_stats = {}  # {label: {"tp": int, "fp": int, "fn": int}}
 
         for example in self.test_data:
             user_input = example["input"]
@@ -264,72 +282,112 @@ class Evaluator:
 
             if response is None:
                 logging.warning(
-                    "Response is None during test evaluation, using score 0.0"
+                    "Response is None during test evaluation, treating as empty prediction"
                 )
-                scores.append(0.0)
-            else:
-                score = self.compare_json_objects(gold_labels, response)
-                scores.append(score)
+                response = {}
 
-        avg_score = sum(scores) / len(scores) if scores else 0.0
-        logging.info(f"Test set evaluation complete: F1 = {avg_score:.4f}")
-        return avg_score
+            # Compute per-label stats for this example and aggregate
+            example_stats = self.compute_example_stats(gold_labels, response)
+            for label, stats in example_stats.items():
+                if label not in all_label_stats:
+                    all_label_stats[label] = {"tp": 0, "fp": 0, "fn": 0}
+                all_label_stats[label]["tp"] += stats["tp"]
+                all_label_stats[label]["fp"] += stats["fp"]
+                all_label_stats[label]["fn"] += stats["fn"]
+
+        # Compute final metrics
+        if not all_label_stats:
+            metrics = {"micro_f1": 0.0, "macro_f1": 0.0}
+        else:
+            full_metrics = self.compute_metrics_from_stats(all_label_stats)
+            # Only return micro_f1 and macro_f1 for test set
+            metrics = {
+                "micro_f1": full_metrics["micro_f1"],
+                "macro_f1": full_metrics["macro_f1"],
+            }
+
+        logging.info(
+            f"Test set evaluation complete: micro_f1={metrics['micro_f1']:.4f}, "
+            f"macro_f1={metrics['macro_f1']:.4f}"
+        )
+        return metrics
 
     @staticmethod
-    def compare_json_objects(
+    def compute_example_stats(
         gold: dict[str, list[str]], pred: dict[str, list[str]]
-    ) -> float:
+    ) -> dict[str, dict[str, int]]:
         """
-        Compare two JSON objects and calculate the F1 score.
+        Compute per-label TP/FP/FN statistics for a single example.
 
         Args:
-            gold: Dictionary containing the gold labels
-            pred: Dictionary containing the predicted labels
+            gold: Dictionary containing the gold labels {label: [values]}
+            pred: Dictionary containing the predicted labels {label: [values]}
 
         Returns:
-            F1 score between gold and predicted labels
+            Dictionary mapping label names to {"tp": int, "fp": int, "fn": int}
         """
-        if not gold and not pred:
-            return 1.0  # Perfect match if both are empty
+        label_stats = {}
+        all_labels = set(gold.keys()) | set(pred.keys())
 
-        if not gold or not pred:
-            return 0.0
+        for label in all_labels:
+            gold_values = set(gold.get(label, []))
+            pred_values = set(pred.get(label, []))
 
-        tp = 0
-        fp = 0
-        fn = 0
+            tp = len(gold_values & pred_values)
+            fp = len(pred_values - gold_values)
+            fn = len(gold_values - pred_values)
 
-        for key, gold_values in gold.items():
-            pred_values = pred.get(key, [])  # Default to empty list if key not found
+            label_stats[label] = {"tp": tp, "fp": fp, "fn": fn}
 
-            for value in gold_values:
-                if value in pred_values:
-                    tp += 1  # Correctly predicted
-                else:
-                    fn += 1  # In gold but not predicted
+        return label_stats
 
-            # Predicted but not in gold
-            fp += len(set(pred_values) - set(gold_values))
+    @staticmethod
+    def compute_metrics_from_stats(
+        all_label_stats: dict[str, dict[str, int]]
+    ) -> dict[str, float]:
+        """
+        Compute micro and macro F1 metrics from aggregated label statistics.
 
-        # Keys in pred but not in gold
-        # Keys in pred but not in gold
-        extra_keys = set(pred.keys()) - set(gold.keys())
+        Args:
+            all_label_stats: Dictionary mapping label names to aggregated {"tp", "fp", "fn"}
 
-        for key in extra_keys:
-            # All values in these keys are incorrect
-            pred_values = pred[key]
-            fp += len(pred_values)
+        Returns:
+            Dictionary with micro_precision, micro_recall, micro_f1, macro_f1
+        """
+        # Micro metrics: sum TP/FP/FN across all labels
+        total_tp = sum(stats["tp"] for stats in all_label_stats.values())
+        total_fp = sum(stats["fp"] for stats in all_label_stats.values())
+        total_fn = sum(stats["fn"] for stats in all_label_stats.values())
 
-        # Calculate precision, recall, and F1
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1 = (
-            2 * (precision * recall) / (precision + recall)
-            if (precision + recall) > 0
+        micro_precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0.0
+        micro_recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0.0
+        micro_f1 = (
+            2 * micro_precision * micro_recall / (micro_precision + micro_recall)
+            if (micro_precision + micro_recall) > 0
             else 0.0
         )
 
-        return f1
+        # Macro F1: compute F1 per label, then average
+        label_f1s = []
+        for label, stats in all_label_stats.items():
+            tp, fp, fn = stats["tp"], stats["fp"], stats["fn"]
+            precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+            recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+            f1 = (
+                2 * precision * recall / (precision + recall)
+                if (precision + recall) > 0
+                else 0.0
+            )
+            label_f1s.append(f1)
+
+        macro_f1 = sum(label_f1s) / len(label_f1s) if label_f1s else 0.0
+
+        return {
+            "micro_precision": micro_precision,
+            "micro_recall": micro_recall,
+            "micro_f1": micro_f1,
+            "macro_f1": macro_f1,
+        }
 
 
 def load_config():

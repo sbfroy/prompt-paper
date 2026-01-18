@@ -51,6 +51,10 @@ class GA:
         self._eval_lock = threading.Lock()
         self.evolution_trace_callback = None  # Callback to log evolution trace
         self.best_individuals_history = []  # Track best individual per generation
+        
+        # Store latest evaluation metrics for logging (thread-safe dict)
+        self._latest_metrics = {}
+        self._metrics_lock = threading.Lock()
 
         # Set random seeds for reproducibility
         random.seed(self.config["random_seed"])
@@ -75,11 +79,22 @@ class GA:
         )
 
         # Wrap evaluate function to track calls and return DEAP-compatible tuple
+        # Evaluate function now returns dict with micro_f1, micro_precision, micro_recall, macro_f1
         def _eval(individual):
-            score = self.evaluate_fn(individual)
+            result = self.evaluate_fn(individual)
             with self._eval_lock:  # Thread-safe counter update
                 self._eval_calls_total += 1
-            return (score,)  # DEAP expects tuple
+            # Extract micro_f1 as the fitness score (main evolution metric)
+            # Store full metrics for later logging
+            if isinstance(result, dict):
+                fitness = result.get("micro_f1", 0.0)
+                # Store metrics on the individual for later aggregation
+                individual._eval_metrics = result
+            else:
+                # Backward compatibility: if result is a float, use it directly
+                fitness = result
+                individual._eval_metrics = {"micro_f1": fitness}
+            return (fitness,)  # DEAP expects tuple
 
         self.toolbox.register("evaluate", _eval)
         self.toolbox.register("map", self._parallel_map)
@@ -290,17 +305,39 @@ class GA:
             # Find best individual in current population
             best_individual = max(population, key=lambda ind: ind.fitness.values[0])
             best_fitness = best_individual.fitness.values[0]
+            
+            # Log validation metrics from best individual if available
+            if hasattr(best_individual, "_eval_metrics"):
+                best_metrics = best_individual._eval_metrics
+                log_metrics(
+                    step=generation,
+                    val_micro_precision=best_metrics.get("micro_precision"),
+                    val_micro_recall=best_metrics.get("micro_recall"),
+                    val_micro_f1=best_metrics.get("micro_f1"),
+                    val_macro_f1=best_metrics.get("macro_f1"),
+                )
 
             # Evaluate best individual on test set if test evaluator is provided
-            test_score = None
+            test_metrics = None
             if self.test_evaluate_fn is not None:
                 logging.info(f"Evaluating best individual of generation {generation} on test set...")
-                test_score = self.test_evaluate_fn(best_individual)
-                # Log test score to wandb
-                log_metrics(step=generation, test_score=test_score)
+                test_result = self.test_evaluate_fn(best_individual)
+                # Handle both dict and float return types
+                if isinstance(test_result, dict):
+                    test_metrics = test_result
+                    # Log test micro_f1 and macro_f1 to wandb
+                    log_metrics(
+                        step=generation,
+                        test_micro_f1=test_result.get("micro_f1"),
+                        test_macro_f1=test_result.get("macro_f1"),
+                    )
+                else:
+                    # Backward compatibility: single score
+                    test_metrics = {"micro_f1": test_result}
+                    log_metrics(step=generation, test_score=test_result)
 
             # Track best individual in memory
-            self._track_best_individual(generation, best_individual, best_fitness, test_score)
+            self._track_best_individual(generation, best_individual, best_fitness, test_metrics)
 
             # Update evaluator with stats for individual early stopping
             if hasattr(self.evaluate_fn, "__self__") and hasattr(
