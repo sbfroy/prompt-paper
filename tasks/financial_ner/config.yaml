@@ -43,7 +43,7 @@ evolution:
   max_inter_prob: 0.80  # Initial inter-cluster mutation probability
   min_inter_prob: 0.10  # Minimum inter-cluster probability (exploit mode)
   hof_size: 5
-  workers: 8
+  workers: 4  # Reduced from 8 - Outlines guided decoding is CPU-bound bottleneck
 
   # Early stopping configuration
   early_stopping: true
