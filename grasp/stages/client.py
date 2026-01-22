@@ -6,6 +6,7 @@ both structured (Pydantic schema) and unstructured (plain text) outputs.
 """
 
 import logging
+import os
 from typing import Optional, Union
 
 from openai import OpenAI
@@ -14,13 +15,17 @@ from pydantic import BaseModel
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
+# Default guided decoding backend - xgrammar is GPU-accelerated and much faster than outlines
+DEFAULT_GUIDED_DECODING_BACKEND = "xgrammar"
+
 
 def get_llm_response(
     client: OpenAI,
     messages: list[dict[str, str]],
     response_schema: Optional[BaseModel] = None,
     temperature: float = 0.0,
-    model: str = "openai/gpt-oss-120b",
+    model: Optional[str] = None,
+    guided_decoding_backend: Optional[str] = None,
 ) -> Optional[Union[dict, str]]:
     """
     Generate a response from the LLM using the provided messages.
@@ -31,13 +36,27 @@ def get_llm_response(
         response_schema: Optional Pydantic model class for structured output.
                         If None, returns raw text response.
         temperature: Sampling temperature for the LLM.
-        model: Model name to use for generation.
+        model: Model name to use for generation. Defaults to LLM_MODEL env var.
+        guided_decoding_backend: Backend for structured output generation.
+                                 Options: "xgrammar" (GPU, fast), "outlines" (CPU, slow).
+                                 Defaults to xgrammar.
 
     Returns:
         If response_schema is provided: dict representation of the response.
         If response_schema is None: raw text string.
         Returns None on failure.
     """
+    # Use environment variable for model if not specified
+    if model is None:
+        model = os.getenv("LLM_MODEL", "openai/gpt-oss-120b")
+
+    # Use default backend if not specified
+    if guided_decoding_backend is None:
+        guided_decoding_backend = os.getenv(
+            "GUIDED_DECODING_BACKEND",
+            DEFAULT_GUIDED_DECODING_BACKEND
+        )
+
     try:
         if response_schema is not None:
             # Structured output mode - uses Pydantic schema for validation
@@ -45,7 +64,7 @@ def get_llm_response(
                 model=model,
                 messages=messages,
                 response_format=response_schema,
-                extra_body=dict(guided_decoding_backend="outlines"),
+                extra_body=dict(guided_decoding_backend=guided_decoding_backend),
                 temperature=temperature,
             )
 
