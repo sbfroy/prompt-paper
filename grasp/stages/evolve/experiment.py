@@ -6,6 +6,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
+from tqdm import tqdm
 from deap import algorithms, base, creator, tools
 
 from grasp.schemas import ClusterDataset
@@ -48,6 +49,7 @@ class GA:
         self.test_evaluate_fn = test_evaluate_fn
         self._eval_calls_total = 0
         self._eval_lock = threading.Lock()
+        self._current_generation = 0 # Track current generation for progress bar
         self.evolution_trace_callback = None  # Callback to log evolution trace
         self.best_individuals_history = []  # Track best individual per generation
         
@@ -163,14 +165,25 @@ class GA:
         return examples
 
     def _parallel_map(self, func, iterable):
-        """
-        Parallel mapping function for population evaluation.
+      """
+      Parallel mapping function for population evaluation.
 
-        Uses ThreadPoolExecutor to evaluate multiple individuals concurrently.
-        """
-        with ThreadPoolExecutor(max_workers=self.config["workers"]) as executor:
-            results = list(executor.map(func, iterable))
-        return results
+      Uses ThreadPoolExecutor to evaluate multiple individuals concurrently.
+      """
+      items = list(iterable)
+      desc = f"Gen {self._current_generation}/{self.config['generations']}"
+
+      with ThreadPoolExecutor(max_workers=self.config["workers"]) as executor:
+          results = list(tqdm(
+              executor.map(func, items),
+              total=len(items),
+              desc=desc,
+              leave=False,
+              ncols=80,
+          ))
+
+      self._current_generation += 1
+      return results
 
     def _should_early_stop(self, current_max_value, generation):
         """
