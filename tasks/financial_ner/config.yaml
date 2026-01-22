@@ -43,7 +43,7 @@ evolution:
   max_inter_prob: 0.80  # Initial inter-cluster mutation probability
   min_inter_prob: 0.10  # Minimum inter-cluster probability (exploit mode)
   hof_size: 5
-  workers: 4  # Reduced from 8 - Outlines guided decoding is CPU-bound bottleneck
+  workers: 8  # Restored to 8 - xgrammar GPU-accelerated backend eliminates CPU bottleneck
 
   # Early stopping configuration
   early_stopping: true
@@ -56,6 +56,10 @@ evolution:
 # ============================================================================
 evaluation:
   validation_sample_ratio: 1.0  # The val set should be approx 1000 examples
+
+  # LLM client configuration
+  client_timeout: 120.0  # Timeout in seconds for LLM requests
+  guided_decoding_backend: "xgrammar"  # GPU-accelerated (fast) vs "outlines" (CPU, slow)
 
   # Individual early stopping parameters
   early_stop_checkpoint_fraction: 0.25  # Check after 25% of validation set
