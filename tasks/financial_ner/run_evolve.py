@@ -438,7 +438,6 @@ def main():
         data_manager=data_manager,
         eval_config={
             **config["evaluation"],
-            "dataset_size": config["dataset"]["size"],
             "use_real": config["dataset"]["use_real"]
         },
         client=client

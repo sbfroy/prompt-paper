@@ -54,8 +54,7 @@ def main():
         task=config["task"],
         base_dir=str(base_dir),
         config_dict={
-            **config["clustering"], 
-            "dataset_size": config["dataset"]["size"],
+            **config["clustering"],
             "use_real": config["dataset"]["use_real"]
         }
     )
