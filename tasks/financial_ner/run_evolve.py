@@ -63,10 +63,10 @@ class Evaluator:
 
         # Load validation dataset from wandb artifact
         validation_dataset = self.data_manager.load_input_dataset(
-            "val", 
+            "val",
             use_real=config["use_real"]
         )
-        
+
         # Convert to dictionary format for compatibility
         self.validation_data = [
             {"input": example.input, "output": example.output}
@@ -84,7 +84,7 @@ class Evaluator:
             "test",
             use_real=config["use_real"]
         )
-        
+
         # Convert to dictionary format for compatibility
         self.test_data = [
             {"input": example.input, "output": example.output}
@@ -172,7 +172,8 @@ class Evaluator:
                 client=self.client,
                 messages=messages,
                 response_schema=XBRLResponse,
-                temperature=self.config["temperature"]
+                temperature=self.config["temperature"],
+                guided_decoding_backend=self.config["guided_decoding_backend"],
             )
 
             # Convert gold_output to comparable dict
@@ -227,7 +228,7 @@ class Evaluator:
     def evaluate_on_test_set(self, individual):
         """
         Evaluate an individual on the test set without early stopping.
-        
+
         Args:
             individual: List of (cluster_id, example) tuples
 
@@ -267,7 +268,8 @@ class Evaluator:
                 client=self.client,
                 messages=messages,
                 response_schema=XBRLResponse,
-                temperature=self.config["temperature"]
+                temperature=self.config["temperature"],
+                guided_decoding_backend=self.config["guided_decoding_backend"],
             )
 
             # Convert gold_output to comparable dict
@@ -391,7 +393,7 @@ def load_config():
 def create_evaluator(data_manager, eval_config, client):
     """
     Create an evaluation function for the genetic algorithm.
-    
+
     The GA requires a single-argument function, so this factory
     wraps the evaluator with the necessary configuration.
 
@@ -421,9 +423,13 @@ def main():
     # Initialize OpenAI-compatible client for evaluation
     logging.info("Creating OpenAI client for evaluation...")
 
+    # Get timeout from config or use default (120 seconds)
+    client_timeout = config.get("evaluation", {}).get("client_timeout", 120.0)
+
     client = OpenAI(
         base_url=f'http://localhost:{os.getenv("LLM_PORT", "8000")}/v1',
         api_key=os.getenv("LLM_API_KEY", "prompt-paper"),
+        timeout=client_timeout,
     )
 
     data_manager = DataManager(config["task"], str(base_dir))
@@ -431,7 +437,7 @@ def main():
     eval_fn, test_eval_fn = create_evaluator(
         data_manager=data_manager,
         eval_config={
-            **config["evaluation"], 
+            **config["evaluation"],
             "dataset_size": config["dataset"]["size"],
             "use_real": config["dataset"]["use_real"]
         },
@@ -442,7 +448,7 @@ def main():
         task=config["task"],
         base_dir=str(base_dir),
         config={
-            **config["evolution"], 
+            **config["evolution"],
             "dataset_size": config["dataset"]["size"],
             "use_real": config["dataset"]["use_real"]
         },
