@@ -15,8 +15,6 @@ from pydantic import BaseModel
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
-# Default guided decoding backend - xgrammar is GPU-accelerated and much faster than outlines
-DEFAULT_GUIDED_DECODING_BACKEND = "xgrammar"
 
 
 def get_llm_response(
@@ -48,14 +46,7 @@ def get_llm_response(
     """
     # Use environment variable for model if not specified
     if model is None:
-        model = os.getenv("LLM_MODEL", "openai/gpt-oss-120b")
-
-    # Use default backend if not specified
-    if guided_decoding_backend is None:
-        guided_decoding_backend = os.getenv(
-            "GUIDED_DECODING_BACKEND",
-            DEFAULT_GUIDED_DECODING_BACKEND
-        )
+        model = os.getenv("LLM_MODEL", "openai/gpt-oss-20b")
 
     try:
         if response_schema is not None:
