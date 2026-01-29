@@ -52,7 +52,7 @@ class GA:
         self._current_generation = 0 # Track current generation for progress bar
         self.evolution_trace_callback = None  # Callback to log evolution trace
         self.best_individuals_history = []  # Track best individual per generation
-        
+
         # Store latest evaluation metrics for logging (thread-safe dict)
         self._latest_metrics = {}
         self._metrics_lock = threading.Lock()
@@ -107,9 +107,11 @@ class GA:
             "select", self.select_fn, tournsize=self.config["tournsize"]
         )
 
-        # Early stopping state
-        self.early_stopping_counter = 0
+        # Early stopping state - track both max and avg fitness
+        self.max_stagnant_counter = 0
+        self.avg_stagnant_counter = 0
         self.best_max_value = None
+        self.best_avg_value = None
 
         # Store total number of clusters for diversity calculation
         self.total_clusters = len(cluster_dataset.clusters)
@@ -185,41 +187,58 @@ class GA:
       self._current_generation += 1
       return results
 
-    def _should_early_stop(self, current_max_value, generation):
+    def _should_early_stop(self, current_max_value, current_avg_value, generation):
         """
         Check if early stopping should be triggered.
 
-        Monitors improvement in best fitness and triggers stop if no significant
-        improvement occurs for a specified number of generations.
+        Uses a combined criterion: stops only when BOTH max and avg fitness
+        have stagnated for the patience period. This is more robust than
+        tracking max alone, as it allows the population to continue improving
+        even if the best individual has plateaued.
 
         Args:
             current_max_value: Best fitness in current generation.
+            current_avg_value: Average fitness in current generation.
             generation: Current generation number.
 
         Returns:
             True if early stopping should be triggered, False otherwise.
         """
-        # Dont early stop until minimum generations reached
+        # Don't early stop until minimum generations reached
         min_gens = self.config["early_stopping_min_generations"]
         if generation < min_gens:
             return False
 
+        min_delta = self.config["early_stopping_min_delta"]
+        patience = self.config["early_stopping_patience"]
+
+        # Initialize best values on first call after min_gens
         if self.best_max_value is None:
             self.best_max_value = current_max_value
+            self.best_avg_value = current_avg_value
             return False
 
-        # Check if there's improvement
-        improvement = current_max_value - self.best_max_value
-
-        if improvement > self.config["early_stopping_min_delta"]:
-            # Significant improvement found, reset counter
-            self.early_stopping_counter = 0
+        # Check max fitness improvement
+        max_improvement = current_max_value - self.best_max_value
+        if max_improvement > min_delta:
             self.best_max_value = current_max_value
-            return False
+            self.max_stagnant_counter = 0
         else:
-            # No improvement, increment counter
-            self.early_stopping_counter += 1
-            return self.early_stopping_counter >= self.config["early_stopping_patience"]
+            self.max_stagnant_counter += 1
+
+        # Check avg fitness improvement
+        avg_improvement = current_avg_value - self.best_avg_value
+        if avg_improvement > min_delta:
+            self.best_avg_value = current_avg_value
+            self.avg_stagnant_counter = 0
+        else:
+            self.avg_stagnant_counter += 1
+
+        # Stop only when BOTH have stagnated for patience generations
+        return (
+            self.max_stagnant_counter >= patience and
+            self.avg_stagnant_counter >= patience
+        )
 
     def _track_best_individual(self, generation, individual, fitness, test_score=None):
         """
@@ -317,7 +336,7 @@ class GA:
             # Find best individual in current population
             best_individual = max(population, key=lambda ind: ind.fitness.values[0])
             best_fitness = best_individual.fitness.values[0]
-            
+
             # Log validation metrics from best individual if available
             if hasattr(best_individual, "_eval_metrics"):
                 best_metrics = best_individual._eval_metrics
@@ -358,11 +377,16 @@ class GA:
                     avg=rec.get("avg"), std=rec.get("std")
                 )
 
-            # Check early stopping condition
+            # Check early stopping condition (now uses both max and avg)
             if self.config["early_stopping"]:
                 current_max = rec.get("max")
-                if self._should_early_stop(current_max, generation):
-                    logging.info(f"Early stopping triggered!")
+                current_avg = rec.get("avg")
+                if self._should_early_stop(current_max, current_avg, generation):
+                    logging.info(
+                        f"Early stopping triggered! "
+                        f"Max stagnant for {self.max_stagnant_counter} gens, "
+                        f"Avg stagnant for {self.avg_stagnant_counter} gens."
+                    )
                     raise EarlyStoppingException()
 
             return rec
