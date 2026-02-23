@@ -82,7 +82,7 @@ class Evaluator:
         # Load test dataset from wandb artifact
         test_dataset = self.data_manager.load_input_dataset(
             "test",
-            use_real=config["use_real"]
+            use_real=True
         )
 
         # Convert to dictionary format for compatibility
