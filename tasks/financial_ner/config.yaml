@@ -4,8 +4,8 @@ task: "financial_ner_v2"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 50  # Number of examples to sample for evolution (round-robin sampling)
-  use_real: true  # Set to true to use real dataset instead of synthetic
+  size: 5000  # Number of examples to sample for evolution (round-robin sampling)
+  use_real: false  # Set to true to use real dataset instead of synthetic
 
 # ============================================================================
 # Clustering Stage Configuration
