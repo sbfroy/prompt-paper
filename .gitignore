@@ -180,5 +180,6 @@ testing_clustering_pipeline.ipynb
 /notebooks
 /tasks/financial_ner/wandb
 upload_real_dataset.py
+upload_synthetic_dataset.py
 run_cluster_from_embeddings.py
 run_test_configurations.py
