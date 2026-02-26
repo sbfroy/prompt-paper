@@ -4,7 +4,7 @@ task: "financial_ner_v2"
 # Dataset Configuration
 # ============================================================================
 dataset:
-  size: 500  # Number of examples to sample for evolution (round-robin sampling)
+  size: 5000  # Number of examples to sample for evolution (round-robin sampling)
   use_real: false  # Set to true to use real dataset instead of synthetic
 
 # ============================================================================
@@ -103,7 +103,14 @@ evaluation:
     '{input_text}'
 
 # ============================================================================
-# Generation Configuration
+# Generation Configuration v2
+# ============================================================================
+# Changes from v1:
+#   - Negative prompt: now requires numeric distractors (dates, amounts, refs)
+#   - Negative prompt: requires varied sentence length matching real SEC filings
+#   - Positive prompt: requires distractor numbers beyond tagged values
+#   - Positive prompt: requires varied sentence length (short/medium/long)
+#   - Positive prompt: requires 25-30% multi-value entities
 # ============================================================================
 generation:
   batch_size_examples: 20  # Examples to request per API call
@@ -115,10 +122,15 @@ generation:
     Your task is to generate training examples that help models identify financial concepts and extract their associated values using XBRL accounting tags.
     Follow instructions carefully regarding whether to include or exclude XBRL entities.
 
+    The generated examples should closely resemble real SEC filing language (10-K, 10-Q, 8-K).
+    Use complex clause structures, legal/financial jargon, and reference specific dates, accounting standards, and subsidiary names where appropriate.
+
     The complete list of possible XBRL tags is:
     AccrualForEnvironmentalLossContingencies, AcquiredFiniteLivedIntangibleAssetsWeightedAverageUsefulLife, AllocatedShareBasedCompensationExpense, AmortizationOfFinancingCosts, AmortizationOfIntangibleAssets, AntidilutiveSecuritiesExcludedFromComputationOfEarningsPerShareAmount, AreaOfRealEstateProperty, AssetImpairmentCharges, BusinessAcquisitionEquityInterestsIssuedOrIssuableNumberOfSharesIssued, BusinessAcquisitionPercentageOfVotingInterestsAcquired, BusinessCombinationAcquisitionRelatedCosts, BusinessCombinationConsiderationTransferred1, BusinessCombinationContingentConsiderationLiability, BusinessCombinationRecognizedIdentifiableAssetsAcquiredAndLiabilitiesAssumedIntangibleAssetsOtherThanGoodwill, BusinessCombinationRecognizedIdentifiableAssetsAcquiredAndLiabilitiesAssumedIntangibles, CapitalizedContractCostAmortization, CashAndCashEquivalentsFairValueDisclosure, ClassOfWarrantOrRightExercisePriceOfWarrantsOrRights1, CommonStockCapitalSharesReservedForFutureIssuance, CommonStockDividendsPerShareDeclared, CommonStockParOrStatedValuePerShare, CommonStockSharesAuthorized, CommonStockSharesOutstanding, ConcentrationRiskPercentage1, ContractWithCustomerLiability, ContractWithCustomerLiabilityRevenueRecognized, CumulativeEffectOfNewAccountingPrincipleInPeriodOfAdoption, DebtInstrumentBasisSpreadOnVariableRate1, DebtInstrumentCarryingAmount, DebtInstrumentConvertibleConversionPrice1, DebtInstrumentFaceAmount, DebtInstrumentFairValue, DebtInstrumentInterestRateEffectivePercentage, DebtInstrumentInterestRateStatedPercentage, DebtInstrumentMaturityDate, DebtInstrumentRedemptionPricePercentage, DebtInstrumentTerm, DebtInstrumentUnamortizedDiscount, DebtWeightedAverageInterestRate, DeferredFinanceCostsGross, DeferredFinanceCostsNet, DefinedBenefitPlanContributionsByEmployer, DefinedContributionPlanCostRecognized, Depreciation, DerivativeFixedInterestRate, DerivativeNotionalAmount, DisposalGroupIncludingDiscontinuedOperationConsideration, EffectiveIncomeTaxRateContinuingOperations, EffectiveIncomeTaxRateReconciliationAtFederalStatutoryIncomeTaxRate, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognized, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognizedPeriodForRecognition1, EmployeeServiceShareBasedCompensationNonvestedAwardsTotalCompensationCostNotYetRecognizedShareBasedAwardsOtherThanOptions, EmployeeServiceShareBasedCompensationTaxBenefitFromCompensationExpense, EquityMethodInvestmentOwnershipPercentage, EquityMethodInvestments, FiniteLivedIntangibleAssetUsefulLife, GainsLossesOnExtinguishmentOfDebt, Goodwill, GoodwillImpairmentLoss, GuaranteeObligationsMaximumExposure, IncomeLossFromEquityMethodInvestments, IncomeTaxExpenseBenefit, InterestExpense, InterestExpenseDebt, LeaseAndRentalExpense, LesseeOperatingLeaseRenewalTerm, LesseeOperatingLeaseTermOfContract, LettersOfCreditOutstandingAmount, LineOfCredit, LineOfCreditFacilityCommitmentFeePercentage, LineOfCreditFacilityCurrentBorrowingCapacity, LineOfCreditFacilityInterestRateAtPeriodEnd, LineOfCreditFacilityMaximumBorrowingCapacity, LineOfCreditFacilityRemainingBorrowingCapacity, LineOfCreditFacilityUnusedCapacityCommitmentFeePercentage, LongTermDebt, LongTermDebtFairValue, LossContingencyAccrualAtCarryingValue, LossContingencyDamagesSoughtValue, LossContingencyEstimateOfPossibleLoss, LossContingencyPendingClaimsNumber, MinorityInterestOwnershipPercentageByNoncontrollingOwners, MinorityInterestOwnershipPercentageByParent, NumberOfOperatingSegments, NumberOfRealEstateProperties, NumberOfReportableSegments, OperatingLeaseCost, OperatingLeaseExpense, OperatingLeaseLiability, OperatingLeasePayments, OperatingLeaseRightOfUseAsset, OperatingLeaseWeightedAverageDiscountRatePercent, OperatingLeaseWeightedAverageRemainingLeaseTerm1, OperatingLeasesRentExpenseNet, OperatingLossCarryforwards, PaymentsToAcquireBusinessesGross, PaymentsToAcquireBusinessesNetOfCashAcquired, PreferredStockDividendRatePercentage, PreferredStockSharesAuthorized, ProceedsFromIssuanceOfCommonStock, PropertyPlantAndEquipmentUsefulLife, PublicUtilitiesRequestedRateIncreaseDecreaseAmount, RelatedPartyTransactionAmountsOfTransaction, RelatedPartyTransactionExpensesFromTransactionsWithRelatedParty, RepaymentsOfDebt, RestructuringAndRelatedCostExpectedCost1, RestructuringCharges, RevenueFromContractWithCustomerExcludingAssessedTax, RevenueFromContractWithCustomerIncludingAssessedTax, RevenueFromRelatedParties, RevenueRemainingPerformanceObligation, Revenues, SaleOfStockNumberOfSharesIssuedInTransaction, SaleOfStockPricePerShare, ShareBasedCompensation, ShareBasedCompensationArrangementByShareBasedPaymentAwardAwardVestingPeriod1, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriod, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriodWeightedAverageGrantDateFairValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsNonvestedNumber, ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsVestedInPeriodTotalFairValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardNumberOfSharesAuthorized, ShareBasedCompensationArrangementByShareBasedPaymentAwardNumberOfSharesAvailableForGrant, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsExercisesInPeriodTotalIntrinsicValue, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsGrantsInPeriodGross, ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsGrantsInPeriodWeightedAverageGrantDateFairValue, SharePrice, SharebasedCompensationArrangementBySharebasedPaymentAwardAwardVestingRightsPercentage, SharebasedCompensationArrangementBySharebasedPaymentAwardExpirationPeriod, StockIssuedDuringPeriodSharesNewIssues, StockRepurchaseProgramAuthorizedAmount1, StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1, StockRepurchasedAndRetiredDuringPeriodShares, StockRepurchasedDuringPeriodShares, SupplementalInformationForPropertyCasualtyInsuranceUnderwritersPriorYearClaimsAndClaimsAdjustmentExpense, TreasuryStockAcquiredAverageCostPerShare, TreasuryStockSharesAcquired, TreasuryStockValueAcquiredCostMethod, UnrecognizedTaxBenefits, UnrecognizedTaxBenefitsThatWouldImpactEffectiveTaxRate
 
+  # ============================================================================
   # Prompt for generating examples WITH XBRL entities
+  # ============================================================================
   positive_user_prompt: |-
     Using the following financial text as reference, generate exactly {batch_size_examples} NER training examples that CONTAIN XBRL entities.
 
@@ -126,7 +138,7 @@ generation:
     {text_chunk}
 
     For each example:
-    1. Create a realistic financial sentence (extract from above, adapt, or create similar)
+    1. Create a realistic financial sentence modeled on real SEC filing language (10-K, 10-Q, 8-K)
     2. Identify ALL relevant XBRL tags (from the system prompt list) and extract the specific values
 
     Return a JSON array with exactly {batch_size_examples} objects:
@@ -141,21 +153,53 @@ generation:
     5. Remove ONLY the % symbol from percentages: "5.5%" → "5.5"
     6. Preserve all decimal precision exactly as written
 
-    IMPORTANT: ALL examples MUST have at least one XBRL tag. Create diverse examples with 1-5 tags each, varying complexity and sentence length.
+    IMPORTANT REQUIREMENTS FOR REALISM:
+    - ALL examples MUST have at least one XBRL tag. Create diverse examples with 1-5 tags each, varying complexity.
+    - DISTRACTOR NUMBERS: Each sentence MUST also contain 2-5 additional numeric values that are NOT tagged. These are numbers that appear naturally in financial text but do not correspond to any XBRL tag from the list. Examples of distractors:
+      * Dates and years: "As of December 31, 2022", "for the three months ended June 30, 2023"
+      * Accounting standard references: "ASU 2016-02", "ASC 842", "Topic 606"
+      * Footnote or exhibit references: "Note 12", "Item 8"
+      * Non-tagged counts: employee headcount, number of countries, contract counts
+      * Non-tagged percentages: market share, headcount growth, approval rates
+      * Dollar amounts for non-tagged concepts: legal fees, advisory costs, SG&A details
+    - SENTENCE LENGTH: Vary the length to match real SEC filings:
+      * 30% short (10-25 words): single-fact statements
+      * 40% medium (25-60 words): multi-clause sentences with context
+      * 30% long (60-120 words): complex paragraphs with subordinate clauses, parenthetical references, and multiple financial details
+    - MULTI-VALUE ENTITIES: For 25-30% of examples, include at least one entity that has MULTIPLE values in the same sentence. For example, a sentence mentioning two separate credit facility allocations should map both amounts to LineOfCreditFacilityMaximumBorrowingCapacity: ["940", "60"].
+    - Use realistic company structures: mention subsidiaries, parent entities, foreign operations, co-borrowers, guarantors, etc.
 
+  # ============================================================================
   # Prompt for generating examples WITHOUT XBRL entities
+  # ============================================================================
   negative_user_prompt: |-
-    Using the following financial text as reference, generate exactly {batch_size_examples} NER training examples that DO NOT CONTAIN any XBRL entities.
+    Using the following financial text as reference, generate exactly {batch_size_examples} NER training examples that DO NOT CONTAIN any of the XBRL entities from the tag list in the system prompt.
 
     Financial Text:
     {text_chunk}
 
     For each example:
-    1. Create realistic financial sentences that discuss general concepts, qualitative statements, or procedural information
-    2. These should be financial text that has NO extractable numeric values, dates, or specific entity names
+    1. Create realistic financial sentences modeled on real SEC filing language (10-K, 10-Q, 8-K)
+    2. Sentences MUST contain numeric values — but NONE of those values should correspond to any XBRL tag from the list in the system prompt
+
+    Types of numeric-rich negative examples to generate (mix all of these):
+    - Accounting policy and standard adoption: "In March 2020, the FASB issued ASU 2020-04, Reference Rate Reform (Topic 848), which provides optional expedients and exceptions for applying GAAP to contracts affected by reference rate reform through December 31, 2024."
+    - Loan covenant and structural descriptions: "Loans made under the U.S. ABL are secured first by all of the Company's domestic cash, receivables and certain inventories as well as by a second position against a significant amount of the domestic assets."
+    - Regulatory and legal procedural text: "On September 15, 2021, the Company filed a Form S-3 registration statement with the SEC, which was declared effective on October 8, 2021."
+    - Risk factor and forward-looking language: "The Company has approximately 14,200 employees across 32 countries and expects to open 15 additional offices in fiscal year 2025."
+    - Table of contents, cross-references, and exhibit language: "See Note 14 to the Consolidated Financial Statements in Part II, Item 8 of this Annual Report on Form 10-K."
+    - Historical context with dates and amounts: "The May 2013 recapitalization, and private placements in 2014 and 2016 may have already triggered an ownership change under Section 382 of the Internal Revenue Code."
+    - Non-tagged financial metrics: headcount, office count, contract durations, geographic revenue splits (without specific XBRL-tagged amounts)
 
     Return a JSON array with exactly {batch_size_examples} objects:
-    - "input": financial sentence with NO extractable XBRL data
+    - "input": financial sentence with numbers/values that do NOT correspond to any XBRL tag
     - "output": "No XBRL associated data."
 
-    IMPORTANT: ALL examples MUST have output set to the string "No XBRL associated data." These should be realistic financial sentences that simply don't contain extractable entities.
+    IMPORTANT REQUIREMENTS:
+    - ALL examples MUST have output set to "No XBRL associated data."
+    - At least 90% of examples MUST contain at least one numeric value (dollar amount, percentage, date, count, or reference number). This is critical — the model must learn that the presence of numbers does NOT automatically mean there is an XBRL entity to extract.
+    - SENTENCE LENGTH: Vary the length to match real SEC filings:
+      * 20% short (10-25 words)
+      * 40% medium (25-60 words)
+      * 40% long (60-120 words)
+    - Do NOT use vague, generic business language like "The company aims to improve operational efficiency." These are too easy to distinguish from real financial text. Every sentence should sound like it was pulled from an actual SEC filing.
