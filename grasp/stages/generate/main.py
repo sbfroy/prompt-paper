@@ -131,7 +131,7 @@ class GenerateStage:
 
         # Read source documents
         scope_dir = self.data_manager.get_scope_dir()
-        scope_dir = "financial_ner" / "data" / "scope"
+        scope_dir = Path("financial_ner") / "data" / "scope"
         logging.info(f"Reading PDFs from scope directory: {scope_dir}")
         all_text = read_pdfs_from_directory(scope_dir)
 
