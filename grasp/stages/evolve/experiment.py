@@ -1,7 +1,10 @@
 """Genetic algorithm implementation using DEAP framework."""
 
+import json
 import logging
+import os
 import random
+import tempfile
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
@@ -39,6 +42,7 @@ class GA:
         select_fn: callable,
         config: dict,
         test_evaluate_fn: callable = None,
+        checkpoint_dir: str = None,
     ):
         self.cluster_dataset = cluster_dataset
         self.evaluate_fn = evaluate_fn
@@ -47,11 +51,15 @@ class GA:
         self.select_fn = select_fn
         self.config = config
         self.test_evaluate_fn = test_evaluate_fn
+        self.checkpoint_dir = checkpoint_dir
         self._eval_calls_total = 0
         self._eval_lock = threading.Lock()
         self._current_generation = 0 # Track current generation for progress bar
         self.evolution_trace_callback = None  # Callback to log evolution trace
         self.best_individuals_history = []  # Track best individual per generation
+
+        # Reference to EvolveStage's evolution_trace list for checkpointing
+        self.evolution_trace_ref = None
 
         # Store latest evaluation metrics for logging (thread-safe dict)
         self._latest_metrics = {}
@@ -62,10 +70,12 @@ class GA:
         np.random.seed(self.config["random_seed"])
 
         # Define fitness and individual types
-        creator.create(
-            "FitnessMax", base.Fitness, weights=(1.0,)
-        )  # Maximize fitness
-        creator.create("Individual", list, fitness=creator.FitnessMax)
+        if not hasattr(creator, "FitnessMax"):
+            creator.create(
+                "FitnessMax", base.Fitness, weights=(1.0,)
+            )  # Maximize fitness
+        if not hasattr(creator, "Individual"):
+            creator.create("Individual", list, fitness=creator.FitnessMax)
 
         # Register genetic operators and population initialization
         self.toolbox = base.Toolbox()
@@ -115,6 +125,158 @@ class GA:
 
         # Store total number of clusters for diversity calculation
         self.total_clusters = len(cluster_dataset.clusters)
+
+    # ------------------------------------------------------------------
+    # Checkpoint helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _build_example_index(cluster_dataset):
+        """Build a lookup dict from (cluster_id, example_id) to (cluster_id, example)."""
+        index = {}
+        for cluster in cluster_dataset.clusters:
+            for example in cluster.examples:
+                index[(cluster.cluster_id, example.id)] = (cluster.cluster_id, example)
+        return index
+
+    @staticmethod
+    def _serialize_individual(individual):
+        """Convert a DEAP Individual to a JSON-serializable dict."""
+        data = {
+            "genes": [
+                {"cluster_id": cluster_id, "example_id": example.id}
+                for cluster_id, example in individual
+            ],
+            "fitness": individual.fitness.values[0] if individual.fitness.valid else None,
+        }
+        if hasattr(individual, "_eval_metrics"):
+            data["eval_metrics"] = individual._eval_metrics
+        return data
+
+    @staticmethod
+    def _reconstruct_individual(ind_data, example_index):
+        """Rebuild a DEAP Individual from serialized data."""
+        genes = []
+        for gene in ind_data["genes"]:
+            key = (gene["cluster_id"], gene["example_id"])
+            if key not in example_index:
+                raise ValueError(
+                    f"Example (cluster={gene['cluster_id']}, id={gene['example_id']}) "
+                    "not found in cluster dataset. Was the dataset changed since the checkpoint?"
+                )
+            genes.append(example_index[key])
+
+        individual = creator.Individual(genes)
+        if ind_data.get("fitness") is not None:
+            individual.fitness.values = (ind_data["fitness"],)
+        if "eval_metrics" in ind_data:
+            individual._eval_metrics = ind_data["eval_metrics"]
+        return individual
+
+    @staticmethod
+    def _get_rng_state():
+        """Capture current RNG state in a JSON-serializable format."""
+        random_state = random.getstate()
+        numpy_state = np.random.get_state()
+        return {
+            "random": [random_state[0], list(random_state[1]), random_state[2]],
+            "numpy": [
+                numpy_state[0],
+                numpy_state[1].tolist(),
+                int(numpy_state[2]),
+                int(numpy_state[3]),
+                float(numpy_state[4]),
+            ],
+        }
+
+    @staticmethod
+    def _set_rng_state(rng_state):
+        """Restore RNG state from a checkpoint."""
+        rs = rng_state["random"]
+        random.setstate((rs[0], tuple(rs[1]), rs[2]))
+        ns = rng_state["numpy"]
+        np.random.set_state(
+            (ns[0], np.array(ns[1], dtype=np.uint32), ns[2], ns[3], ns[4])
+        )
+
+    def _save_checkpoint(self, generation, population, hof, logbook_entries):
+        """Atomically save a checkpoint to disk after a completed generation."""
+        if self.checkpoint_dir is None:
+            return
+
+        checkpoint = {
+            "generation": generation,
+            "population": [self._serialize_individual(ind) for ind in population],
+            "hall_of_fame": [self._serialize_individual(ind) for ind in hof],
+            "logbook_entries": logbook_entries,
+            "best_individuals_history": self.best_individuals_history,
+            "evolution_trace": self.evolution_trace_ref if self.evolution_trace_ref is not None else [],
+            "early_stopping_state": {
+                "max_stagnant_counter": self.max_stagnant_counter,
+                "avg_stagnant_counter": self.avg_stagnant_counter,
+                "best_max_value": self.best_max_value,
+                "best_avg_value": self.best_avg_value,
+            },
+            "eval_calls_total": self._eval_calls_total,
+            "rng_state": self._get_rng_state(),
+        }
+
+        checkpoint_path = os.path.join(self.checkpoint_dir, "checkpoint.json")
+
+        # Write to a temp file first, then atomically replace
+        fd, temp_path = tempfile.mkstemp(dir=self.checkpoint_dir, suffix=".json")
+        try:
+            with os.fdopen(fd, "w") as f:
+                json.dump(checkpoint, f)
+            os.replace(temp_path, checkpoint_path)  # Atomic on POSIX
+            logging.info(f"Checkpoint saved at generation {generation}")
+        except BaseException:
+            # Clean up temp file on any failure
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
+            raise
+
+    @staticmethod
+    def load_checkpoint(checkpoint_path, cluster_dataset):
+        """Load a checkpoint and reconstruct the population and hall of fame.
+
+        Args:
+            checkpoint_path: Path to checkpoint.json
+            cluster_dataset: The same ClusterDataset used during the original run
+                (after noise-cluster filtering).
+
+        Returns:
+            Dict with restored state ready to pass into GA.run().
+        """
+        with open(checkpoint_path, "r") as f:
+            data = json.load(f)
+
+        example_index = GA._build_example_index(cluster_dataset)
+
+        population = [
+            GA._reconstruct_individual(ind, example_index)
+            for ind in data["population"]
+        ]
+        hall_of_fame_individuals = [
+            GA._reconstruct_individual(ind, example_index)
+            for ind in data["hall_of_fame"]
+        ]
+
+        return {
+            "generation": data["generation"],
+            "population": population,
+            "hall_of_fame_individuals": hall_of_fame_individuals,
+            "logbook_entries": data["logbook_entries"],
+            "best_individuals_history": data["best_individuals_history"],
+            "evolution_trace": data.get("evolution_trace", []),
+            "early_stopping_state": data["early_stopping_state"],
+            "eval_calls_total": data["eval_calls_total"],
+            "rng_state": data["rng_state"],
+        }
+
+    # ------------------------------------------------------------------
 
     def calculate_adaptive_inter_prob(self, population):
         """
@@ -269,9 +431,13 @@ class GA:
 
         self.best_individuals_history.append(save_data)
 
-    def run(self):
+    def run(self, resume_state=None):
         """
         Execute the genetic algorithm.
+
+        Args:
+            resume_state: Optional dict from GA.load_checkpoint() to resume
+                a previously interrupted run.
 
         Returns:
             Tuple of (final_population, logbook, hall_of_fame).
@@ -285,15 +451,34 @@ class GA:
 
         # Wrap stats compilation to add logging and adaptive behavior
         original_compile = stats.compile
-        _gen = [-1]  # Generation counter
-        prev_eval_calls = [0]  # Track evaluations per generation
+
+        if resume_state is not None:
+            _gen = [resume_state["generation"]]
+            prev_eval_calls = [resume_state["eval_calls_total"]]
+            logbook_entries = list(resume_state["logbook_entries"])
+            _skip_initial_compile = [True]
+            remaining_gens = self.config["generations"] - resume_state["generation"]
+        else:
+            _gen = [-1]  # Generation counter
+            prev_eval_calls = [0]  # Track evaluations per generation
+            logbook_entries = []
+            _skip_initial_compile = [False]
+            remaining_gens = self.config["generations"]
 
         # Store state for early stopping recovery
-        logbook_entries = []
         current_population = [None]
 
         def compile_with_logging(population):
             """Enhanced compile function with logging and adaptive mutation."""
+            rec = original_compile(population)
+
+            # When resuming, skip the initial compile call (the restored
+            # population is re-reported by eaMuPlusLambda as gen 0).
+            if _skip_initial_compile[0]:
+                _skip_initial_compile[0] = False
+                current_population[0] = population[:]
+                return rec
+
             _gen[0] += 1
             generation = _gen[0]
 
@@ -302,7 +487,6 @@ class GA:
             prev_eval_calls[0] = self._eval_calls_total
 
             # Compile statistics
-            rec = original_compile(population)
             logbook_entries.append(rec)
             current_population[0] = population[:]
 
@@ -377,6 +561,9 @@ class GA:
                     avg=rec.get("avg"), std=rec.get("std")
                 )
 
+            # Save checkpoint after each generation
+            self._save_checkpoint(generation, population, hof, logbook_entries)
+
             # Check early stopping condition (now uses both max and avg)
             if self.config["early_stopping"]:
                 current_max = rec.get("max")
@@ -397,9 +584,33 @@ class GA:
         mu = self.config["mu"]  # Number of parents
         lambda_ = self.config["lambda_"]  # Number of offspring
 
-        pop = self.toolbox.population(n=mu)
-        current_population[0] = pop[:]
         hof = tools.HallOfFame(self.config["hof_size"])
+
+        if resume_state is not None:
+            pop = resume_state["population"]
+            # Restore hall of fame from checkpoint
+            hof.update(resume_state["hall_of_fame_individuals"])
+            # Restore GA state
+            self._eval_calls_total = resume_state["eval_calls_total"]
+            self.best_individuals_history = resume_state["best_individuals_history"]
+            es = resume_state["early_stopping_state"]
+            self.max_stagnant_counter = es["max_stagnant_counter"]
+            self.avg_stagnant_counter = es["avg_stagnant_counter"]
+            self.best_max_value = es["best_max_value"]
+            self.best_avg_value = es["best_avg_value"]
+            # Restore RNG state
+            self._set_rng_state(resume_state["rng_state"])
+            # Set progress bar counter (initial empty eval will increment once)
+            self._current_generation = resume_state["generation"]
+
+            logging.info(
+                f"Resuming from generation {resume_state['generation']}, "
+                f"running {remaining_gens} more generations."
+            )
+        else:
+            pop = self.toolbox.population(n=mu)
+
+        current_population[0] = pop[:]
 
         # Run evolutionary algorithm
         logbook = tools.Logbook()
@@ -411,7 +622,7 @@ class GA:
                 lambda_=lambda_,
                 cxpb=self.config["cxpb"],
                 mutpb=self.config["mutpb"],
-                ngen=self.config["generations"],
+                ngen=remaining_gens,
                 stats=stats,
                 halloffame=hof,
             )

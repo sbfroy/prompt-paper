@@ -1,6 +1,7 @@
 """Main evolution stage: manages GA execution and result tracking."""
 
 import logging
+import os
 from deap import tools
 
 from grasp.data_manager import DataManager
@@ -18,13 +19,16 @@ class EvolveStage:
     and saves results including hall of fame and evolution traces.
     """
 
-    def __init__(self, data_manager, config, eval_fn, test_eval_fn=None):
+    def __init__(self, data_manager, config, eval_fn, test_eval_fn=None,
+                 checkpoint_dir=None, resume_from=None):
         self.data_manager = data_manager
         self.config = config
         self.eval_fn = eval_fn
         self.test_eval_fn = test_eval_fn
         self.evolution_trace = []  # Store example usage across generations
-        
+        self.checkpoint_dir = checkpoint_dir
+        self.resume_from = resume_from
+
         # Get sample size and use_real flag from config for round-robin sampling
         self.sample_size = config["dataset_size"]
         self.use_real = config["use_real"]
@@ -53,6 +57,14 @@ class EvolveStage:
                 "The GA will sample clusters with replacement. Consider checking clustering stage parameters."
             )
 
+        # Load checkpoint if resuming
+        resume_state = None
+        if self.resume_from is not None:
+            logging.info(f"Loading checkpoint from {self.resume_from}")
+            resume_state = GA.load_checkpoint(self.resume_from, cluster_dataset)
+            # Restore evolution trace from checkpoint
+            self.evolution_trace = resume_state.get("evolution_trace", [])
+
         def _mutate(individual, cluster_dataset, inter_prob=None):
             """
             Wrapper for mutation with adaptive inter_prob support.
@@ -64,6 +76,10 @@ class EvolveStage:
                 inter_prob = self.config["max_inter_prob"]
             return composite_mutate(individual, cluster_dataset, inter_prob=inter_prob)
 
+        # Create checkpoint directory if needed
+        if self.checkpoint_dir is not None:
+            os.makedirs(self.checkpoint_dir, exist_ok=True)
+
         # Initialize the genetic algorithm
         ga = GA(
             cluster_dataset=cluster_dataset,
@@ -73,13 +89,19 @@ class EvolveStage:
             select_fn=tools.selTournament,
             config=self.config,
             test_evaluate_fn=self.test_eval_fn,
+            checkpoint_dir=self.checkpoint_dir,
         )
 
-        # Set up evolution trace logging callback
+        # Set up evolution trace logging callback and reference for checkpointing
         ga.evolution_trace_callback = self._log_examples
+        ga.evolution_trace_ref = self.evolution_trace
+
+        # Restore best_individuals_history from checkpoint before run
+        if resume_state is not None:
+            ga.best_individuals_history = resume_state["best_individuals_history"]
 
         logging.info("Running GA...")
-        best_population, logbook, hof = ga.run()
+        best_population, logbook, hof = ga.run(resume_state=resume_state)
 
         # Save results to artifacts
         artifact = self._save_results(logbook, hof)
@@ -120,7 +142,7 @@ class EvolveStage:
         if not best_individuals_history:
             logging.info("No best individuals to save")
             return
-        
+
         artifact = self.data_manager.save_artifact(
             data=best_individuals_history,
             artifact_name="best_individuals_history",
@@ -166,7 +188,8 @@ class EvolveStage:
         return self.data_manager.save_results(results)
 
 
-def run_evolve_stage(task, base_dir, config, eval_fn, test_eval_fn=None):
+def run_evolve_stage(task, base_dir, config, eval_fn, test_eval_fn=None,
+                     resume_from=None):
     """
     Entry point for running the evolution stage.
 
@@ -176,6 +199,7 @@ def run_evolve_stage(task, base_dir, config, eval_fn, test_eval_fn=None):
         config: Configuration dictionary with GA parameters.
         eval_fn: Fitness evaluation function for individuals.
         test_eval_fn: Optional test evaluation function for best individuals.
+        resume_from: Optional path to a checkpoint file to resume from.
 
     Returns:
         Tuple of (artifact, logbook, hall_of_fame).
@@ -183,6 +207,13 @@ def run_evolve_stage(task, base_dir, config, eval_fn, test_eval_fn=None):
     # Setup data manager
     data_manager = DataManager(task, base_dir)
 
+    # Default checkpoint dir alongside data
+    checkpoint_dir = os.path.join(base_dir, task, "checkpoints")
+
     # Run evolution
-    stage = EvolveStage(data_manager, config, eval_fn, test_eval_fn)
+    stage = EvolveStage(
+        data_manager, config, eval_fn, test_eval_fn,
+        checkpoint_dir=checkpoint_dir,
+        resume_from=resume_from,
+    )
     return stage.run()

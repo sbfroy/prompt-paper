@@ -7,6 +7,7 @@ This script runs the evolutionary algorithm stage for financial NER, which:
 3. Optimizes for F1 score on XBRL entity extraction
 """
 
+import argparse
 import sys
 import logging
 import json
@@ -411,6 +412,15 @@ def create_evaluator(data_manager, eval_config, client):
 
 def main():
     """Run the evolution stage for financial NER."""
+    parser = argparse.ArgumentParser(description="Run evolution stage for financial NER")
+    parser.add_argument(
+        "--resume",
+        type=str,
+        default=None,
+        help="Path to checkpoint.json to resume a previously interrupted run",
+    )
+    args = parser.parse_args()
+
     config = load_config()
 
     # Set up paths
@@ -453,6 +463,7 @@ def main():
         },
         eval_fn=eval_fn,
         test_eval_fn=test_eval_fn,
+        resume_from=args.resume,
     )
 
     finish_wandb()
