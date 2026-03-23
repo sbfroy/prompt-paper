@@ -250,6 +250,12 @@ class GA:
         Returns:
             Dict with restored state ready to pass into GA.run().
         """
+
+        if not hasattr(creator, "FitnessMax"):
+              creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        if not hasattr(creator, "Individual"):
+              creator.create("Individual", list, fitness=creator.FitnessMax)
+
         with open(checkpoint_path, "r") as f:
             data = json.load(f)
 
