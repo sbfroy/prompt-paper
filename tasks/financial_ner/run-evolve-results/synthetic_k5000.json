@@ -1,0 +1,190 @@
+{
+  "hall_of_fame": [
+    {
+      "rank": 1,
+      "fitness": 0.7451835696110505,
+      "selected_examples": [
+        {
+          "cluster_id": 70,
+          "id": "4437",
+          "input": "The senior secured credit facility, originally dated January 10, 2020, provides a revolving loan capacity of $500 million, of which $210 million was drawn as of September 30, 2023, and bears an interest rate of 4.75% per annum.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 89,
+          "id": "7280",
+          "input": "The Board approved a share repurchase program authorizing up to $200 million of common stock, to be executed over the next 24 months, subject to market conditions.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 48,
+          "id": "163",
+          "input": "The Company recorded AccrualForEnvironmentalLossContingencies of $45 million related to pending litigation in Europe, while the Company incurred legal fees of $12 million, as noted in Item 7.",
+          "output": "{'AccrualForEnvironmentalLossContingencies': ['45']}"
+        },
+        {
+          "cluster_id": 78,
+          "id": "4807",
+          "input": "The Company’s internal cost‑allocation methodology, described in Note 12, apportions corporate overhead on a basis of 55% to the cloud services segment and 45% to the productivity software segment, resulting in an allocated overhead expense of $210 million for the fiscal year ended December 31, 2022.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 36,
+          "id": "1927",
+          "input": "StockRepurchasedDuringPeriodShares 1.5 million, StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1 $300 million; Q2 2024, 10% increase.",
+          "output": "{'StockRepurchasedDuringPeriodShares': ['1.5'], 'StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1': ['300']}"
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "fitness": 0.7420846673781571,
+      "selected_examples": [
+        {
+          "cluster_id": 70,
+          "id": "4437",
+          "input": "The senior secured credit facility, originally dated January 10, 2020, provides a revolving loan capacity of $500 million, of which $210 million was drawn as of September 30, 2023, and bears an interest rate of 4.75% per annum.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 63,
+          "id": "1068",
+          "input": "During the fiscal year ending June 30, 2023, the Company recorded $1.2 billion in net cash provided by operating activities, $300 million used in investing activities, and $150 million of cash outflows related to financing activities, including principal repayments on revolving credit facilities.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 48,
+          "id": "163",
+          "input": "The Company recorded AccrualForEnvironmentalLossContingencies of $45 million related to pending litigation in Europe, while the Company incurred legal fees of $12 million, as noted in Item 7.",
+          "output": "{'AccrualForEnvironmentalLossContingencies': ['45']}"
+        },
+        {
+          "cluster_id": 83,
+          "id": "890",
+          "input": "The Company’s internal audit, covering the period from January 1, 2021 through December 31, 2021, identified 14 instances of non‑compliance with the newly adopted expense allocation policy, each resulting in a corrective adjustment ranging from $25,000 to $250,000, and management has instituted a remediation plan that includes quarterly training sessions, updated procedural manuals, and the assignment of a dedicated compliance officer to oversee implementation and ensure adherence to the policy through the end of fiscal year 2023.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 36,
+          "id": "1927",
+          "input": "StockRepurchasedDuringPeriodShares 1.5 million, StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1 $300 million; Q2 2024, 10% increase.",
+          "output": "{'StockRepurchasedDuringPeriodShares': ['1.5'], 'StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1': ['300']}"
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "fitness": 0.7394839165782963,
+      "selected_examples": [
+        {
+          "cluster_id": 70,
+          "id": "4437",
+          "input": "The senior secured credit facility, originally dated January 10, 2020, provides a revolving loan capacity of $500 million, of which $210 million was drawn as of September 30, 2023, and bears an interest rate of 4.75% per annum.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 89,
+          "id": "7280",
+          "input": "The Board approved a share repurchase program authorizing up to $200 million of common stock, to be executed over the next 24 months, subject to market conditions.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 48,
+          "id": "163",
+          "input": "The Company recorded AccrualForEnvironmentalLossContingencies of $45 million related to pending litigation in Europe, while the Company incurred legal fees of $12 million, as noted in Item 7.",
+          "output": "{'AccrualForEnvironmentalLossContingencies': ['45']}"
+        },
+        {
+          "cluster_id": 83,
+          "id": "5349",
+          "input": "The senior secured term loan, dated January 10, 2021, is collateralized by all cash, accounts receivable, and inventory, with a second‑lien pledge on the Company’s manufacturing facilities, and requires the maintenance of a minimum net debt to EBITDA ratio of 3.0× at each quarterly reporting date.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 36,
+          "id": "1927",
+          "input": "StockRepurchasedDuringPeriodShares 1.5 million, StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1 $300 million; Q2 2024, 10% increase.",
+          "output": "{'StockRepurchasedDuringPeriodShares': ['1.5'], 'StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1': ['300']}"
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "fitness": 0.7365079365079366,
+      "selected_examples": [
+        {
+          "cluster_id": 70,
+          "id": "4437",
+          "input": "The senior secured credit facility, originally dated January 10, 2020, provides a revolving loan capacity of $500 million, of which $210 million was drawn as of September 30, 2023, and bears an interest rate of 4.75% per annum.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 63,
+          "id": "1068",
+          "input": "During the fiscal year ending June 30, 2023, the Company recorded $1.2 billion in net cash provided by operating activities, $300 million used in investing activities, and $150 million of cash outflows related to financing activities, including principal repayments on revolving credit facilities.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 48,
+          "id": "163",
+          "input": "The Company recorded AccrualForEnvironmentalLossContingencies of $45 million related to pending litigation in Europe, while the Company incurred legal fees of $12 million, as noted in Item 7.",
+          "output": "{'AccrualForEnvironmentalLossContingencies': ['45']}"
+        },
+        {
+          "cluster_id": 83,
+          "id": "2960",
+          "input": "The acquisition of ABC Technologies, completed on September 30, 2023, involved the issuance of 3,500,000 restricted shares to former shareholders, a cash consideration of $95 million payable within 60 days of closing, and the assumption of $45 million of outstanding senior notes, resulting in a pro‑forma balance sheet total assets of $4.2 billion as of the acquisition date.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 36,
+          "id": "1927",
+          "input": "StockRepurchasedDuringPeriodShares 1.5 million, StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1 $300 million; Q2 2024, 10% increase.",
+          "output": "{'StockRepurchasedDuringPeriodShares': ['1.5'], 'StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1': ['300']}"
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "fitness": 0.7359154929577465,
+      "selected_examples": [
+        {
+          "cluster_id": 70,
+          "id": "4437",
+          "input": "The senior secured credit facility, originally dated January 10, 2020, provides a revolving loan capacity of $500 million, of which $210 million was drawn as of September 30, 2023, and bears an interest rate of 4.75% per annum.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 63,
+          "id": "1068",
+          "input": "During the fiscal year ending June 30, 2023, the Company recorded $1.2 billion in net cash provided by operating activities, $300 million used in investing activities, and $150 million of cash outflows related to financing activities, including principal repayments on revolving credit facilities.",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 48,
+          "id": "163",
+          "input": "The Company recorded AccrualForEnvironmentalLossContingencies of $45 million related to pending litigation in Europe, while the Company incurred legal fees of $12 million, as noted in Item 7.",
+          "output": "{'AccrualForEnvironmentalLossContingencies': ['45']}"
+        },
+        {
+          "cluster_id": 44,
+          "id": "4460",
+          "input": "The Company incurred RestructuringCharges of $85 million related to the closure of three facilities, and the expected RestructuringAndRelatedCostExpectedCost1 for 2024 is $120 million (Note 15).",
+          "output": "{'RestructuringCharges': ['85'], 'RestructuringAndRelatedCostExpectedCost1': ['120']}"
+        },
+        {
+          "cluster_id": 36,
+          "id": "1927",
+          "input": "StockRepurchasedDuringPeriodShares 1.5 million, StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1 $300 million; Q2 2024, 10% increase.",
+          "output": "{'StockRepurchasedDuringPeriodShares': ['1.5'], 'StockRepurchaseProgramRemainingAuthorizedRepurchaseAmount1': ['300']}"
+        }
+      ]
+    }
+  ],
+  "evolution_stats": {
+    "generations": 7,
+    "final_avg_fitness": 0.7287465420515968,
+    "final_max_fitness": 0.7420846673781571,
+    "final_min_fitness": 0.7071524966261808
+  }
+}
