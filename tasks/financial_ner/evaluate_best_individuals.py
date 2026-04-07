@@ -21,6 +21,7 @@ import yaml
 from dotenv import load_dotenv
 from openai import OpenAI
 from pydantic import RootModel
+from tqdm import tqdm
 
 from grasp.wandb_utils import init_wandb, save_artifact, finish_wandb
 from grasp.stages.client import get_llm_response
@@ -55,28 +56,44 @@ sys.path.insert(0, str(project_root))
 BEST_INDIVIDUALS = {
     # Synthetic example bank (use_real=False)
     "synthetic_k5000": [
-        # (cluster_id, example_id),
-        # (cluster_id, example_id),
-        # (cluster_id, example_id),
-        # (cluster_id, example_id),
-        # (cluster_id, example_id),
+        (70, "4437"),
+        (89, "7280"),
+        (48, "163"),
+        (78, "4807"),
+        (36, "1927"),
     ],
     "synthetic_k500": [
-        # TODO: fill in from checkpoint
+        (20, "2635"),
+        (3, "3601"),
+        (85, "4571"),
+        (5, "7040"),
+        (83, "2960"),
     ],
     "synthetic_k50": [
-        # TODO: fill in from checkpoint
+        # Not yet available
     ],
 
     # Non-synthetic (real) example bank (use_real=True)
     "nonsynthetic_k5000": [
-        # TODO: fill in from checkpoint
+        (42, "7015"),
+        (120, "2509"),
+        (45, "2463"),
+        (123, "275"),
+        (42, "5545"),
     ],
     "nonsynthetic_k500": [
-        # TODO: fill in from checkpoint
+        (94, "212"),
+        (17, "7278"),
+        (15, "2997"),
+        (21, "4462"),
+        (119, "570"),
     ],
     "nonsynthetic_k50": [
-        # TODO: fill in from checkpoint
+        (96, "5527"),
+        (76, "6271"),
+        (121, "7864"),
+        (126, "4855"),
+        (27, "307"),
     ],
 }
 
@@ -165,7 +182,7 @@ def evaluate_on_test_set(individual, test_data, config, client):
     """
     all_label_stats = {}
 
-    for example in test_data:
+    for example in tqdm(test_data, desc="Evaluating", unit="ex"):
         user_input = example["input"]
         gold_output = example["output"]
 
@@ -281,10 +298,20 @@ def compute_metrics_from_stats(all_label_stats):
 # Main evaluation driver
 # =============================================================================
 
-def run_all_evaluations(config, client, data_manager):
+VALID_SECTIONS = {"best-synthetic", "best-nonsynthetic", "random", "zero-shot"}
+
+
+def run_all_evaluations(config, client, data_manager, sections=None):
     """
-    Run all 13 evaluation conditions and return consolidated results.
+    Run evaluation conditions and return consolidated results.
+
+    Args:
+        sections: Set of section names to run. If None, run all.
+                  Valid: 'best-synthetic', 'best-nonsynthetic', 'random', 'zero-shot'
     """
+    if sections is None:
+        sections = VALID_SECTIONS
+
     eval_config = {
         **config["evaluation"],
         "use_real": config["dataset"]["use_real"],
@@ -294,7 +321,7 @@ def run_all_evaluations(config, client, data_manager):
     # Load test data (always real)
     # ------------------------------------------------------------------
     logging.info("Loading test dataset...")
-    test_dataset = data_manager.load_input_dataset("test", use_real=True)
+    test_dataset = data_manager.load_input_dataset("test_full", use_real=True)
     test_data = [
         {"input": ex.input, "output": ex.output}
         for ex in test_dataset.examples
@@ -302,31 +329,39 @@ def run_all_evaluations(config, client, data_manager):
     logging.info(f"Test set size: {len(test_data)} examples")
 
     # ------------------------------------------------------------------
-    # Load both cluster datasets (for example lookup & random sampling)
+    # Load cluster datasets only if needed
     # ------------------------------------------------------------------
-    logging.info("Loading synthetic cluster dataset...")
-    synthetic_clusters = data_manager.load_cluster_dataset(use_real=False)
-    synthetic_clusters.clusters = [
-        c for c in synthetic_clusters.clusters if c.cluster_id != -1
-    ]
-    synthetic_index = build_example_index(synthetic_clusters)
-    n_synthetic = sum(len(c.examples) for c in synthetic_clusters.clusters)
-    logging.info(
-        f"Synthetic bank: {len(synthetic_clusters.clusters)} clusters, "
-        f"{n_synthetic} examples"
-    )
+    need_synthetic = sections & {"best-synthetic", "random"}
+    need_nonsynthetic = sections & {"best-nonsynthetic", "random"}
 
-    logging.info("Loading non-synthetic (real) cluster dataset...")
-    nonsynthetic_clusters = data_manager.load_cluster_dataset(use_real=True)
-    nonsynthetic_clusters.clusters = [
-        c for c in nonsynthetic_clusters.clusters if c.cluster_id != -1
-    ]
-    nonsynthetic_index = build_example_index(nonsynthetic_clusters)
-    n_nonsynthetic = sum(len(c.examples) for c in nonsynthetic_clusters.clusters)
-    logging.info(
-        f"Non-synthetic bank: {len(nonsynthetic_clusters.clusters)} clusters, "
-        f"{n_nonsynthetic} examples"
-    )
+    synthetic_clusters = synthetic_index = None
+    nonsynthetic_clusters = nonsynthetic_index = None
+
+    if need_synthetic:
+        logging.info("Loading synthetic cluster dataset...")
+        synthetic_clusters = data_manager.load_cluster_dataset(use_real=False)
+        synthetic_clusters.clusters = [
+            c for c in synthetic_clusters.clusters if c.cluster_id != -1
+        ]
+        synthetic_index = build_example_index(synthetic_clusters)
+        n_synthetic = sum(len(c.examples) for c in synthetic_clusters.clusters)
+        logging.info(
+            f"Synthetic bank: {len(synthetic_clusters.clusters)} clusters, "
+            f"{n_synthetic} examples"
+        )
+
+    if need_nonsynthetic:
+        logging.info("Loading non-synthetic (real) cluster dataset...")
+        nonsynthetic_clusters = data_manager.load_cluster_dataset(use_real=True)
+        nonsynthetic_clusters.clusters = [
+            c for c in nonsynthetic_clusters.clusters if c.cluster_id != -1
+        ]
+        nonsynthetic_index = build_example_index(nonsynthetic_clusters)
+        n_nonsynthetic = sum(len(c.examples) for c in nonsynthetic_clusters.clusters)
+        logging.info(
+            f"Non-synthetic bank: {len(nonsynthetic_clusters.clusters)} clusters, "
+            f"{n_nonsynthetic} examples"
+        )
 
     results = []
 
@@ -360,99 +395,109 @@ def run_all_evaluations(config, client, data_manager):
         return metrics
 
     # ------------------------------------------------------------------
-    # A. Best Individuals (6 runs)
+    # A. Best Individuals
     # ------------------------------------------------------------------
-    logging.info("\n\n" + "#" * 60)
-    logging.info("# SECTION A: Best Individuals (6 runs)")
-    logging.info("#" * 60)
+    if sections & {"best-synthetic", "best-nonsynthetic"}:
+        logging.info("\n\n" + "#" * 60)
+        logging.info("# SECTION A: Best Individuals")
+        logging.info("#" * 60)
 
-    for condition_name, gene_tuples in BEST_INDIVIDUALS.items():
-        if not gene_tuples:
-            logging.warning(
-                f"Skipping {condition_name}: no genes specified (TODO placeholder)."
+        for condition_name, gene_tuples in BEST_INDIVIDUALS.items():
+            if not gene_tuples:
+                logging.warning(
+                    f"Skipping {condition_name}: no genes specified (TODO placeholder)."
+                )
+                continue
+
+            # Determine which bank to use
+            is_synthetic = condition_name.startswith("synthetic")
+            bank_name = "synthetic" if is_synthetic else "nonsynthetic"
+
+            # Skip if this bank's section wasn't requested
+            if is_synthetic and "best-synthetic" not in sections:
+                continue
+            if not is_synthetic and "best-nonsynthetic" not in sections:
+                continue
+
+            example_index = synthetic_index if is_synthetic else nonsynthetic_index
+
+            individual = reconstruct_individual(gene_tuples, example_index, condition_name)
+
+            # Log which examples we resolved
+            resolved_desc = json.dumps(
+                [(cid, ex.id) for cid, ex in individual], indent=None
             )
-            continue
+            logging.info(f"[{condition_name}] Resolved {len(individual)} examples from {bank_name} bank")
 
-        # Determine which bank to use
-        is_synthetic = condition_name.startswith("synthetic")
-        bank_name = "synthetic" if is_synthetic else "nonsynthetic"
-        example_index = synthetic_index if is_synthetic else nonsynthetic_index
-
-        individual = reconstruct_individual(gene_tuples, example_index, condition_name)
-
-        # Log which examples we resolved
-        resolved_desc = json.dumps(
-            [(cid, ex.id) for cid, ex in individual], indent=None
-        )
-        logging.info(f"[{condition_name}] Resolved {len(individual)} examples from {bank_name} bank")
-
-        run_single_eval(condition_name, individual, bank_name, resolved_desc)
+            run_single_eval(condition_name, individual, bank_name, resolved_desc)
 
     # ------------------------------------------------------------------
     # B. Random Baselines (6 runs: 2 banks × 3 seeds)
     # ------------------------------------------------------------------
-    logging.info("\n\n" + "#" * 60)
-    logging.info("# SECTION B: Random Baselines (6 runs)")
-    logging.info("#" * 60)
+    if "random" in sections:
+        logging.info("\n\n" + "#" * 60)
+        logging.info("# SECTION B: Random Baselines (6 runs)")
+        logging.info("#" * 60)
 
-    for bank_name, cluster_dataset in [
-        ("synthetic", synthetic_clusters),
-        ("nonsynthetic", nonsynthetic_clusters),
-    ]:
-        for seed_idx, seed in enumerate(RANDOM_SEEDS):
-            condition_name = f"random_{bank_name}_seed{seed}"
-            rng = random.Random(seed)
+        for bank_name, cluster_dataset in [
+            ("synthetic", synthetic_clusters),
+            ("nonsynthetic", nonsynthetic_clusters),
+        ]:
+            for seed_idx, seed in enumerate(RANDOM_SEEDS):
+                condition_name = f"random_{bank_name}_seed{seed}"
+                rng = random.Random(seed)
 
-            individual = create_random_individual(cluster_dataset, rng)
+                individual = create_random_individual(cluster_dataset, rng)
 
-            indices_desc = json.dumps(
-                [(cid, ex.id) for cid, ex in individual], indent=None
-            )
-            logging.info(
-                f"[{condition_name}] Sampled {len(individual)} random examples "
-                f"from {bank_name} bank (seed={seed})"
-            )
-
-            run_single_eval(condition_name, individual, bank_name, indices_desc)
-
-    # Compute random baseline summary stats
-    for bank_name in ["synthetic", "nonsynthetic"]:
-        bank_random = [
-            r for r in results
-            if r["condition"].startswith(f"random_{bank_name}")
-        ]
-        if bank_random:
-            for metric in ["micro_f1", "macro_f1", "micro_precision", "micro_recall"]:
-                values = [r[metric] for r in bank_random]
-                mean_val = sum(values) / len(values)
-                std_val = (sum((v - mean_val) ** 2 for v in values) / len(values)) ** 0.5
+                indices_desc = json.dumps(
+                    [(cid, ex.id) for cid, ex in individual], indent=None
+                )
                 logging.info(
-                    f"Random {bank_name} {metric}: "
-                    f"mean={mean_val:.4f} std={std_val:.4f}"
+                    f"[{condition_name}] Sampled {len(individual)} random examples "
+                    f"from {bank_name} bank (seed={seed})"
                 )
 
-            # Add summary row
-            for metric in ["micro_f1", "macro_f1", "micro_precision", "micro_recall"]:
-                values = [r[metric] for r in bank_random]
-                mean_val = sum(values) / len(values)
-                std_val = (sum((v - mean_val) ** 2 for v in values) / len(values)) ** 0.5
-                # Store on first random result for this bank
-                bank_random[0][f"{metric}_mean"] = mean_val
-                bank_random[0][f"{metric}_std"] = std_val
+                run_single_eval(condition_name, individual, bank_name, indices_desc)
+
+        # Compute random baseline summary stats
+        for bank_name in ["synthetic", "nonsynthetic"]:
+            bank_random = [
+                r for r in results
+                if r["condition"].startswith(f"random_{bank_name}")
+            ]
+            if bank_random:
+                for metric in ["micro_f1", "macro_f1", "micro_precision", "micro_recall"]:
+                    values = [r[metric] for r in bank_random]
+                    mean_val = sum(values) / len(values)
+                    std_val = (sum((v - mean_val) ** 2 for v in values) / len(values)) ** 0.5
+                    logging.info(
+                        f"Random {bank_name} {metric}: "
+                        f"mean={mean_val:.4f} std={std_val:.4f}"
+                    )
+
+                # Add summary row
+                for metric in ["micro_f1", "macro_f1", "micro_precision", "micro_recall"]:
+                    values = [r[metric] for r in bank_random]
+                    mean_val = sum(values) / len(values)
+                    std_val = (sum((v - mean_val) ** 2 for v in values) / len(values)) ** 0.5
+                    # Store on first random result for this bank
+                    bank_random[0][f"{metric}_mean"] = mean_val
+                    bank_random[0][f"{metric}_std"] = std_val
 
     # ------------------------------------------------------------------
     # C. Zero-Shot Baseline (1 run)
     # ------------------------------------------------------------------
-    logging.info("\n\n" + "#" * 60)
-    logging.info("# SECTION C: Zero-Shot Baseline (1 run)")
-    logging.info("#" * 60)
+    if "zero-shot" in sections:
+        logging.info("\n\n" + "#" * 60)
+        logging.info("# SECTION C: Zero-Shot Baseline (1 run)")
+        logging.info("#" * 60)
 
-    run_single_eval("zero_shot", None, "none", "none")
+        run_single_eval("zero_shot", None, "none", "none")
 
     return results
 
 
-def save_results_artifact(results, config):
+def save_results_artifact(results, config, sections=None):
     """Save results as a WandB artifact (JSON)."""
     # Build summary with random baseline aggregations
     random_summaries = {}
@@ -492,9 +537,16 @@ def save_results_artifact(results, config):
         "random_baseline_summaries": random_summaries,
     }
 
+    # Include sections in artifact name to avoid overwriting partial runs
+    if sections and sections != VALID_SECTIONS:
+        section_suffix = "_".join(sorted(sections)).replace("-", "_")
+        artifact_name = f"{config['task']}_best_individuals_evaluation_{section_suffix}"
+    else:
+        artifact_name = f"{config['task']}_best_individuals_evaluation"
+
     artifact = save_artifact(
         data=artifact_data,
-        artifact_name=f"{config['task']}_best_individuals_evaluation",
+        artifact_name=artifact_name,
         artifact_type="evaluation_results",
     )
     logging.info(f"Results saved as WandB artifact: {artifact.name}")
@@ -549,6 +601,14 @@ def main():
         action="store_true",
         help="Skip starting vLLM server (assume it's already running)",
     )
+    parser.add_argument(
+        "--sections",
+        nargs="+",
+        choices=sorted(VALID_SECTIONS),
+        default=None,
+        help="Which sections to run (default: all). "
+             "Options: best-synthetic, best-nonsynthetic, random, zero-shot",
+    )
     args = parser.parse_args()
 
     config = load_config()
@@ -572,14 +632,15 @@ def main():
 
     data_manager = DataManager(config["task"], str(base_dir))
 
-    # Run all evaluations
-    results = run_all_evaluations(config, client, data_manager)
+    # Run evaluations
+    sections = set(args.sections) if args.sections else None
+    results = run_all_evaluations(config, client, data_manager, sections=sections)
 
     # Print summary
     print_results_table(results)
 
     # Save as WandB artifact
-    save_results_artifact(results, config)
+    save_results_artifact(results, config, sections=sections)
 
     finish_wandb()
     logging.info("All evaluations completed!")
