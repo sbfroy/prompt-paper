@@ -313,7 +313,7 @@ def compute_metrics_from_stats(all_label_stats):
 VALID_SECTIONS = {"best-synthetic", "best-nonsynthetic", "random", "zero-shot"}
 
 
-def run_all_evaluations(config, client, data_manager, sections=None):
+def run_all_evaluations(config, client, data_manager, sections=None, workers=64):
     """
     Run evaluation conditions and return consolidated results.
 
@@ -385,7 +385,6 @@ def run_all_evaluations(config, client, data_manager, sections=None):
         logging.info(f"  Examples: {example_indices_desc}")
         logging.info(f"{'='*60}")
 
-        workers = config.get("evolution", {}).get("workers", 8)
         metrics = evaluate_on_test_set(individual, test_data, eval_config, client, workers=workers)
 
         logging.info(
@@ -622,6 +621,12 @@ def main():
         help="Which sections to run (default: all). "
              "Options: best-synthetic, best-nonsynthetic, random, zero-shot",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=64,
+        help="Number of concurrent threads for LLM requests (default: 64)",
+    )
     args = parser.parse_args()
 
     config = load_config()
@@ -647,7 +652,7 @@ def main():
 
     # Run evaluations
     sections = set(args.sections) if args.sections else None
-    results = run_all_evaluations(config, client, data_manager, sections=sections)
+    results = run_all_evaluations(config, client, data_manager, sections=sections, workers=args.workers)
 
     # Print summary
     print_results_table(results)
