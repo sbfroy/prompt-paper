@@ -15,6 +15,8 @@ import logging
 import os
 import random
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import yaml
@@ -166,40 +168,39 @@ def create_random_individual(cluster_dataset: ClusterDataset, rng: random.Random
     return individual
 
 
-def evaluate_on_test_set(individual, test_data, config, client):
+def evaluate_on_test_set(individual, test_data, config, client, workers=8):
     """
     Evaluate an individual on the test set. No early stopping.
-    Reuses the same logic as Evaluator.evaluate_on_test_set() from run_evolve.py.
+    Uses threading to send multiple LLM requests concurrently.
 
     Args:
         individual: List of (cluster_id, ClusterExample) tuples, or None for zero-shot.
         test_data: List of {"input": str, "output": str} dicts.
         config: Evaluation config dict.
         client: OpenAI-compatible client.
+        workers: Number of concurrent threads for LLM requests.
 
     Returns:
         Dict with micro_precision, micro_recall, micro_f1, macro_f1.
     """
-    all_label_stats = {}
+    # Pre-format ICL examples once (same for every test example)
+    if individual is not None and len(individual) > 0:
+        formatted_examples = []
+        for _, icl_example in individual:
+            formatted_example = (
+                f"Input: {icl_example.input}\n"
+                f"Output: {icl_example.output}"
+            )
+            formatted_examples.append(formatted_example)
+        examples_text = "\n\n".join(formatted_examples)
+    else:
+        examples_text = "(No examples provided)"
 
-    for example in tqdm(test_data, desc="Evaluating", unit="ex"):
+    def evaluate_single(example):
+        """Evaluate a single test example (thread-safe)."""
         user_input = example["input"]
         gold_output = example["output"]
 
-        # Format ICL examples (empty for zero-shot)
-        if individual is not None and len(individual) > 0:
-            formatted_examples = []
-            for _, icl_example in individual:
-                formatted_example = (
-                    f"Input: {icl_example.input}\n"
-                    f"Output: {icl_example.output}"
-                )
-                formatted_examples.append(formatted_example)
-            examples_text = "\n\n".join(formatted_examples)
-        else:
-            examples_text = "(No examples provided)"
-
-        # Construct prompt
         user_prompt = config["user_prompt"].format(
             examples=examples_text,
             input_text=user_input,
@@ -228,8 +229,19 @@ def evaluate_on_test_set(individual, test_data, config, client):
             logging.warning("Response is None, treating as empty prediction.")
             response = {}
 
-        # Compute per-label TP/FP/FN and aggregate
-        example_stats = compute_example_stats(gold_labels, response)
+        return compute_example_stats(gold_labels, response)
+
+    all_label_stats = {}
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        results = list(tqdm(
+            executor.map(evaluate_single, test_data),
+            total=len(test_data),
+            desc="Evaluating",
+            unit="ex",
+        ))
+
+    for example_stats in results:
         for label, stats in example_stats.items():
             if label not in all_label_stats:
                 all_label_stats[label] = {"tp": 0, "fp": 0, "fn": 0}
@@ -373,7 +385,8 @@ def run_all_evaluations(config, client, data_manager, sections=None):
         logging.info(f"  Examples: {example_indices_desc}")
         logging.info(f"{'='*60}")
 
-        metrics = evaluate_on_test_set(individual, test_data, eval_config, client)
+        workers = config.get("evolution", {}).get("workers", 8)
+        metrics = evaluate_on_test_set(individual, test_data, eval_config, client, workers=workers)
 
         logging.info(
             f"  → micro_f1={metrics['micro_f1']:.4f}  "
