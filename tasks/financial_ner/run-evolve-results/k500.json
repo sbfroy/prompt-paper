@@ -1,0 +1,190 @@
+{
+  "hall_of_fame": [
+    {
+      "rank": 1,
+      "fitness": 0.5430167597765363,
+      "selected_examples": [
+        {
+          "cluster_id": 94,
+          "id": "212",
+          "input": "For additional information on commitments , see Note 23 in our consolidated financial statements . We have agreed to reimburse Berkshire Hathaway for up to one - half of any losses incurred under a $ 1.5 billion surety policy securing outstanding commercial paper issued by an affiliate of Berkadia .",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 17,
+          "id": "7278",
+          "input": "Goodwill and Intangibles The following summarizes the changes in goodwill and other intangible assets : ( 1 ) Amortization expense across intangible asset classes for the six months ended September 30 , 2019 was $ 3,701 .",
+          "output": "{'AmortizationOfIntangibleAssets': ['3,701']}"
+        },
+        {
+          "cluster_id": 15,
+          "id": "2997",
+          "input": "COMMON STOCK IDACORP Common Stock During the nine months ended September 30 , 2019 , IDACORP granted 70,419 restricted stock unit awards to employees and issued 6,396 shares of common stock to directors , but made no original issuances of shares of common stock pursuant to the IDACORP , Inc. 2000 Long - Term Incentive and Compensation Plan .",
+          "output": "{'ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriod': ['70,419'], 'StockIssuedDuringPeriodSharesNewIssues': ['no']}"
+        },
+        {
+          "cluster_id": 21,
+          "id": "4462",
+          "input": "- 13-Table of Contents NORTHROP GRUMMAN CORPORATION Long - term Debt The estimated fair value of long - term debt was $ 15.4 billion and $ 14.3 billion as of June 30 , 2019 and December 31 , 2018 , respectively .",
+          "output": "{'LongTermDebtFairValue': ['15.4', '14.3']}"
+        },
+        {
+          "cluster_id": 119,
+          "id": "570",
+          "input": "Nonrecurring Fair Value Measurements As part of the quantitative interim goodwill impairment test performed as of September 30 , 2019 , the Product and Intellectual Property Licensing reporting units were measured at fair value , resulting in a Goodwill impairment charge of $ 137.5 million .",
+          "output": "{'GoodwillImpairmentLoss': ['137.5']}"
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "fitness": 0.5272525027808675,
+      "selected_examples": [
+        {
+          "cluster_id": 94,
+          "id": "2576",
+          "input": "51 Table of Contents NATIONAL WESTERN LIFE GROUP , INC . NOTES TO CONDENSED CONSOLIDATED FINANCIAL STATEMENTS ( UNAUDITED ) The table below presents the effect of derivative instruments in the Condensed Consolidated Statements of Earnings for the three months ended June 30 , 2019 and 2018 .",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 17,
+          "id": "7278",
+          "input": "Goodwill and Intangibles The following summarizes the changes in goodwill and other intangible assets : ( 1 ) Amortization expense across intangible asset classes for the six months ended September 30 , 2019 was $ 3,701 .",
+          "output": "{'AmortizationOfIntangibleAssets': ['3,701']}"
+        },
+        {
+          "cluster_id": 15,
+          "id": "2997",
+          "input": "COMMON STOCK IDACORP Common Stock During the nine months ended September 30 , 2019 , IDACORP granted 70,419 restricted stock unit awards to employees and issued 6,396 shares of common stock to directors , but made no original issuances of shares of common stock pursuant to the IDACORP , Inc. 2000 Long - Term Incentive and Compensation Plan .",
+          "output": "{'ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriod': ['70,419'], 'StockIssuedDuringPeriodSharesNewIssues': ['no']}"
+        },
+        {
+          "cluster_id": 21,
+          "id": "4462",
+          "input": "- 13-Table of Contents NORTHROP GRUMMAN CORPORATION Long - term Debt The estimated fair value of long - term debt was $ 15.4 billion and $ 14.3 billion as of June 30 , 2019 and December 31 , 2018 , respectively .",
+          "output": "{'LongTermDebtFairValue': ['15.4', '14.3']}"
+        },
+        {
+          "cluster_id": 53,
+          "id": "3108",
+          "input": "Beginning in fiscal 2014 and continuing into fiscal 2019 , however , the tax authorities began carrying out more detailed reviews of our refund requests and our supporting documentation .",
+          "output": "No XBRL associated data."
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "fitness": 0.5254988913525499,
+      "selected_examples": [
+        {
+          "cluster_id": 94,
+          "id": "2576",
+          "input": "51 Table of Contents NATIONAL WESTERN LIFE GROUP , INC . NOTES TO CONDENSED CONSOLIDATED FINANCIAL STATEMENTS ( UNAUDITED ) The table below presents the effect of derivative instruments in the Condensed Consolidated Statements of Earnings for the three months ended June 30 , 2019 and 2018 .",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 17,
+          "id": "7437",
+          "input": "Goodwill in the amount of $ 976.6 million was recorded as a result of the acquisition , which is not tax - deductible .",
+          "output": "{'Goodwill': ['976.6']}"
+        },
+        {
+          "cluster_id": 15,
+          "id": "2997",
+          "input": "COMMON STOCK IDACORP Common Stock During the nine months ended September 30 , 2019 , IDACORP granted 70,419 restricted stock unit awards to employees and issued 6,396 shares of common stock to directors , but made no original issuances of shares of common stock pursuant to the IDACORP , Inc. 2000 Long - Term Incentive and Compensation Plan .",
+          "output": "{'ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriod': ['70,419'], 'StockIssuedDuringPeriodSharesNewIssues': ['no']}"
+        },
+        {
+          "cluster_id": 21,
+          "id": "4462",
+          "input": "- 13-Table of Contents NORTHROP GRUMMAN CORPORATION Long - term Debt The estimated fair value of long - term debt was $ 15.4 billion and $ 14.3 billion as of June 30 , 2019 and December 31 , 2018 , respectively .",
+          "output": "{'LongTermDebtFairValue': ['15.4', '14.3']}"
+        },
+        {
+          "cluster_id": 53,
+          "id": "7998",
+          "input": "The Company is currently under audit by various states for fiscal years 2014 through 2017 , and by Israel for fiscal years 2013 to 2017 .",
+          "output": "No XBRL associated data."
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "fitness": 0.5253863134657838,
+      "selected_examples": [
+        {
+          "cluster_id": 94,
+          "id": "2576",
+          "input": "51 Table of Contents NATIONAL WESTERN LIFE GROUP , INC . NOTES TO CONDENSED CONSOLIDATED FINANCIAL STATEMENTS ( UNAUDITED ) The table below presents the effect of derivative instruments in the Condensed Consolidated Statements of Earnings for the three months ended June 30 , 2019 and 2018 .",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 17,
+          "id": "7278",
+          "input": "Goodwill and Intangibles The following summarizes the changes in goodwill and other intangible assets : ( 1 ) Amortization expense across intangible asset classes for the six months ended September 30 , 2019 was $ 3,701 .",
+          "output": "{'AmortizationOfIntangibleAssets': ['3,701']}"
+        },
+        {
+          "cluster_id": 15,
+          "id": "2997",
+          "input": "COMMON STOCK IDACORP Common Stock During the nine months ended September 30 , 2019 , IDACORP granted 70,419 restricted stock unit awards to employees and issued 6,396 shares of common stock to directors , but made no original issuances of shares of common stock pursuant to the IDACORP , Inc. 2000 Long - Term Incentive and Compensation Plan .",
+          "output": "{'ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsGrantsInPeriod': ['70,419'], 'StockIssuedDuringPeriodSharesNewIssues': ['no']}"
+        },
+        {
+          "cluster_id": 62,
+          "id": "6863",
+          "input": "During the three months ended September 30 , 2016 and 2017 , we recorded stock - based compensation expense from stock options of approximately $ 2.2 million and $ 0.9 million .",
+          "output": "{'AllocatedShareBasedCompensationExpense': ['2.2', '0.9']}"
+        },
+        {
+          "cluster_id": 119,
+          "id": "570",
+          "input": "Nonrecurring Fair Value Measurements As part of the quantitative interim goodwill impairment test performed as of September 30 , 2019 , the Product and Intellectual Property Licensing reporting units were measured at fair value , resulting in a Goodwill impairment charge of $ 137.5 million .",
+          "output": "{'GoodwillImpairmentLoss': ['137.5']}"
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "fitness": 0.5251396648044693,
+      "selected_examples": [
+        {
+          "cluster_id": 94,
+          "id": "2576",
+          "input": "51 Table of Contents NATIONAL WESTERN LIFE GROUP , INC . NOTES TO CONDENSED CONSOLIDATED FINANCIAL STATEMENTS ( UNAUDITED ) The table below presents the effect of derivative instruments in the Condensed Consolidated Statements of Earnings for the three months ended June 30 , 2019 and 2018 .",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 17,
+          "id": "7278",
+          "input": "Goodwill and Intangibles The following summarizes the changes in goodwill and other intangible assets : ( 1 ) Amortization expense across intangible asset classes for the six months ended September 30 , 2019 was $ 3,701 .",
+          "output": "{'AmortizationOfIntangibleAssets': ['3,701']}"
+        },
+        {
+          "cluster_id": 59,
+          "id": "3533",
+          "input": "See Note 16 for further disclosures about the Company 's leases .",
+          "output": "No XBRL associated data."
+        },
+        {
+          "cluster_id": 21,
+          "id": "2543",
+          "input": "As of September 30 , 2019 , the aggregate amount of the transaction price allocated to performance obligations that are unsatisfied and that have a duration of one year or less was $ 80.2 million , with the remaining $ 34.6 million having a duration greater than one year .",
+          "output": "{'RevenueRemainingPerformanceObligation': ['80.2', '34.6']}"
+        },
+        {
+          "cluster_id": 53,
+          "id": "3108",
+          "input": "Beginning in fiscal 2014 and continuing into fiscal 2019 , however , the tax authorities began carrying out more detailed reviews of our refund requests and our supporting documentation .",
+          "output": "No XBRL associated data."
+        }
+      ]
+    }
+  ],
+  "evolution_stats": {
+    "generations": 19,
+    "final_avg_fitness": 0.5112218849372979,
+    "final_max_fitness": 0.5251396648044693,
+    "final_min_fitness": 0.4575311438278595
+  }
+}
