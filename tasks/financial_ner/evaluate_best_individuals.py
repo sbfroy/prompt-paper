@@ -457,6 +457,12 @@ def run_all_evaluations(config, client, data_manager, sections=None, workers=64)
         ]:
             for seed_idx, seed in enumerate(RANDOM_SEEDS):
                 condition_name = f"random_{bank_name}_seed{seed}"
+
+                # Skip: already completed before crash
+                if condition_name == "random_synthetic_seed42":
+                    logging.info(f"[{condition_name}] SKIPPED (already completed in previous run)")
+                    continue
+
                 rng = random.Random(seed)
 
                 individual = create_random_individual(cluster_dataset, rng)
