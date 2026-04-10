@@ -1,5 +1,6 @@
 """Main evolution stage: manages GA execution and result tracking."""
 
+import json
 import logging
 import os
 from deap import tools
@@ -37,11 +38,28 @@ class EvolveStage:
         """Execute the evolution stage and return results."""
         logging.info("Starting evolution stage...")
 
-        # Load the clustered dataset with optional round-robin sampling
-        cluster_dataset = self.data_manager.load_cluster_dataset(
-            use_real=self.use_real,
-            sample_size=self.sample_size
+        # When resuming a dataset_size=50 run, round-robin sampling is not
+        # reproducible (it depends on the global RNG state at sampling time),
+        # so we rebuild the cluster dataset directly from the (cluster_id,
+        # example_id) pairs stored in the checkpoint.
+        rebuild_from_checkpoint = (
+            self.resume_from is not None and self.sample_size == 50
         )
+
+        if rebuild_from_checkpoint:
+            cluster_dataset = self.data_manager.load_cluster_dataset(
+                use_real=self.use_real,
+                sample_size=None,
+            )
+            cluster_dataset = self._filter_dataset_to_checkpoint_pairs(
+                cluster_dataset, self.resume_from
+            )
+        else:
+            # Load the clustered dataset with optional round-robin sampling
+            cluster_dataset = self.data_manager.load_cluster_dataset(
+                use_real=self.use_real,
+                sample_size=self.sample_size
+            )
 
         # Filter out noise cluster (outliers don't generalize well)
         cluster_dataset.clusters = [
@@ -112,6 +130,52 @@ class EvolveStage:
             f"Evolution stage completed!"
         )
         return artifact, logbook, hof
+
+    @staticmethod
+    def _filter_dataset_to_checkpoint_pairs(cluster_dataset, checkpoint_path):
+        """Rebuild a cluster dataset containing only examples referenced in a checkpoint.
+
+        Round-robin sampling is not reproducible across runs, so on resume we
+        reconstruct the sampled pool by keeping only the (cluster_id, example_id)
+        pairs that appear in the checkpoint's population or hall of fame. Any
+        example that was sampled originally but evolved out before the checkpoint
+        was saved is unrecoverable and will be missing from the resumed pool.
+        """
+        with open(checkpoint_path, "r") as f:
+            data = json.load(f)
+
+        pairs = set()
+        for ind in data.get("population", []):
+            for gene in ind["genes"]:
+                pairs.add((gene["cluster_id"], gene["example_id"]))
+        for ind in data.get("hall_of_fame", []):
+            for gene in ind["genes"]:
+                pairs.add((gene["cluster_id"], gene["example_id"]))
+
+        wanted_ids_by_cluster = {}
+        for cluster_id, example_id in pairs:
+            wanted_ids_by_cluster.setdefault(cluster_id, set()).add(example_id)
+
+        kept_clusters = []
+        for cluster in cluster_dataset.clusters:
+            wanted_ids = wanted_ids_by_cluster.get(cluster.cluster_id)
+            if not wanted_ids:
+                continue
+            filtered_examples = [ex for ex in cluster.examples if ex.id in wanted_ids]
+            if not filtered_examples:
+                continue
+            cluster.examples = filtered_examples
+            kept_clusters.append(cluster)
+
+        cluster_dataset.clusters = kept_clusters
+
+        total_examples = sum(len(c.examples) for c in kept_clusters)
+        logging.info(
+            f"Rebuilt cluster dataset from checkpoint: {total_examples} examples "
+            f"across {len(kept_clusters)} clusters (expected {len(pairs)} pairs from checkpoint)."
+        )
+
+        return cluster_dataset
 
     def _log_examples(self, generation, population):
         """Callback to track example usage for each generation."""
