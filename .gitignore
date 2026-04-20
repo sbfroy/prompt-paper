@@ -184,3 +184,5 @@ upload_synthetic_dataset.py
 run_cluster_from_embeddings.py
 run_test_configurations.py
 upload_real_test_full_dataset.py
+run_evolve_all_sizes.py
+run-evolve-results/
