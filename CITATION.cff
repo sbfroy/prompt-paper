@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it using the metadata below."
+message: "If you use this software or build on this work, please cite both the software and the paper."
 title: "GRaSp: Automatic Example Optimization for In-Context Learning in Low-Data Tasks"
 authors:
   - family-names: "Bihaug-Frøyland"
@@ -11,3 +11,19 @@ authors:
     affiliation: "University of Agder / University of Pittsburgh / Norkart AS"
 repository-code: "https://github.com/sbfroy/GRaSp"
 license: MIT
+date-released: 2026-05-11
+preferred-citation:
+  type: article
+  title: "GRaSp: Automatic Example Optimization for In-Context Learning in Low-Data Tasks"
+  authors:
+    - family-names: "Bihaug-Frøyland"
+      given-names: "Simen"
+    - family-names: "Brådland"
+      given-names: "Henrik"
+  year: 2026
+  journal: "arXiv preprint arXiv:2605.07454"
+  url: "https://arxiv.org/abs/2605.07454"
+  identifiers:
+    - type: other
+      value: "arXiv:2605.07454"
+      description: "arXiv preprint identifier"
