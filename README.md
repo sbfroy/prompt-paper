@@ -1,5 +1,7 @@
 # GRaSp
 
+[![arXiv](https://img.shields.io/badge/arXiv-2605.07454-b31b1b.svg)](https://arxiv.org/abs/2605.07454)
+
 Code for the GRaSp paper on automatic example optimization for in-context learning in low-data tasks (Bihaug-Frøyland & Brådland).
 
 GRaSp selects in-context examples for few-shot prompting in three stages:
@@ -40,7 +42,16 @@ python tasks/financial_ner/run_evolve.py
 
 ## Citation
 
-Citation details will be added once the paper is published.
+If you use this code or build on this work, please cite:
+
+```bibtex
+@article{bihaugfroyland2026grasp,
+  title={{GRaSp}: Automatic Example Optimization for In-Context Learning in Low-Data Tasks},
+  author={Bihaug-Fr{\o}yland, Simen and Br{\aa}dland, Henrik},
+  journal={arXiv preprint arXiv:2605.07454},
+  year={2026}
+}
+```
 
 ## License
 
